@@ -1,0 +1,60 @@
+[
+  {
+    "source_chunk": "Primenjeno softversko inženjerstvo – Sigurnost i b...",
+    "analysis": "After analyzing the text, I've identified elements suitable for SOLO taxonomy. Here is the JSON outp...",
+    "questions": [
+      {
+        "level": "prestructural",
+        "data": {
+          "pitanje": "Šta označava termin 'Malver'?",
+          "opcije": [
+            "A) Zlonamerni softver dizajniran zaštete",
+            "B) Programski kod koji ciljano pisan za neki vid napada na računarske sisteme i mreže",
+            "C) Tip računarskog programa"
+          ],
+          "tacan_odgovor": "B) Programski kod koji ciljano pisan za neki vid napada na računarske sisteme i mreže",
+          "objasnjenje": ""
+        }
+      },
+      {
+        "level": "multistructural",
+        "data": {
+          "pitanje": "Koji od navedenih tipova malvera ne pripada složenom malveru?",
+          "opcije": [
+            "A) Malver u primeni",
+            "B) Složeni malware",
+            "C) Virus"
+          ],
+          "tacan_odgovor": "B) Složeni malware",
+          "objasnjenje": ""
+        }
+      },
+      {
+        "level": "relational",
+        "data": {
+          "pitanje": "Koji je glavni razlog zašto se zlonameran softver često koristi u sajber-špijunaži?",
+          "opcije": [
+            "A) Smanjenje sigurnosti",
+            "B) Veća brzina transfera podataka",
+            "C) Neovisnost od vlasnika"
+          ],
+          "tacan_odgovor": "A) Smanjenje sigurnosti",
+          "objasnjenje": ""
+        }
+      },
+      {
+        "level": "extended_abstract",
+        "data": {
+          "pitanje": "Kompjuter sistema želi da zaštiti podatke o kandidatima koji se prijavljaju na posao. Koju sigurnosnu meru bi bilo najbolje primeniti i zašto?",
+          "opcije": [
+            "A) Enkripcija, jer princip enkripcije štiti podatke od neovlašćenog pristupa.",
+            "B) Koristenje antivirus softvera, jer malware može biti štetan za poslovne informacije.",
+            "C) Korištenje firewalla, jer čuvajući se pred raznim vrstama malvera."
+          ],
+          "tacan_odgovor": "A) Enkripcija, jer princip enkripcije štiti podatke od neovlašćenog pristupa.",
+          "objasnjenje": ""
+        }
+      }
+    ]
+  }
+]
