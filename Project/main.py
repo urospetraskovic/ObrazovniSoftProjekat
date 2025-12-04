@@ -1,96 +1,36 @@
 import os
 import json
+import shutil
+from datetime import datetime
 from dotenv import load_dotenv
 import requests
 from typing import Optional, Dict, Any
-
-# Pokušaj importa različitih LLM biblioteka
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-
-try:
-    import anthropic
-    ANTHROPIC_AVAILABLE = True
-except ImportError:
-    ANTHROPIC_AVAILABLE = False
-
-try:
-    import google.generativeai as genai
-    GOOGLE_AVAILABLE = True
-except ImportError:
-    GOOGLE_AVAILABLE = False
-
-# Učitaj environment varijable iz .env fajla
-load_dotenv()
 
 # Uvoz promptova
 from prompts import SYSTEM_PROMPT, SOLO_GENERATION_PROMPTS, ANALYSIS_PROMPT, CONCEPT_EXTRACTION_PROMPT
 
 class SoloQuestionGenerator:
     def __init__(self):
-        self.provider = None
-        self.client = None
+        load_dotenv()
+        # Multi-key rotation system
+        self.api_keys = [
+            os.getenv('OPENROUTER_API_KEY'),
+            os.getenv('OPENROUTER_API_KEY_2'),
+            os.getenv('OPENROUTER_API_KEY_3'),
+            os.getenv('OPENROUTER_API_KEY_4'),
+            os.getenv('OPENROUTER_API_KEY_5'),
+            os.getenv('OPENROUTER_API_KEY_6')
+        ]
+        # Filter out None values
+        self.api_keys = [key for key in self.api_keys if key]
         
-        # Detektuj dostupne providere
-        self._detect_providers()
+        if not self.api_keys:
+            raise ValueError("Please set at least OPENROUTER_API_KEY in your .env file")
         
-    def _detect_providers(self):
-        """Detects available LLM providers by priority."""
-        
-        # OpenRouter (compatible with OpenAI API)
-        openrouter_key = os.getenv("OPENROUTER_API_KEY")
-        if openrouter_key:
-            self.provider = "openrouter"
-            self.api_key = openrouter_key
-            print("✅ OpenRouter API key found.")
-            return
-            
-        # DeepSeek (priority)
-        deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-        if deepseek_key:
-            self.provider = "deepseek"
-            self.api_key = deepseek_key
-            print("✅ DeepSeek API key found.")
-            return
-            
-        # Claude/Anthropic
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        if anthropic_key and ANTHROPIC_AVAILABLE:
-            self.provider = "claude"
-            self.client = anthropic.Anthropic(api_key=anthropic_key)
-            print("✅ Claude/Anthropic API key found.")
-            return
-            
-        # Google Gemini
-        google_key = os.getenv("GOOGLE_API_KEY")
-        if google_key and GOOGLE_AVAILABLE:
-            self.provider = "gemini"
-            genai.configure(api_key=google_key)
-            self.client = genai.GenerativeModel('gemini-pro')
-            print("✅ Google Gemini API key found.")
-            return
-            
-        # Grok
-        grok_key = os.getenv("GROK_API_KEY")
-        if grok_key:
-            self.provider = "grok"
-            self.api_key = grok_key
-            print("✅ Grok API key found.")
-            return
-            
-        # OpenAI (older models as fallback)
-        openai_key = os.getenv("OPENAI_API_KEY")
-        if openai_key and OPENAI_AVAILABLE:
-            self.provider = "openai"
-            self.client = openai.OpenAI(api_key=openai_key)
-            print("✅ OpenAI API key found.")
-            return
-            
-        print("⚠️  No API keys available. Running in simulated (MOCK) mode.")
-        self.provider = "mock"
+        self.current_key_index = 0
+        self.api_key = self.api_keys[self.current_key_index]
+        self.provider = "openrouter"
+        print(f"✅ Loaded {len(self.api_keys)} API key(s). Starting with key #{self.current_key_index + 1}")
 
     def generate_completion(self, prompt, system_message=""):
         """
@@ -138,7 +78,42 @@ class SoloQuestionGenerator:
         if response.status_code == 200:
             return response.json()["choices"][0]["message"]["content"]
         else:
-            raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
+            # Check if it's a rate limit error and we have more keys
+            if response.status_code == 429 and len(self.api_keys) > 1:
+                return self._handle_rate_limit_and_retry(prompt, system_message)
+            else:
+                raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
+    
+    def _handle_rate_limit_and_retry(self, prompt, system_message):
+        """Switch to next API key when rate limit is hit."""
+        if self.current_key_index < len(self.api_keys) - 1:
+            self.current_key_index += 1
+            self.api_key = self.api_keys[self.current_key_index]
+            print(f"⚠️ Rate limit reached. Switching to API key #{self.current_key_index + 1}")
+            return self._call_openrouter(prompt, system_message)
+        else:
+            print(f"❌ All {len(self.api_keys)} API keys have reached their rate limits")
+            raise Exception("All API keys exhausted. Please wait for rate limits to reset or add more credits.")
+    
+    def switch_api_key(self):
+        """Manually switch to next API key."""
+        if len(self.api_keys) > 1:
+            self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+            self.api_key = self.api_keys[self.current_key_index]
+            print(f"🔄 Switched to API key #{self.current_key_index + 1}")
+            return True
+        else:
+            print("⚠️ Only one API key available, cannot switch")
+            return False
+    
+    def _switch_api_key(self):
+        """Manually switch to next API key."""
+        if len(self.api_keys) > 1:
+            self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+            self.api_key = self.api_keys[self.current_key_index]
+            print(f"🔄 Switched to API key #{self.current_key_index + 1}")
+            return True
+        return False
             
     def _call_deepseek(self, prompt, system_message):
         """DeepSeek API call."""
@@ -468,7 +443,7 @@ class SoloQuestionGenerator:
 
 if __name__ == "__main__":
     # Ime fajla koji želimo da obradimo - fokusiramo se na tekstualne fajlove
-    input_file = "lekcija_primer.txt"
+    input_file = "astronomy_lesson.txt"
     
     # Create test file if it doesn't exist
     if not os.path.exists(input_file):
@@ -496,6 +471,30 @@ Without photosynthesis, life as we know it would not be possible.
         with open(input_file, "w", encoding="utf-8") as f:
             f.write(test_content.strip())
         print(f"✅ Created test file: {input_file}")
+
+def get_next_version_number():
+    """Get the next version number for Q&A file."""
+    quiz_dir = "generated_quizzes"
+    if not os.path.exists(quiz_dir):
+        return 1
+    
+    # Find existing version files
+    existing_files = [f for f in os.listdir(quiz_dir) if f.startswith("questions_and_answers_v") and f.endswith(".txt")]
+    
+    if not existing_files:
+        return 1
+    
+    # Extract version numbers
+    version_numbers = []
+    for filename in existing_files:
+        try:
+            # Extract number from "questions_and_answers_v{number}.txt"
+            version_str = filename.replace("questions_and_answers_v", "").replace(".txt", "")
+            version_numbers.append(int(version_str))
+        except ValueError:
+            continue
+    
+    return max(version_numbers) + 1 if version_numbers else 1
     
     # Start main process
     print(f"\n🚀 Starting SOLO Question Generator...")
@@ -506,4 +505,17 @@ Without photosynthesis, life as we know it would not be possible.
     
     print(f"\n🎉 Process completed! Generated questions for {len(rezultat)} chapters.")
     print("📄 Results saved in 'generisana_pitanja.json'")
+    
+    # Create versioned copy of Q&A file if it exists
+    qa_file = "questions_and_answers.txt"
+    if os.path.exists(qa_file):
+        version_number = get_next_version_number()
+        versioned_filename = f"questions_and_answers_v{version_number}.txt"
+        versioned_path = os.path.join("generated_quizzes", versioned_filename)
+        
+        try:
+            shutil.copy2(qa_file, versioned_path)
+            print(f"📁 Created versioned copy: {versioned_path}")
+        except Exception as e:
+            print(f"⚠️ Could not create versioned copy: {e}")
     
