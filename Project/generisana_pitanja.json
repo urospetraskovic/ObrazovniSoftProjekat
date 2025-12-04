@@ -1,58 +1,362 @@
 [
   {
-    "source_chunk": "Primenjeno softversko inženjerstvo – Sigurnost i b...",
-    "analysis": "After analyzing the text, I've identified elements suitable for SOLO taxonomy. Here is the JSON outp...",
+    "chapter_number": 1,
+    "content_preview": "CHAPTER 1: CELLS - THE BASIC UNITS OF LIFE\n\nAll living things are made up of cells. A cell is the sm...",
+    "concepts": {
+      "name": "Cell as the basic unit of life",
+      "definition": "The smallest unit of life that can function independently",
+      "context": "All living things are made up of cells. A cell is the smallest unit of life that can function independently.",
+      "solo_levels": [
+        "UNISTRUCTURAL",
+        "MULTISTRUCTURAL",
+        "RELATIONAL"
+      ],
+      "related_concepts": [
+        "Prokaryotic cells",
+        "Eukaryotic cells"
+      ]
+    },
     "questions": [
       {
-        "level": "prestructural",
-        "data": {
-          "pitanje": "Šta označava termin 'Malver'?",
-          "opcije": [
-            "A) Zlonamerni softver dizajniran zaštete",
-            "B) Programski kod koji ciljano pisan za neki vid napada na računarske sisteme i mreže",
-            "C) Tip računarskog programa"
+        "solo_level": "prestructural",
+        "question_data": {
+          "question": "Which term is defined as 'the smallest unit of life that can function independently'?",
+          "options": [
+            "A) Cell",
+            "B) Organelles",
+            "C) Prokaryotic cells",
+            "D) Eukaryotic cells"
           ],
-          "tacan_odgovor": "B) Programski kod koji ciljano pisan za neki vid napada na računarske sisteme i mreže",
-          "objasnjenje": ""
+          "correct_answer": "A) Cell",
+          "explanation": "The definition provided matches exactly with the term 'Cell', which is described as the fundamental biological unit capable of independent function."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5,
+          "explanation_source_coverage": 0.14285714285714285,
+          "likely_from_material": true
         }
       },
       {
-        "level": "multistructural",
-        "data": {
-          "pitanje": "Koji od navedenih tipova malvera ne pripada složenom malveru?",
-          "opcije": [
-            "A) Malver u primeni",
-            "B) Složeni malware",
-            "C) Virus"
+        "solo_level": "multistructural",
+        "question_data": {
+          "question": "Which of the following is NOT a common organelle in eukaryotic cells?",
+          "options": [
+            "A) Nucleus",
+            "B) Mitochondria",
+            "C) Chloroplasts",
+            "D) Cell membrane"
           ],
-          "tacan_odgovor": "B) Složeni malware",
-          "objasnjenje": ""
+          "correct_answer": "C) Chloroplasts",
+          "explanation": "Chloroplasts are not common to all eukaryotic cells - they are specialized plant cell organelles. The nucleus, mitochondria, and cell membrane are fundamental organelles present in all eukaryotic cells."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5,
+          "explanation_source_coverage": 0.41379310344827586,
+          "likely_from_material": true
         }
       },
       {
-        "level": "relational",
-        "data": {
-          "pitanje": "Koji je glavni razlog zašto se zlonameran softver često koristi u sajber-špijunaži?",
-          "opcije": [
-            "A) Smanjenje sigurnosti",
-            "B) Veća brzina transfera podataka",
-            "C) Neovisnost od vlasnika"
+        "solo_level": "relational",
+        "question_data": {
+          "question": "What are the key differences between plant and animal cells based on their structural features?",
+          "options": [
+            "A) Plant cells have rigid cell walls and chloroplasts, animal cells have flexible shapes without these structures",
+            "B) Plant cells have no nucleus, animal cells have membrane-bound organelles",
+            "C) Animal cells contain mitochondria for energy production, plant cells lack mitochondria",
+            "D) Animal cells have cell walls for protection, plant cells rely on chloroplasts for structure"
           ],
-          "tacan_odgovor": "A) Smanjenje sigurnosti",
-          "objasnjenje": ""
+          "correct_answer": "A) Plant cells have rigid cell walls and chloroplasts, animal cells have flexible shapes without these structures",
+          "explanation": "Relational level: This question requires comparing structural characteristics (cell walls, chloroplasts, flexibility) between two cell types and identifying their contrasting features, demonstrating understanding of how these differences relate to cellular classification."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.7058823529411765,
+          "explanation_source_coverage": 0.16129032258064516,
+          "likely_from_material": true
         }
       },
       {
-        "level": "extended_abstract",
-        "data": {
-          "pitanje": "Kompjuter sistema želi da zaštiti podatke o kandidatima koji se prijavljaju na posao. Koju sigurnosnu meru bi bilo najbolje primeniti i zašto?",
-          "opcije": [
-            "A) Enkripcija, jer princip enkripcije štiti podatke od neovlašćenog pristupa.",
-            "B) Koristenje antivirus softvera, jer malware može biti štetan za poslovne informacije.",
-            "C) Korištenje firewalla, jer čuvajući se pred raznim vrstama malvera."
+        "solo_level": "extended_abstract",
+        "question_data": {
+          "question": "Scientists discover microorganisms thriving near hydrothermal vents at the ocean floor where sunlight cannot penetrate. How would these organisms most likely produce energy, and which cellular principle does this demonstrate?",
+          "options": [
+            "A) Through chloroplast-based photosynthesis using thermal radiation",
+            "B) Through mitochondria performing cellular respiration using dissolved oxygen",
+            "C) Through chemosynthesis using chemicals from the vents instead of sunlight",
+            "D) Through specialized organelles converting thermal energy directly to ATP"
           ],
-          "tacan_odgovor": "A) Enkripcija, jer princip enkripcije štiti podatke od neovlašćenog pristupa.",
-          "objasnjenje": ""
+          "correct_answer": "C) Through chemosynthesis using chemicals from the vents instead of sunlight",
+          "explanation": "This demonstrates Extended Abstract understanding by applying the principle that cells adapt fundamental energy production processes (like respiration/photosynthesis) to new environments. While mitochondria handle respiration in eukaryotic cells, extremophiles develop alternative methods (chemosynthesis) showing how life generalizes cellular functions beyond textbook examples."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.18181818181818182,
+          "explanation_source_coverage": 0.21428571428571427,
+          "likely_from_material": true
+        }
+      }
+    ]
+  },
+  {
+    "chapter_number": 2,
+    "content_preview": ": PHOTOSYNTHESIS AND CELLULAR RESPIRATION\n\nPhotosynthesis is one of the most important biological pr...",
+    "concepts": {
+      "raw": "\n\n```json\n{\n  \"concepts\": [\n    {\n      \"name\": \"Photosynthesis\",\n      \"definition\": \"Process where plants, algae, and some bacteria convert light energy into chemical energy (glucose)\",\n      \"context\": \"Photosynthesis is one of the most important biological processes on Earth... capture light energy from the sun and convert it into chemical energy\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Chlorophyll\", \"Cellular respiration\", \"Photosynthesis equation\"]\n    },\n    {\n      \"name\": \"Photosynthesis equation\",\n      \"definition\": \"6CO2 + 6H2O + light energy → C6H12O6 + 6O2\",\n      \"context\": \"The overall equation for photosynthesis is: 6CO2 + 6H2O + light energy → C6H12O6 + 6O2\",\n      \"solo_levels\": [\"MULTISTRUCTURAL\", \"RELATIONAL\"],\n      \"related_concepts\": [\"Cellular respiration equation\", \"Photosynthesis\", \"ATP\"]\n    },\n    {\n      \"name\": \"Chlorophyll\",\n      \"definition\": \"Green pigment in chloroplasts that captures light energy\",\n      \"context\": \"Chlorophyll, the green pigment found in chloroplasts, captures the light energy\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"RELATIONAL\"],\n      \"related_concepts\": [\"Photosynthesis\", \"Photosynthesis equation\"]\n    },\n    {\n      \"name\": \"Cellular respiration\",\n      \"definition\": \"Process where cells break down glucose using oxygen to release energy\",\n      \"context\": \"Cellular respiration is the opposite process of photosynthesis... glucose is broken down using oxygen to release energy\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Photosynthesis\", \"Cellular respiration equation\", \"ATP\"]\n    },\n    {\n      \"name\": \"Cellular respiration equation\",\n      \"definition\": \"C6H12O6 + 6O2 → 6"
+    },
+    "questions": [
+      {
+        "solo_level": "prestructural",
+        "question_data": {
+          "question": "What is chlorophyll?",
+          "options": [
+            "A) The process plants use to make glucose",
+            "B) The green pigment that captures light energy",
+            "C) A type of sugar produced during photosynthesis",
+            "D) The energy molecule used by cells"
+          ],
+          "correct_answer": "B) The green pigment that captures light energy",
+          "explanation": "Chlorophyll is defined as the green pigment in chloroplasts responsible for capturing light energy during photosynthesis."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.75,
+          "explanation_source_coverage": 0.5,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "multistructural",
+        "question_data": {
+          "question": "Which of the following is NOT an ingredient required for photosynthesis?",
+          "options": [
+            "A) Carbon dioxide",
+            "B) Water",
+            "C) Oxygen",
+            "D) Sunlight"
+          ],
+          "correct_answer": "C) Oxygen",
+          "explanation": "Oxygen is a product of photosynthesis, not an ingredient. The required ingredients are carbon dioxide, water, and sunlight as listed in the enumerations."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5,
+          "explanation_source_coverage": 0.2608695652173913,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "relational",
+        "question_data": {
+          "question": "Explain the relationship between photosynthesis and cellular respiration in terms of their inputs and outputs.",
+          "options": [
+            "A) Both processes produce glucose using sunlight energy",
+            "B) Photosynthesis creates oxygen while cellular respiration destroys it",
+            "C) They reverse each other's chemical equations (reactants ↔ products)"
+          ],
+          "correct_answer": "C) They reverse each other's chemical equations (reactants ↔ products)",
+          "explanation": "Photosynthesis (CO₂ + H₂O + light → glucose + O₂) and cellular respiration (glucose + O₂ → CO₂ + H₂O + ATP) are opposite processes where the outputs of one become the inputs of the other. This creates an energy cycle in ecosystems."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.1,
+          "explanation_source_coverage": 0.20930232558139536,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "extended_abstract",
+        "question_data": {
+          "question": "A biodome experiment maintains plants and animals in a sealed environment. If the dome's artificial lighting system fails for 72 hours, how would this MOST significantly disrupt the biochemical energy flow between organisms?",
+          "options": [
+            "A) Animals would overproduce CO₂ due to excess cellular respiration",
+            "B) Plant chlorophyll would degrade without light exposure",
+            "C) Glucose-to-ATP conversion would cease in all organisms",
+            "D) Oxygen-dependent energy production would decrease in consumers"
+          ],
+          "correct_answer": "D) Oxygen-dependent energy production would decrease in consumers",
+          "explanation": "Extended Abstract justification: This requires applying interdependence principles (producers/consumers) and energy conversion concepts to a novel scenario. Correct answer (D) addresses the cascading effect: No light → reduced photosynthesis → less oxygen/glucose production → impaired cellular respiration in animals → decreased ATP generation. While B/C contain partial truths (B: chlorophyll needs light but doesn't degrade instantly; C: conversion continues via stored glucose), D best captures the systemic relationship disruption at the ecosystem level."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.125,
+          "explanation_source_coverage": 0.1506849315068493,
+          "likely_from_material": true
+        }
+      }
+    ]
+  },
+  {
+    "chapter_number": 3,
+    "content_preview": ": ECOSYSTEMS AND FOOD WEBS\n\nAn ecosystem is a community of living organisms interacting with their p...",
+    "concepts": {
+      "raw": "\n\n```json\n{\n  \"concepts\": [\n    {\n      \"name\": \"Ecosystem\",\n      \"definition\": \"A community of living organisms interacting with their physical environment\",\n      \"context\": \"An ecosystem is a community of living organisms interacting with their physical environment. Ecosystems can be as small as a puddle or as large as a forest or ocean.\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Biotic factors\", \"Abiotic factors\", \"Food web\"]\n    },\n    {\n      \"name\": \"Biotic factors\",\n      \"definition\": \"Living components of an ecosystem including plants, animals, bacteria, and fungi\",\n      \"context\": \"Biotic factors include all the plants, animals, bacteria, and fungi in an ecosystem.\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\"],\n      \"related_concepts\": [\"Abiotic factors\", \"Producers\", \"Consumers\", \"Decomposers\"]\n    },\n    {\n      \"name\": \"Abiotic factors\",\n      \"definition\": \"Non-living components including temperature, rainfall, soil type, sunlight, and nutrients\",\n      \"context\": \"Abiotic factors include temperature, rainfall, soil type, sunlight, and available nutrients.\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\"],\n      \"related_concepts\": [\"Biotic factors\", \"Ecosystem\"]\n    },\n    {\n      \"name\": \"Energy flow\",\n      \"definition\": \"The pattern of energy transfer from producers to consumers in an ecosystem\",\n      \"context\": \"Energy flows through ecosystems in a specific pattern. Producers... convert it into chemical energy. Primary consumers eat the producers... tertiary consumers eat the secondary consumers.\",\n      \"solo_levels\": [\"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Producers\", \"Consumers\", \"Food web\"]\n    },\n    {\n      \"name\": \"Producers\",\n      \"definition\": \"Organisms"
+    },
+    "questions": [
+      {
+        "solo_level": "prestructural",
+        "question_data": {
+          "question": "Which term describes 'a community of living organisms interacting with their physical environment'?",
+          "options": [
+            "A) Ecosystem",
+            "B) Biotic factors",
+            "C) Abiotic factors",
+            "D) Food web"
+          ],
+          "correct_answer": "A) Ecosystem",
+          "explanation": "The correct answer is Ecosystem, as defined in the provided materials. This question requires basic recall of a single definition."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5,
+          "explanation_source_coverage": 0.05,
+          "likely_from_material": false
+        }
+      },
+      {
+        "solo_level": "multistructural",
+        "question_data": {
+          "question": "Which of the following is NOT an abiotic factor in an ecosystem?",
+          "options": [
+            "A) Temperature",
+            "B) Rainfall",
+            "C) Plants",
+            "D) Soil type"
+          ],
+          "correct_answer": "C) Plants",
+          "explanation": "Plants are biotic factors (living organisms), while temperature, rainfall, and soil type are abiotic factors (non-living environmental components)."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5,
+          "explanation_source_coverage": 0.6111111111111112,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "relational",
+        "question_data": {
+          "question": "What is the relationship between producers and primary consumers in an ecosystem?",
+          "options": [
+            "A) Producers break down dead primary consumers",
+            "B) Primary consumers capture energy for producers",
+            "C) Producers provide energy to primary consumers through consumption",
+            "D) Primary consumers create nutrients for producers"
+          ],
+          "correct_answer": "C) Producers provide energy to primary consumers through consumption",
+          "explanation": "Producers (mainly plants) capture energy from the sun through photosynthesis. Primary consumers (herbivores) obtain this energy by eating producers, forming the base energy transfer in food chains."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.5555555555555556,
+          "explanation_source_coverage": 0.5555555555555556,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "extended_abstract",
+        "question_data": {
+          "question": "A farmer introduces a non-native insect that consumes 90% of plant biomass in a meadow ecosystem. Predict how this would impact primary consumers, secondary consumers, tertiary consumers, and decomposers over time. Explain using ecosystem principles.",
+          "options": [
+            "A) All consumer levels decrease immediately with decomposers unaffected",
+            "B) Primary consumers increase while higher consumers decline rapidly",
+            "C) Tertiary consumers adapt fastest by switching food sources",
+            "D) Decomposers show delayed increase followed by consumer declines"
+          ],
+          "correct_answer": "D) Decomposers show delayed increase followed by consumer declines",
+          "explanation": "The massive plant reduction (producers) would first cause primary consumers (herbivores) to starve, leading to secondary consumer (carnivore) collapse from food shortage. Tertiary consumers would then starve. Dead organisms would temporarily boost decomposers. This demonstrates the interconnected energy flow in food webs and dependence of all levels on producers - applying ecosystem interdependence principles to a novel scenario."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.3333333333333333,
+          "explanation_source_coverage": 0.41379310344827586,
+          "likely_from_material": true
+        }
+      }
+    ]
+  },
+  {
+    "chapter_number": 4,
+    "content_preview": ": HUMAN BODY SYSTEMS\n\nThe human body is made up of several organ systems that work together to keep ...",
+    "concepts": {
+      "raw": "\n\n```json\n{\n  \"concepts\": [\n    {\n      \"name\": \"Circulatory System\",\n      \"definition\": \"System consisting of heart, blood vessels, and blood that pumps blood throughout the body to deliver oxygen/nutrients and remove waste\",\n      \"context\": \"The circulatory system consists of the heart, blood vessels, and blood. The heart pumps blood throughout the body, delivering oxygen and nutrients to cells and removing waste products.\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Respiratory System\", \"Blood Vessels\", \"Gas Exchange\"]\n    },\n    {\n      \"name\": \"Blood Vessels\",\n      \"definition\": \"Network including arteries (carry blood away from heart), veins (return blood to heart), and capillaries (site of gas/nutrient exchange)\",\n      \"context\": \"Blood vessels include arteries (which carry blood away from the heart), veins (which carry blood back to the heart), and capillaries (tiny vessels where gas and nutrient exchange occurs).\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\"],\n      \"related_concepts\": [\"Circulatory System\", \"Gas Exchange\"]\n    },\n    {\n      \"name\": \"Respiratory System\",\n      \"definition\": \"System including lungs and breathing passages that facilitates oxygen intake and carbon dioxide removal\",\n      \"context\": \"The respiratory system includes the lungs and breathing passages. When we breathe in, oxygen enters our lungs and passes into the bloodstream.\",\n      \"solo_levels\": [\"UNISTRUCTURAL\", \"MULTISTRUCTURAL\", \"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Circulatory System\", \"Gas Exchange\", \"Cellular Respiration\"]\n    },\n    {\n      \"name\": \"Gas Exchange\",\n      \"definition\": \"Process of oxygen entering bloodstream and carbon dioxide being removed at capillary level\",\n      \"context\": \"Capillaries (tiny vessels where gas and nutrient exchange occurs)... The respiratory and circulatory systems work closely together to deliver oxygen to cells and remove carbon dioxide.\",\n      \"solo_levels\": [\"RELATIONAL\", \"EXTENDED ABSTRACT\"],\n      \"related_concepts\": [\"Circulatory System\", \"Respiratory System\", \"Capillaries\"]\n    },\n    {\n      \"name\": \"Digestive System\",\n      \"definition\": \"System that breaks down food into usable nutrients through mechanical and chemical processes\",\n      \"context\": \"The digestive system breaks down food into nutrients that our cells can"
+    },
+    "questions": [
+      {
+        "solo_level": "prestructural",
+        "question_data": {
+          "question": "What is a cell?",
+          "options": [
+            "A) The smallest unit of life",
+            "B) A type of tissue",
+            "C) A body organ"
+          ],
+          "correct_answer": "A",
+          "explanation": "A cell is the basic unit of life that can function independently."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.0,
+          "explanation_source_coverage": 0.25,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "multistructural",
+        "question_data": {
+          "question": "Which of the following are components of photosynthesis?",
+          "options": [
+            "A) Chlorophyll, sunlight, oxygen",
+            "B) Carbon dioxide, water, sunlight",
+            "C) Glucose, oxygen, nitrogen"
+          ],
+          "correct_answer": "B",
+          "explanation": "Photosynthesis requires carbon dioxide, water, and sunlight to produce glucose and oxygen."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.0,
+          "explanation_source_coverage": 0.16666666666666666,
+          "likely_from_material": false
+        }
+      },
+      {
+        "solo_level": "relational",
+        "question_data": {
+          "question": "How does cellular respiration relate to photosynthesis?",
+          "options": [
+            "A) They are the same process",
+            "B) They are opposite processes",
+            "C) They are unrelated"
+          ],
+          "correct_answer": "B",
+          "explanation": "Cellular respiration breaks down glucose using oxygen, while photosynthesis produces glucose and oxygen."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.0,
+          "explanation_source_coverage": 0.38461538461538464,
+          "likely_from_material": true
+        }
+      },
+      {
+        "solo_level": "extended_abstract",
+        "question_data": {
+          "question": "If all plants on Earth suddenly disappeared, what would happen to animal life?",
+          "options": [
+            "A) Animals would adapt quickly",
+            "B) Only herbivores would be affected",
+            "C) Most animal life would eventually die"
+          ],
+          "correct_answer": "C",
+          "explanation": "Without plants, oxygen levels would drop and food webs would collapse, affecting most animal life."
+        },
+        "validation": {
+          "status": "validated",
+          "answer_source_coverage": 0.0,
+          "explanation_source_coverage": 0.13333333333333333,
+          "likely_from_material": false
         }
       }
     ]
