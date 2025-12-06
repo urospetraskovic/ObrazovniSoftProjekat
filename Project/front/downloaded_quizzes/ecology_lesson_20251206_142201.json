@@ -1,0 +1,514 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "ECOLOGY: Understanding Ecosystems and Environmental Relationships\n\nEcology is the scientific study of organisms and their interactions with each other and their physical environment. The term was firs...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'ECOLOGY: Understanding Ecosystems and Environmental Relationships'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'ECOLOGY: Understanding Ecosystems and Environmental Relationships'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'ECOLOGY: Understanding Ecosystems and Environmental Relationships' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'ECOLOGY: Understanding Ecosystems and Environmental Relationships' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "ECOLOGY: Understanding Ecosystems and Environmental Relationships"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all members of the same species living in a particular geographic area. For example, all the wolves in Yellowstone National Park form a population. A community includes all different populations of species living and interacting in the same area. An ecosystem is the community plus all the physical components of the environment, including soil, water, and atmosphere. Finally, the biome represents the largest ecological unit, characterized by specific climate and vegetation patterns.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all members of the same species living in a particular geographic area. For example, all the wolves in Yellowstone National Park form a population. A community includes all different populations of species living and interacting in the same area. An ecosystem is the community plus all the physical components of the environment, including soil, water, and atmosphere. Finally, the biome represents the largest ecological unit, characterized by specific climate and vegetation patterns.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all members of the same species living in a particular geographic area. For example, all the wolves in Yellowstone National Park form a population. A community includes all different populations of species living and interacting in the same area. An ecosystem is the community plus all the physical components of the environment, including soil, water, and atmosphere. Finally, the biome represents the largest ecological unit, characterized by specific climate and vegetation patterns.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all members of the same species living in a particular geographic area. For example, all the wolves in Yellowstone National Park form a population. A community includes all different populations of species living and interacting in the same area. An ecosystem is the community plus all the physical components of the environment, including soil, water, and atmosphere. Finally, the biome represents the largest ecological unit, characterized by specific climate and vegetation patterns.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Ecology operates at several hierarchical levels, each with increasing complexity. The organism represents the smallest unit of study\u2014a single living being of any species. A population consists of all members of the same species living in a particular geographic area. For example, all the wolves in Yellowstone National Park form a population. A community includes all different populations of species living and interacting in the same area. An ecosystem is the community plus all the physical components of the environment, including soil, water, and atmosphere. Finally, the biome represents the largest ecological unit, characterized by specific climate and vegetation patterns."
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical en...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical energy stored in glucose. Consumers obtain energy by eating other organisms. Primary consumers are herbivores that eat plants. Secondary consumers are carnivores that eat herbivores, while tertiary consumers eat secondary consumers. Decomposers, such as bacteria and fungi, break down dead organic matter and return nutrients to the soil.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical energy stored in glucose. Consumers obtain energy by eating other organisms. Primary consumers are herbivores that eat plants. Secondary consumers are carnivores that eat herbivores, while tertiary consumers eat secondary consumers. Decomposers, such as bacteria and fungi, break down dead organic matter and return nutrients to the soil.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical energy stored in glucose. Consumers obtain energy by eating other organisms. Primary consumers are herbivores that eat plants. Secondary consumers are carnivores that eat herbivores, while tertiary consumers eat secondary consumers. Decomposers, such as bacteria and fungi, break down dead organic matter and return nutrients to the soil.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical energy stored in glucose. Consumers obtain energy by eating other organisms. Primary consumers are herbivores that eat plants. Secondary consumers are carnivores that eat herbivores, while tertiary consumers eat secondary consumers. Decomposers, such as bacteria and fungi, break down dead organic matter and return nutrients to the soil.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Energy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, convert solar energy into chemical energy stored in glucose. Consumers obtain energy by eating other organisms. Primary consumers are herbivores that eat plants. Secondary consumers are carnivores that eat herbivores, while tertiary consumers eat secondary consumers. Decomposers, such as bacteria and fungi, break down dead organic matter and return nutrients to the soil."
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesi...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesis and released during respiration. Fossil fuel combustion returns ancient carbon to the atmosphere, significantly altering atmospheric composition. The nitrogen cycle involves nitrogen fixation by bacteria, conversion to usable forms by plants, and return to the atmosphere by decomposers. Phosphorus cycles through soil, water, and organisms, but unlike nitrogen, there is no atmospheric reservoir. The water cycle involves evaporation, condensation, precipitation, and infiltration, driving all other biogeochemical cycles.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesis and released during respiration. Fossil fuel combustion returns ancient carbon to the atmosphere, significantly altering atmospheric composition. The nitrogen cycle involves nitrogen fixation by bacteria, conversion to usable forms by plants, and return to the atmosphere by decomposers. Phosphorus cycles through soil, water, and organisms, but unlike nitrogen, there is no atmospheric reservoir. The water cycle involves evaporation, condensation, precipitation, and infiltration, driving all other biogeochemical cycles.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesis and released during respiration. Fossil fuel combustion returns ancient carbon to the atmosphere, significantly altering atmospheric composition. The nitrogen cycle involves nitrogen fixation by bacteria, conversion to usable forms by plants, and return to the atmosphere by decomposers. Phosphorus cycles through soil, water, and organisms, but unlike nitrogen, there is no atmospheric reservoir. The water cycle involves evaporation, condensation, precipitation, and infiltration, driving all other biogeochemical cycles.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesis and released during respiration. Fossil fuel combustion returns ancient carbon to the atmosphere, significantly altering atmospheric composition. The nitrogen cycle involves nitrogen fixation by bacteria, conversion to usable forms by plants, and return to the atmosphere by decomposers. Phosphorus cycles through soil, water, and organisms, but unlike nitrogen, there is no atmospheric reservoir. The water cycle involves evaporation, condensation, precipitation, and infiltration, driving all other biogeochemical cycles.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Unlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide being absorbed by plants during photosynthesis and released during respiration. Fossil fuel combustion returns ancient carbon to the atmosphere, significantly altering atmospheric composition. The nitrogen cycle involves nitrogen fixation by bacteria, conversion to usable forms by plants, and return to the atmosphere by decomposers. Phosphorus cycles through soil, water, and organisms, but unlike nitrogen, there is no atmospheric reservoir. The water cycle involves evaporation, condensation, precipitation, and infiltration, driving all other biogeochemical cycles."
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interaction...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interactions include predation, where one organism kills and consumes another; competition, where organisms struggle for limited resources; mutualism, where both species benefit; commensalism, where one benefits while the other is unaffected; and parasitism, where one organism benefits at the expense of another.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interactions include predation, where one organism kills and consumes another; competition, where organisms struggle for limited resources; mutualism, where both species benefit; commensalism, where one benefits while the other is unaffected; and parasitism, where one organism benefits at the expense of another.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interactions include predation, where one organism kills and consumes another; competition, where organisms struggle for limited resources; mutualism, where both species benefit; commensalism, where one benefits while the other is unaffected; and parasitism, where one organism benefits at the expense of another.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interactions include predation, where one organism kills and consumes another; competition, where organisms struggle for limited resources; mutualism, where both species benefit; commensalism, where one benefits while the other is unaffected; and parasitism, where one organism benefits at the expense of another.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Biodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more stable and resilient ecosystems. Species interactions include predation, where one organism kills and consumes another; competition, where organisms struggle for limited resources; mutualism, where both species benefit; commensalism, where one benefits while the other is unaffected; and parasitism, where one organism benefits at the expense of another."
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break d...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break down rock and build soil. Secondary succession occurs after disturbance in already-established ecosystems with existing soil. This process is faster than primary succession because soil and seeds are already present.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break down rock and build soil. Secondary succession occurs after disturbance in already-established ecosystems with existing soil. This process is faster than primary succession because soil and seeds are already present.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break down rock and build soil. Secondary succession occurs after disturbance in already-established ecosystems with existing soil. This process is faster than primary succession because soil and seeds are already present.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break down rock and build soil. Secondary succession occurs after disturbance in already-established ecosystems with existing soil. This process is faster than primary succession because soil and seeds are already present.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Ecological succession describes how ecosystems change over time. Primary succession occurs on bare rock or after severe disturbance where no soil exists. Pioneer species like lichens gradually break down rock and build soil. Secondary succession occurs after disturbance in already-established ecosystems with existing soil. This process is faster than primary succession because soil and seeds are already present."
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capaci...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capacity. Carrying capacity is the maximum population size an environment can sustain indefinitely. Populations that exceed carrying capacity experience increased death rates and decreased birth rates until equilibrium is reached.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capacity. Carrying capacity is the maximum population size an environment can sustain indefinitely. Populations that exceed carrying capacity experience increased death rates and decreased birth rates until equilibrium is reached.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capacity. Carrying capacity is the maximum population size an environment can sustain indefinitely. Populations that exceed carrying capacity experience increased death rates and decreased birth rates until equilibrium is reached.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capacity. Carrying capacity is the maximum population size an environment can sustain indefinitely. Populations that exceed carrying capacity experience increased death rates and decreased birth rates until equilibrium is reached.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Populations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped curve when limited by carrying capacity. Carrying capacity is the maximum population size an environment can sustain indefinitely. Populations that exceed carrying capacity experience increased death rates and decreased birth rates until equilibrium is reached."
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rate...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Basic definition and recognition",
+            "explanation": "This prestructural question tests basic recognition of the main topic.",
+            "options": [
+              "A) Basic definition and recognition",
+              "B) Advanced analysis and comparison",
+              "C) Application in new situations",
+              "D) Historical background only"
+            ],
+            "question": "What is the primary topic discussed in 'Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rates of species extinction. Habitat loss remains the primary threat to biodiversity worldwide. Pollution, introduced species, and climate change compound these challenges.'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Multiple components and characteristics",
+            "explanation": "This multistructural question asks to identify multiple related aspects without explaining relationships.",
+            "options": [
+              "A) Only theoretical concepts",
+              "B) Multiple components and characteristics",
+              "C) Personal opinions only",
+              "D) Unrelated information"
+            ],
+            "question": "Which aspects are included in 'Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rates of species extinction. Habitat loss remains the primary threat to biodiversity worldwide. Pollution, introduced species, and climate change compound these challenges.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They are causally connected and integrated",
+            "explanation": "This relational question asks to explain how concepts are connected and form a coherent whole.",
+            "options": [
+              "A) They are completely independent",
+              "B) They are causally connected and integrated",
+              "C) One causes the other without feedback",
+              "D) They have no relationship"
+            ],
+            "question": "How do the concepts in 'Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rates of species extinction. Habitat loss remains the primary threat to biodiversity worldwide. Pollution, introduced species, and climate change compound these challenges.' relate to each other?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Apply by transferring principles to new situations",
+            "explanation": "This extended abstract question requires applying learned concepts to hypothetical or new scenarios.",
+            "options": [
+              "A) The concepts cannot be applied elsewhere",
+              "B) Apply by transferring principles to new situations",
+              "C) Only use in the original context",
+              "D) The question has no answer"
+            ],
+            "question": "How would you apply concepts from 'Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rates of species extinction. Habitat loss remains the primary threat to biodiversity worldwide. Pollution, introduced species, and climate change compound these challenges.' in a new real-world scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Humans are ecological organisms whose activities profoundly impact all other species. Our large population, high resource consumption, and extensive habitat modification have caused unprecedented rates of species extinction. Habitat loss remains the primary threat to biodiversity worldwide. Pollution, introduced species, and climate change compound these challenges."
+    }
+  ],
+  "metadata": {
+    "filename": "ecology_lesson.txt",
+    "generated_at": "2025-12-06T14:20:05.217185",
+    "total_chapters": 8,
+    "total_questions": 32
+  }
+}

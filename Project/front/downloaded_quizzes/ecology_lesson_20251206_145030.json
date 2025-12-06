@@ -1,0 +1,325 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION\n\nEcology is the scientific study of organisms and their interactions with each other and their physical environment. The term was first coined by Ern...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION...",
+            "explanation": "This prestructural question tests basic recognition of INTRODUCTION from the content.",
+            "options": [
+              "A) INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is INTRODUCTION?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "INTRODUCTION TO ECOLOGY AND LEVELS OF ORGANIZATION"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "ENERGY FLOW AND TROPHIC LEVELS\n\nEnergy is the fundamental currency of all ecosystems. The sun provides virtually all energy for life on Earth through photosynthesis. Producers, primarily plants, conve...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) ENERGY FLOW AND TROPHIC LEVELS\n\nEnergy is the fund...",
+            "explanation": "This prestructural question tests basic recognition of ENERGY from the content.",
+            "options": [
+              "A) ENERGY FLOW AND TROPHIC LEVELS\n\nEnergy is the fund...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is ENERGY?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'ENERGY FLOW AND TROPHIC LEVELS'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'ENERGY FLOW AND TROPHIC LEVELS' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'ENERGY FLOW AND TROPHIC LEVELS' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "ENERGY FLOW AND TROPHIC LEVELS"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES\n\nUnlike energy, which flows through ecosystems, nutrients cycle within and between ecosystems. The carbon cycle is fundamental to life, with carbon dioxide...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES\n\nUnli...",
+            "explanation": "This prestructural question tests basic recognition of NUTRIENT from the content.",
+            "options": [
+              "A) NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES\n\nUnli...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is NUTRIENT?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "NUTRIENT CYCLES AND BIOGEOCHEMICAL PROCESSES"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION\n\nBiodiversity refers to the variety of species, genetic diversity within species, and ecosystem diversity. High biodiversity generally leads to more ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION...",
+            "explanation": "This prestructural question tests basic recognition of BIODIVERSITY, from the content.",
+            "options": [
+              "A) BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is BIODIVERSITY,?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "BIODIVERSITY, SPECIES INTERACTIONS, AND SUCCESSION"
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "POPULATION ECOLOGY AND HUMAN IMPACTS\n\nPopulations grow when births exceed deaths. Growth can be exponential, following a J-shaped curve when resources are unlimited, or logistic, following an S-shaped...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) POPULATION ECOLOGY AND HUMAN IMPACTS\n\nPopulations ...",
+            "explanation": "This prestructural question tests basic recognition of POPULATION from the content.",
+            "options": [
+              "A) POPULATION ECOLOGY AND HUMAN IMPACTS\n\nPopulations ...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is POPULATION?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'POPULATION ECOLOGY AND HUMAN IMPACTS'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'POPULATION ECOLOGY AND HUMAN IMPACTS' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'POPULATION ECOLOGY AND HUMAN IMPACTS' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "POPULATION ECOLOGY AND HUMAN IMPACTS"
+    }
+  ],
+  "metadata": {
+    "filename": "ecology_lesson.txt",
+    "generated_at": "2025-12-06T14:49:16.153387",
+    "total_chapters": 5,
+    "total_questions": 20
+  }
+}

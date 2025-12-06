@@ -443,7 +443,7 @@ class SoloQuestionGenerator:
 
 if __name__ == "__main__":
     # Ime fajla koji želimo da obradimo - fokusiramo se na tekstualne fajlove
-    input_file = "astronomy_lesson.txt"
+    input_file = "raw_material/ecology_lesson.txt"
     
     # Create test file if it doesn't exist
     if not os.path.exists(input_file):
@@ -495,7 +495,8 @@ def get_next_version_number():
             continue
     
     return max(version_numbers) + 1 if version_numbers else 1
-    
+
+if __name__ == "__main__":
     # Start main process
     print(f"\n🚀 Starting SOLO Question Generator...")
     print(f"📂 Input file: {input_file}")
