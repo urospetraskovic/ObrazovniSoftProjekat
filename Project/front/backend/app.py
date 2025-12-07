@@ -5,6 +5,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from quiz_generator import SoloQuizGenerator
 from datetime import datetime
+from PyPDF2 import PdfReader
 
 app = Flask(__name__)
 CORS(app)
@@ -12,7 +13,7 @@ CORS(app)
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 DOWNLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'downloaded_quizzes')
-ALLOWED_EXTENSIONS = {'txt'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -24,6 +25,33 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def extract_pdf_text(filepath):
+    """Extract text from PDF file"""
+    try:
+        reader = PdfReader(filepath)
+        text = ""
+        for page_num, page in enumerate(reader.pages):
+            text += f"\n--- Page {page_num + 1} ---\n"
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        raise Exception(f"Failed to extract text from PDF: {str(e)}")
+
+def read_file_content(filepath, filename):
+    """Read content from uploaded file (txt or pdf)"""
+    try:
+        file_extension = filename.rsplit('.', 1)[1].lower()
+        
+        if file_extension == 'pdf':
+            content = extract_pdf_text(filepath)
+        else:  # txt
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+        
+        return content
+    except Exception as e:
+        raise Exception(f"Failed to read file: {str(e)}")
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -31,7 +59,7 @@ def health_check():
 
 @app.route('/api/generate-quiz', methods=['POST'])
 def generate_quiz():
-    """Generate quiz from uploaded text file"""
+    """Generate quiz from uploaded text or PDF file"""
     try:
         # Check if file is present
         if 'file' not in request.files:
@@ -43,7 +71,7 @@ def generate_quiz():
             return jsonify({'error': 'No file selected'}), 400
         
         if not allowed_file(file.filename):
-            return jsonify({'error': 'Only .txt files are allowed'}), 400
+            return jsonify({'error': 'Only .txt and .pdf files are allowed'}), 400
         
         # Save uploaded file
         filename = secure_filename(file.filename)
@@ -52,20 +80,27 @@ def generate_quiz():
         
         # Read file content
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
+            content = read_file_content(filepath, filename)
         except Exception as e:
             os.remove(filepath)
-            return jsonify({'error': f'Failed to read file: {str(e)}'}), 500
+            return jsonify({'error': str(e)}), 500
         
         if not content.strip():
             os.remove(filepath)
-            return jsonify({'error': 'File is empty'}), 400
+            return jsonify({'error': 'File is empty or contains no readable text'}), 400
+        
+        # Get config from request (if provided)
+        config = request.form.get('config')
+        if config:
+            try:
+                config = json.loads(config)
+            except:
+                config = None
         
         # Generate quiz
         try:
             generator = SoloQuizGenerator()
-            quiz_data = generator.generate_quiz(content, filename)
+            quiz_data = generator.generate_quiz(content, filename, config)
             
             # Clean up uploaded file
             os.remove(filepath)
@@ -74,6 +109,39 @@ def generate_quiz():
             
         except Exception as e:
             os.remove(filepath)
+            print(f"Error generating quiz: {str(e)}")
+            return jsonify({'error': f'Failed to generate quiz: {str(e)}'}), 500
+    
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
+
+@app.route('/api/generate-quiz-from-text', methods=['POST'])
+def generate_quiz_from_text():
+    """Generate quiz from direct text input"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'content' not in data:
+            return jsonify({'error': 'No content provided'}), 400
+        
+        content = data.get('content', '').strip()
+        
+        if not content:
+            return jsonify({'error': 'Content is empty'}), 400
+        
+        # Get config from request (if provided)
+        config = data.get('config')
+        
+        # Use a default filename for text input
+        filename = 'direct_text_input.txt'
+        
+        try:
+            generator = SoloQuizGenerator()
+            quiz_data = generator.generate_quiz(content, filename, config)
+            return jsonify(quiz_data), 200
+            
+        except Exception as e:
             print(f"Error generating quiz: {str(e)}")
             return jsonify({'error': f'Failed to generate quiz: {str(e)}'}), 500
     

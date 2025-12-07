@@ -1,0 +1,586 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "Natural disasters are sudden, violent natural events that cause significant damage, loss of life, and disruption to communities. They occur without wa...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Natural disasters are sudden, violent natural even...",
+            "explanation": "This prestructural question tests basic recognition of Natural from the content.",
+            "options": [
+              "A) Natural disasters are sudden, violent natural even...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Natural?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Natural disasters are sudden, violent natural events that cause significant d...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Natural disasters are sudden, violent natural events that cause significant d...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Natural disasters are sudden, violent natural events that cause significant d...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Natural disasters are sudden, violent natural events that cause significant d..."
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "Earthquakes are among the most destructive natural disasters, occurring when the Earth's crust suddenly releases accumulated stress. The magnitude of ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Earthquakes are among the most destructive natural...",
+            "explanation": "This prestructural question tests basic recognition of Earthquakes from the content.",
+            "options": [
+              "A) Earthquakes are among the most destructive natural...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Earthquakes?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Earthquakes are among the most destructive natural disasters, occurring when ...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Earthquakes are among the most destructive natural disasters, occurring when ...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Earthquakes are among the most destructive natural disasters, occurring when ...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Earthquakes are among the most destructive natural disasters, occurring when ..."
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Tsunamis are ocean waves triggered by underwater e...",
+            "explanation": "This prestructural question tests basic recognition of Tsunamis from the content.",
+            "options": [
+              "A) Tsunamis are ocean waves triggered by underwater e...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Tsunamis?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or ...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or ...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or ...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or ..."
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely s...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Hurricanes and typhoons are massive rotating storm...",
+            "explanation": "This prestructural question tests basic recognition of Hurricanes from the content.",
+            "options": [
+              "A) Hurricanes and typhoons are massive rotating storm...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Hurricanes?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Hurricanes and typhoons are massive rotating storm systems that form over war...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Hurricanes and typhoons are massive rotating storm systems that form over war...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Hurricanes and typhoons are massive rotating storm systems that form over war...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Hurricanes and typhoons are massive rotating storm systems that form over war..."
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Tornadoes are rapidly rotating columns of air that...",
+            "explanation": "This prestructural question tests basic recognition of Tornadoes from the content.",
+            "options": [
+              "A) Tornadoes are rapidly rotating columns of air that...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Tornadoes?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Tornadoes are rapidly rotating columns of air that form from severe thunderst...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Tornadoes are rapidly rotating columns of air that form from severe thunderst...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Tornadoes are rapidly rotating columns of air that form from severe thunderst...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Tornadoes are rapidly rotating columns of air that form from severe thunderst..."
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can devel...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Floods occur when water overflows onto normally dr...",
+            "explanation": "This prestructural question tests basic recognition of Floods from the content.",
+            "options": [
+              "A) Floods occur when water overflows onto normally dr...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Floods?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Floods occur when water overflows onto normally dry land, often triggered by ...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Floods occur when water overflows onto normally dry land, often triggered by ...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Floods occur when water overflows onto normally dry land, often triggered by ...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Floods occur when water overflows onto normally dry land, often triggered by ..."
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Volcanic eruptions release ash, lava, toxic gases,...",
+            "explanation": "This prestructural question tests basic recognition of Volcanic from the content.",
+            "options": [
+              "A) Volcanic eruptions release ash, lava, toxic gases,...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Volcanic?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that..."
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland,...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Wildfires spread rapidly through vegetation, drive...",
+            "explanation": "This prestructural question tests basic recognition of Wildfires from the content.",
+            "options": [
+              "A) Wildfires spread rapidly through vegetation, drive...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Wildfires?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drough...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drough...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drough...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Wildfires spread rapidly through vegetation, driven by wind, heat, and drough..."
+    },
+    {
+      "chapter_number": 9,
+      "content_preview": "Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Droughts are prolonged periods of abnormally low r...",
+            "explanation": "This prestructural question tests basic recognition of Droughts from the content.",
+            "options": [
+              "A) Droughts are prolonged periods of abnormally low r...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Droughts?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Droughts are prolonged periods of abnormally low rainfall, causing insufficie...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Droughts are prolonged periods of abnormally low rainfall, causing insufficie...' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Droughts are prolonged periods of abnormally low rainfall, causing insufficie...' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Droughts are prolonged periods of abnormally low rainfall, causing insufficie..."
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "natural_disasters_unformatted.txt",
+    "generated_at": "2025-12-07T11:56:36.157153",
+    "question_mode": "auto",
+    "total_chapters": 12,
+    "total_questions": 36
+  }
+}

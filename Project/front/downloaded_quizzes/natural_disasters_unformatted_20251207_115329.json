@@ -1,0 +1,586 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "Natural disasters are sudden, violent natural events that cause significant damage, loss of life, and disruption to communities. They occur without warning in most cases and can affect any region of t...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Sudden, violent natural events causing significant damage and loss of life",
+            "explanation": "The content defines natural disasters as 'sudden, violent natural events that cause significant damage, loss of life, and disruption to communities,' making option A the direct recall match. Other options either misrepresent the concept (B, C) or omit key impacts (D).",
+            "options": [
+              "A) Sudden, violent natural events causing significant damage and loss of life",
+              "B) Any unexpected event that occurs in nature",
+              "C) Human-made catastrophes that affect the environment",
+              "D) Events that only cause physical damage to buildings"
+            ],
+            "question": "What is a natural disaster?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Sudden occurrence, violent nature, causing significant damage and loss of life",
+            "explanation": "The content explicitly states that natural disasters are 'sudden, violent natural events that cause significant damage, loss of life, and disruption.' Option A correctly lists these characteristics. The other options include false elements like predictability (B), slow development (C), or being preceded by warnings (D), which contradict the description.",
+            "options": [
+              "A) Sudden occurrence, violent nature, causing significant damage and loss of life",
+              "B) Predictable events, man-made causes, localized to specific regions",
+              "C) Slow development, primarily affecting ecosystems, easily preventable",
+              "D) Always preceded by warnings, minor disruptions, limited to coastal areas"
+            ],
+            "question": "Which of the following are characteristics of natural disasters?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Immediate physical damage initiates economic strain, displacement, and long-term social disruptions that weaken community resilience",
+            "explanation": "This question requires relational understanding by connecting physical destruction to cascading societal effects (economy, displacement, resilience) as described in the text. The correct answer integrates immediate damage with prolonged socioeconomic consequences, demonstrating how multiple elements form a cause-effect chain rather than existing in isolation.",
+            "options": [
+              "A) Immediate physical damage initiates economic strain, displacement, and long-term social disruptions that weaken community resilience",
+              "B) Immediate physical damage is quickly repaired, leaving only temporary economic impacts",
+              "C) Human societies remain unaffected by physical damage as impacts are purely environmental",
+              "D) Broader societal impacts occur independently of physical damage through separate political processes"
+            ],
+            "question": "What is the relationship between the immediate physical damage caused by natural disasters and their broader impacts on human societies?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Significantly improve resilience by reducing storm surge and erosion",
+            "explanation": "This demonstrates transfer of learning by applying the concept that ecosystems influence disaster impacts (mentioned in the content) to a new context. Students must hypothesize how mangrove restoration\u2014a specific, unmentioned mitigation strategy\u2014would abstractly fulfill the broader principle that understanding natural systems improves preparedness, showing generalization of knowledge to novel environmental solutions.",
+            "options": [
+              "A) Significantly improve resilience by reducing storm surge and erosion",
+              "B) Slightly improve resilience by providing timber resources",
+              "C) Have no effect, as mangrove ecosystems do not interact with disaster mechanisms",
+              "D) Worsen resilience by blocking emergency coastal access"
+            ],
+            "question": "How would investing in mangrove forest restoration along coastlines most likely affect a community's resilience to natural disasters?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Natural disasters are sudden, violent natural events that cause significant damage, loss of life, and disruption to communities. They occur without warning in most cases and can affect any region of the world. The impact of natural disasters extends far beyond immediate physical damage, affecting economies, ecosystems, and human societies in profound ways. Understanding these events is crucial for improving disaster preparedness and response strategies."
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "Earthquakes are among the most destructive natural disasters, occurring when the Earth's crust suddenly releases accumulated stress. The magnitude of an earthquake is measured on the Richter scale, wh...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) A sudden release of stress in the Earth's crust",
+            "explanation": "The content explicitly defines earthquakes as events 'occurring when the Earth's crust suddenly releases accumulated stress,' making option A the direct recall answer. The other options describe unrelated concepts (volcanoes, measurement devices, tsunamis) not matching the definition provided.",
+            "options": [
+              "A) A sudden release of stress in the Earth's crust",
+              "B) A volcanic eruption that shakes the ground",
+              "C) A device used to measure ground movement",
+              "D) A large wave caused by underwater landslides"
+            ],
+            "question": "What is an earthquake?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Landslides, tsunamis, fires",
+            "explanation": "The content explicitly states that earthquakes often trigger secondary disasters such as landslides, tsunamis, and fires. Other options include disasters not mentioned in the text.",
+            "options": [
+              "A) Landslides, tsunamis, fires",
+              "B) Floods, droughts, tornadoes",
+              "C) Avalanches, volcanic eruptions, sinkholes",
+              "D) Hurricanes, blizzards, heatwaves"
+            ],
+            "question": "Which of the following lists secondary disasters triggered by earthquakes as mentioned in the content?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Earthquakes are among the most destructive natural disasters, occurring when the Earth's crust suddenly releases accumulated stress. The magnitude of an earthquake is measured on the Richter scale, which quantifies the energy released by the seismic event. Major earthquakes can cause widespread destruction of buildings, bridges, and infrastructure. The 2011 T\u014dhoku earthquake in Japan, measuring 9.0 magnitude, triggered massive tsunamis that devastated coastal areas and led to significant loss of life. Earthquakes often trigger secondary disasters such as landslides, tsunamis, and fires that compound the destruction.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Earthquakes are among the most destructive natural disasters, occurring when the Earth's crust suddenly releases accumulated stress. The magnitude of an earthquake is measured on the Richter scale, which quantifies the energy released by the seismic event. Major earthquakes can cause widespread destruction of buildings, bridges, and infrastructure. The 2011 T\u014dhoku earthquake in Japan, measuring 9.0 magnitude, triggered massive tsunamis that devastated coastal areas and led to significant loss of life. Earthquakes often trigger secondary disasters such as landslides, tsunamis, and fires that compound the destruction.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Earthquakes are among the most destructive natural disasters, occurring when the Earth's crust suddenly releases accumulated stress. The magnitude of an earthquake is measured on the Richter scale, which quantifies the energy released by the seismic event. Major earthquakes can cause widespread destruction of buildings, bridges, and infrastructure. The 2011 T\u014dhoku earthquake in Japan, measuring 9.0 magnitude, triggered massive tsunamis that devastated coastal areas and led to significant loss of life. Earthquakes often trigger secondary disasters such as landslides, tsunamis, and fires that compound the destruction."
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at speeds up to 500 kilometers per hour. When tsunami...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Tsunamis are ocean waves triggered by underwater e...",
+            "explanation": "This prestructural question tests basic recognition of Tsunamis from the content.",
+            "options": [
+              "A) Tsunamis are ocean waves triggered by underwater e...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Tsunamis?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at speeds up to 500 kilometers per hour. When tsunamis reach shallow coastal waters, they slow down but increase in height, sometimes reaching over 30 meters. The devastating 2004 Indian Ocean tsunami killed over 230,000 people across multiple countries, making it one of the deadliest natural disasters in recorded history. Coastal communities in tsunami-prone regions have developed early warning systems to provide precious minutes for evacuation.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at speeds up to 500 kilometers per hour. When tsunamis reach shallow coastal waters, they slow down but increase in height, sometimes reaching over 30 meters. The devastating 2004 Indian Ocean tsunami killed over 230,000 people across multiple countries, making it one of the deadliest natural disasters in recorded history. Coastal communities in tsunami-prone regions have developed early warning systems to provide precious minutes for evacuation.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at speeds up to 500 kilometers per hour. When tsunamis reach shallow coastal waters, they slow down but increase in height, sometimes reaching over 30 meters. The devastating 2004 Indian Ocean tsunami killed over 230,000 people across multiple countries, making it one of the deadliest natural disasters in recorded history. Coastal communities in tsunami-prone regions have developed early warning systems to provide precious minutes for evacuation.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Tsunamis are ocean waves triggered by underwater earthquakes, landslides, or volcanic eruptions. These waves can travel across entire ocean basins at speeds up to 500 kilometers per hour. When tsunamis reach shallow coastal waters, they slow down but increase in height, sometimes reaching over 30 meters. The devastating 2004 Indian Ocean tsunami killed over 230,000 people across multiple countries, making it one of the deadliest natural disasters in recorded history. Coastal communities in tsunami-prone regions have developed early warning systems to provide precious minutes for evacuation."
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely strong winds, heavy rainfall, and storm surge. The ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Hurricanes and typhoons are massive rotating storm...",
+            "explanation": "This prestructural question tests basic recognition of Hurricanes from the content.",
+            "options": [
+              "A) Hurricanes and typhoons are massive rotating storm...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Hurricanes?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely strong winds, heavy rainfall, and storm surge. The difference between hurricanes and typhoons is purely geographical\u2014the same weather phenomenon is called a hurricane in the Atlantic and Eastern Pacific, and a typhoon in the Western Pacific. Hurricane Katrina in 2005 caused unprecedented damage to the United States Gulf Coast, particularly affecting New Orleans where the levee system failed catastrophically. The deadliest hurricane on record is the 1780 Hurricane Solano, which killed an estimated 22,000 people.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely strong winds, heavy rainfall, and storm surge. The difference between hurricanes and typhoons is purely geographical\u2014the same weather phenomenon is called a hurricane in the Atlantic and Eastern Pacific, and a typhoon in the Western Pacific. Hurricane Katrina in 2005 caused unprecedented damage to the United States Gulf Coast, particularly affecting New Orleans where the levee system failed catastrophically. The deadliest hurricane on record is the 1780 Hurricane Solano, which killed an estimated 22,000 people.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely strong winds, heavy rainfall, and storm surge. The difference between hurricanes and typhoons is purely geographical\u2014the same weather phenomenon is called a hurricane in the Atlantic and Eastern Pacific, and a typhoon in the Western Pacific. Hurricane Katrina in 2005 caused unprecedented damage to the United States Gulf Coast, particularly affecting New Orleans where the levee system failed catastrophically. The deadliest hurricane on record is the 1780 Hurricane Solano, which killed an estimated 22,000 people.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Hurricanes and typhoons are massive rotating storm systems that form over warm tropical oceans. These cyclonic storms are characterized by extremely strong winds, heavy rainfall, and storm surge. The difference between hurricanes and typhoons is purely geographical\u2014the same weather phenomenon is called a hurricane in the Atlantic and Eastern Pacific, and a typhoon in the Western Pacific. Hurricane Katrina in 2005 caused unprecedented damage to the United States Gulf Coast, particularly affecting New Orleans where the levee system failed catastrophically. The deadliest hurricane on record is the 1780 Hurricane Solano, which killed an estimated 22,000 people."
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the most violent winds of any natural disaster, with s...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Tornadoes are rapidly rotating columns of air that...",
+            "explanation": "This prestructural question tests basic recognition of Tornadoes from the content.",
+            "options": [
+              "A) Tornadoes are rapidly rotating columns of air that...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Tornadoes?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the most violent winds of any natural disaster, with speeds sometimes exceeding 480 kilometers per hour. The United States experiences the most tornadoes of any country in the world, with thousands occurring annually. Tornado Alley, spanning from Texas through Oklahoma to Kansas and beyond, experiences particularly frequent tornado activity during spring months. The 2011 Joplin tornado in Missouri remains one of the costliest natural disasters in U.S. history, causing over 30 billion dollars in damage.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the most violent winds of any natural disaster, with speeds sometimes exceeding 480 kilometers per hour. The United States experiences the most tornadoes of any country in the world, with thousands occurring annually. Tornado Alley, spanning from Texas through Oklahoma to Kansas and beyond, experiences particularly frequent tornado activity during spring months. The 2011 Joplin tornado in Missouri remains one of the costliest natural disasters in U.S. history, causing over 30 billion dollars in damage.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the most violent winds of any natural disaster, with speeds sometimes exceeding 480 kilometers per hour. The United States experiences the most tornadoes of any country in the world, with thousands occurring annually. Tornado Alley, spanning from Texas through Oklahoma to Kansas and beyond, experiences particularly frequent tornado activity during spring months. The 2011 Joplin tornado in Missouri remains one of the costliest natural disasters in U.S. history, causing over 30 billion dollars in damage.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Tornadoes are rapidly rotating columns of air that form from severe thunderstorms and extend from clouds to the ground. They are characterized by the most violent winds of any natural disaster, with speeds sometimes exceeding 480 kilometers per hour. The United States experiences the most tornadoes of any country in the world, with thousands occurring annually. Tornado Alley, spanning from Texas through Oklahoma to Kansas and beyond, experiences particularly frequent tornado activity during spring months. The 2011 Joplin tornado in Missouri remains one of the costliest natural disasters in U.S. history, causing over 30 billion dollars in damage."
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can develop gradually as water levels rise over days or wee...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Floods occur when water overflows onto normally dr...",
+            "explanation": "This prestructural question tests basic recognition of Floods from the content.",
+            "options": [
+              "A) Floods occur when water overflows onto normally dr...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Floods?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can develop gradually as water levels rise over days or weeks, or it can happen suddenly as flash floods. Flash floods are particularly dangerous because they provide little warning and can sweep away vehicles and structures with enormous force. The 1931 China floods killed between 1 and 4 million people, making them one of the deadliest disasters in history. Climate change is increasing flood frequency in many regions due to changing precipitation patterns and rising sea levels.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can develop gradually as water levels rise over days or weeks, or it can happen suddenly as flash floods. Flash floods are particularly dangerous because they provide little warning and can sweep away vehicles and structures with enormous force. The 1931 China floods killed between 1 and 4 million people, making them one of the deadliest disasters in history. Climate change is increasing flood frequency in many regions due to changing precipitation patterns and rising sea levels.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can develop gradually as water levels rise over days or weeks, or it can happen suddenly as flash floods. Flash floods are particularly dangerous because they provide little warning and can sweep away vehicles and structures with enormous force. The 1931 China floods killed between 1 and 4 million people, making them one of the deadliest disasters in history. Climate change is increasing flood frequency in many regions due to changing precipitation patterns and rising sea levels.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Floods occur when water overflows onto normally dry land, often triggered by heavy rainfall, rapid snowmelt, or overflowing rivers. Flooding can develop gradually as water levels rise over days or weeks, or it can happen suddenly as flash floods. Flash floods are particularly dangerous because they provide little warning and can sweep away vehicles and structures with enormous force. The 1931 China floods killed between 1 and 4 million people, making them one of the deadliest disasters in history. Climate change is increasing flood frequency in many regions due to changing precipitation patterns and rising sea levels."
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates meet and magma from the Earth's interior rises to ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Volcanic eruptions release ash, lava, toxic gases,...",
+            "explanation": "This prestructural question tests basic recognition of Volcanic from the content.",
+            "options": [
+              "A) Volcanic eruptions release ash, lava, toxic gases,...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Volcanic?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates meet and magma from the Earth's interior rises to the surface. The 1883 Krakatoa eruption in Indonesia was one of the most violent volcanic events in recorded history, producing sound waves that traveled around the entire world. Volcanic ash can remain in the atmosphere for years, affecting global climate patterns and reducing solar radiation reaching the Earth's surface. Mount Vesuvius's eruption in 79 AD buried the Roman cities of Pompeii and Herculaneum, preserving them in ash and providing invaluable historical records.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates meet and magma from the Earth's interior rises to the surface. The 1883 Krakatoa eruption in Indonesia was one of the most violent volcanic events in recorded history, producing sound waves that traveled around the entire world. Volcanic ash can remain in the atmosphere for years, affecting global climate patterns and reducing solar radiation reaching the Earth's surface. Mount Vesuvius's eruption in 79 AD buried the Roman cities of Pompeii and Herculaneum, preserving them in ash and providing invaluable historical records.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates meet and magma from the Earth's interior rises to the surface. The 1883 Krakatoa eruption in Indonesia was one of the most violent volcanic events in recorded history, producing sound waves that traveled around the entire world. Volcanic ash can remain in the atmosphere for years, affecting global climate patterns and reducing solar radiation reaching the Earth's surface. Mount Vesuvius's eruption in 79 AD buried the Roman cities of Pompeii and Herculaneum, preserving them in ash and providing invaluable historical records.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Volcanic eruptions release ash, lava, toxic gases, and pyroclastic flows that destroy everything in their path. Volcanoes occur where tectonic plates meet and magma from the Earth's interior rises to the surface. The 1883 Krakatoa eruption in Indonesia was one of the most violent volcanic events in recorded history, producing sound waves that traveled around the entire world. Volcanic ash can remain in the atmosphere for years, affecting global climate patterns and reducing solar radiation reaching the Earth's surface. Mount Vesuvius's eruption in 79 AD buried the Roman cities of Pompeii and Herculaneum, preserving them in ash and providing invaluable historical records."
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland, destroying habitats and threatening human communi...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Wildfires spread rapidly through vegetation, drive...",
+            "explanation": "This prestructural question tests basic recognition of Wildfires from the content.",
+            "options": [
+              "A) Wildfires spread rapidly through vegetation, drive...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Wildfires?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland, destroying habitats and threatening human communities. The 2019-2020 Australian bushfires burned over 18 million hectares and killed nearly 3 billion animals. Wildfires produce massive quantities of smoke that affects air quality over large regions, creating public health hazards. Climate change and increasing temperatures are extending fire seasons and intensifying wildfire behavior in many parts of the world. Communities in fire-prone regions must maintain defensible spaces around homes and maintain evacuation plans.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland, destroying habitats and threatening human communities. The 2019-2020 Australian bushfires burned over 18 million hectares and killed nearly 3 billion animals. Wildfires produce massive quantities of smoke that affects air quality over large regions, creating public health hazards. Climate change and increasing temperatures are extending fire seasons and intensifying wildfire behavior in many parts of the world. Communities in fire-prone regions must maintain defensible spaces around homes and maintain evacuation plans.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland, destroying habitats and threatening human communities. The 2019-2020 Australian bushfires burned over 18 million hectares and killed nearly 3 billion animals. Wildfires produce massive quantities of smoke that affects air quality over large regions, creating public health hazards. Climate change and increasing temperatures are extending fire seasons and intensifying wildfire behavior in many parts of the world. Communities in fire-prone regions must maintain defensible spaces around homes and maintain evacuation plans.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Wildfires spread rapidly through vegetation, driven by wind, heat, and drought conditions. These fires can consume vast areas of forest and grassland, destroying habitats and threatening human communities. The 2019-2020 Australian bushfires burned over 18 million hectares and killed nearly 3 billion animals. Wildfires produce massive quantities of smoke that affects air quality over large regions, creating public health hazards. Climate change and increasing temperatures are extending fire seasons and intensifying wildfire behavior in many parts of the world. Communities in fire-prone regions must maintain defensible spaces around homes and maintain evacuation plans."
+    },
+    {
+      "chapter_number": 9,
+      "content_preview": "Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural disasters, droughts develop slowly but can persis...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Droughts are prolonged periods of abnormally low r...",
+            "explanation": "This prestructural question tests basic recognition of Droughts from the content.",
+            "options": [
+              "A) Droughts are prolonged periods of abnormally low r...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is Droughts?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural disasters, droughts develop slowly but can persist for years or even decades. The Dust Bowl drought of the 1930s in North America caused severe economic hardship and led to the displacement of hundreds of thousands of people. Droughts trigger cascading effects including crop failures, water shortages, famine, and disease outbreaks. As global temperatures continue to rise, many regions face increased drought frequency and severity, particularly in areas already experiencing water stress.'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural disasters, droughts develop slowly but can persist for years or even decades. The Dust Bowl drought of the 1930s in North America caused severe economic hardship and led to the displacement of hundreds of thousands of people. Droughts trigger cascading effects including crop failures, water shortages, famine, and disease outbreaks. As global temperatures continue to rise, many regions face increased drought frequency and severity, particularly in areas already experiencing water stress.' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from 'Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural disasters, droughts develop slowly but can persist for years or even decades. The Dust Bowl drought of the 1930s in North America caused severe economic hardship and led to the displacement of hundreds of thousands of people. Droughts trigger cascading effects including crop failures, water shortages, famine, and disease outbreaks. As global temperatures continue to rise, many regions face increased drought frequency and severity, particularly in areas already experiencing water stress.' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Droughts are prolonged periods of abnormally low rainfall, causing insufficient water supply for human, animal, and plant needs. Unlike sudden natural disasters, droughts develop slowly but can persist for years or even decades. The Dust Bowl drought of the 1930s in North America caused severe economic hardship and led to the displacement of hundreds of thousands of people. Droughts trigger cascading effects including crop failures, water shortages, famine, and disease outbreaks. As global temperatures continue to rise, many regions face increased drought frequency and severity, particularly in areas already experiencing water stress."
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "natural_disasters_unformatted.txt",
+    "generated_at": "2025-12-07T11:47:10.796532",
+    "question_mode": "auto",
+    "total_chapters": 12,
+    "total_questions": 36
+  }
+}

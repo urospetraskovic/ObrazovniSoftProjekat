@@ -37,37 +37,94 @@ class SoloQuizGenerator:
         self.current_key_index = 0
         self.provider = "openrouter"
     
-    def generate_quiz(self, content: str, filename: str) -> Dict[str, Any]:
+    def generate_quiz(self, content: str, filename: str, config: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Main method to generate quiz from content
         
         Args:
             content: Text content to generate quiz from
             filename: Name of the uploaded file
+            config: Optional configuration dict with keys:
+                - total_questions: int or None (None = let model decide)
+                - question_mode: 'auto' or 'manual'
+                - solo_distribution: dict with level percentages or None
+                - distribution_mode: 'auto' or 'manual'
+                - use_smart_chunking: bool (default: True)
             
         Returns:
             Dictionary containing quiz data with chapters and questions
         """
         try:
-            # Split content into chapters
-            chapters = self._split_into_chapters(content)
+            # Use smart chunking by default
+            chapters = self._split_into_chapters_smart(content, config)
+            
+            # Determine config
+            if config is None:
+                config = {}
+            
+            # Determine total questions
+            if config.get('question_mode') == 'auto' or config.get('total_questions') is None:
+                # Auto mode: calculate based on content length and chapters
+                total_questions = max(4, len(chapters) * 3)  # 3 questions per chapter minimum
+                question_mode = 'auto'
+            else:
+                total_questions = config.get('total_questions', len(chapters) * 4)
+                question_mode = 'manual'
+            
+            # Determine SOLO distribution
+            if config.get('distribution_mode') == 'auto' or config.get('solo_distribution') is None:
+                # Auto mode: use balanced distribution
+                solo_distribution = {
+                    'prestructural': 0.15,
+                    'multistructural': 0.35,
+                    'relational': 0.35,
+                    'extended_abstract': 0.15
+                }
+                distribution_mode = 'auto'
+            else:
+                solo_distribution = config.get('solo_distribution', {
+                    'prestructural': 0.15,
+                    'multistructural': 0.35,
+                    'relational': 0.35,
+                    'extended_abstract': 0.15
+                })
+                distribution_mode = 'manual'
             
             quiz_data = {
                 'metadata': {
                     'filename': filename,
                     'generated_at': datetime.now().isoformat(),
                     'total_chapters': len(chapters),
-                    'total_questions': 0
+                    'total_questions': 0,
+                    'question_mode': question_mode,
+                    'distribution_mode': distribution_mode,
+                    'config': config
                 },
                 'chapters': []
             }
             
+            questions_generated = 0
+            questions_per_chapter = max(1, total_questions // len(chapters)) if chapters else 4
+            
             # Generate questions for each chapter
             for idx, chapter_content in enumerate(chapters):
-                chapter_data = self._process_chapter(chapter_content, idx + 1)
+                if questions_generated >= total_questions:
+                    break
+                    
+                # Calculate remaining questions for this chapter
+                remaining = total_questions - questions_generated
+                chapter_question_count = min(questions_per_chapter, remaining)
+                
+                chapter_data = self._process_chapter_smart(
+                    chapter_content, 
+                    idx + 1,
+                    chapter_question_count,
+                    solo_distribution
+                )
                 if chapter_data:
                     quiz_data['chapters'].append(chapter_data)
-                    quiz_data['metadata']['total_questions'] += len(chapter_data.get('questions', []))
+                    questions_generated += len(chapter_data.get('questions', []))
+                    quiz_data['metadata']['total_questions'] = questions_generated
             
             return quiz_data
             
@@ -75,37 +132,104 @@ class SoloQuizGenerator:
             print(f"Error in generate_quiz: {str(e)}")
             raise
     
-    def _split_into_chapters(self, content: str) -> List[str]:
+    def _split_into_chapters_smart(self, content: str, config: Dict[str, Any] = None) -> List[str]:
         """
-        Split content into chapters based on headings
+        Intelligently split content into chapters using multiple strategies
         
         Args:
             content: Full text content
+            config: Configuration dict with chunking preferences
             
         Returns:
             List of chapter contents
         """
-        # Split by CHAPTER X: pattern or === headers or ALL CAPS headers
+        if config is None:
+            config = {}
+        
+        use_smart = config.get('use_smart_chunking', True)
+        
+        if not use_smart:
+            # Fall back to original method
+            return self._split_into_chapters(content)
+        
+        # Strategy 1: Try to find existing chapter markers
         chapter_pattern = r'CHAPTER\s+\d+:|={2,}.*?={2,}|\n[A-Z][A-Z\s]+\n(?=[A-Z])'
-        
         parts = re.split(chapter_pattern, content)
+        chapters = [part.strip() for part in parts if part.strip() and len(part.strip()) > 200]
         
-        # Filter out empty parts and keep only substantial content
-        chapters = [part.strip() for part in parts if part.strip() and len(part.strip()) > 100]
+        # If found good chapters, use them
+        if len(chapters) >= 2:
+            return chapters[:15]
         
-        # If no chapters found, split into chunks of ~500 words
-        if not chapters:
-            words = content.split()
-            for i in range(0, len(words), 150):
-                chunk = ' '.join(words[i:i+150])
-                if len(chunk) > 100:
-                    chapters.append(chunk)
+        # Strategy 2: Split by paragraph breaks (multiple newlines)
+        paragraphs = re.split(r'\n\s*\n+', content)
+        paragraphs = [p.strip() for p in paragraphs if p.strip()]
         
-        return chapters[:15]  # Limit to 15 chapters
+        # Group paragraphs into semantic chunks
+        if len(paragraphs) > 5:
+            chapters = self._group_by_semantic_similarity(paragraphs)
+            if chapters:
+                return chapters[:15]
+        
+        # Strategy 3: Split by word count (roughly equal chunks)
+        if len(paragraphs) > 1:
+            return self._split_by_content_length(content, target_chunks=5)
+        
+        # Fallback: Return whole content as single chapter
+        return [content]
+    
+    def _group_by_semantic_similarity(self, paragraphs: List[str]) -> List[str]:
+        """
+        Group paragraphs into semantic chunks based on content length and breaks
+        
+        Args:
+            paragraphs: List of paragraph strings
+            
+        Returns:
+            List of grouped content chunks
+        """
+        chapters = []
+        current_chunk = ""
+        target_length = 800  # characters per chunk
+        
+        for para in paragraphs:
+            if len(current_chunk) + len(para) < target_length:
+                current_chunk += " " + para if current_chunk else para
+            else:
+                if current_chunk:
+                    chapters.append(current_chunk)
+                current_chunk = para
+        
+        if current_chunk:
+            chapters.append(current_chunk)
+        
+        return [ch for ch in chapters if len(ch) > 200]
+    
+    def _split_by_content_length(self, content: str, target_chunks: int = 5) -> List[str]:
+        """
+        Split content into approximately equal-sized chunks
+        
+        Args:
+            content: Full text content
+            target_chunks: Target number of chunks
+            
+        Returns:
+            List of content chunks
+        """
+        words = content.split()
+        words_per_chunk = max(100, len(words) // target_chunks)
+        
+        chapters = []
+        for i in range(0, len(words), words_per_chunk):
+            chunk = ' '.join(words[i:i+words_per_chunk])
+            if len(chunk) > 100:
+                chapters.append(chunk)
+        
+        return chapters[:15]
     
     def _process_chapter(self, chapter_content: str, chapter_num: int) -> Dict[str, Any]:
         """
-        Process a single chapter and generate questions
+        Process a single chapter and generate questions (legacy method)
         
         Args:
             chapter_content: Text content of the chapter
@@ -114,29 +238,77 @@ class SoloQuizGenerator:
         Returns:
             Dictionary containing chapter data with questions
         """
+        return self._process_chapter_smart(chapter_content, chapter_num, 4, {
+            'prestructural': 0.15,
+            'multistructural': 0.35,
+            'relational': 0.35,
+            'extended_abstract': 0.15
+        })
+    
+    def _process_chapter_smart(
+        self, 
+        chapter_content: str, 
+        chapter_num: int,
+        target_questions: int = 4,
+        solo_distribution: Dict[str, float] = None
+    ) -> Dict[str, Any]:
+        """
+        Process a single chapter and generate configurable number of questions
+        
+        Args:
+            chapter_content: Text content of the chapter
+            chapter_num: Chapter number
+            target_questions: Target number of questions for this chapter
+            solo_distribution: Distribution of SOLO levels
+            
+        Returns:
+            Dictionary containing chapter data with questions
+        """
+        if solo_distribution is None:
+            solo_distribution = {
+                'prestructural': 0.20,
+                'multistructural': 0.20,
+                'relational': 0.30,
+                'extended_abstract': 0.10
+            }
+        
         try:
-            # Extract chapter title (first line)
+            # Extract chapter title (first line or first sentence max 80 chars)
             lines = chapter_content.split('\n')
             title = lines[0].strip() if lines else f"Chapter {chapter_num}"
+            
+            # Limit title length to 80 characters
+            if len(title) > 80:
+                # Find first sentence boundary
+                sentences = title.split('. ')
+                title = sentences[0]
+                if len(title) > 80:
+                    title = title[:77] + '...'
             
             chapter_data = {
                 'chapter_number': chapter_num,
                 'title': title,
-                'content_preview': chapter_content[:200] + '...',
+                'content_preview': chapter_content[:150] + '...',
                 'questions': []
             }
             
-            # Generate questions for each SOLO level
-            # Generate 1-2 questions per level for better coverage
+            # Calculate questions per level based on distribution (only 4 SOLO levels)
             solo_levels = ['prestructural', 'multistructural', 'relational', 'extended_abstract']
+            questions_per_level = {}
             
             for level in solo_levels:
-                question = self._generate_question(chapter_content, level, title)
-                if question:
-                    chapter_data['questions'].append({
-                        'solo_level': level,
-                        'question_data': question
-                    })
+                count = max(1, round(target_questions * solo_distribution.get(level, 0.25)))
+                questions_per_level[level] = count
+            
+            # Generate questions for each SOLO level
+            for level in solo_levels:
+                for _ in range(questions_per_level[level]):
+                    question = self._generate_question(chapter_content, level, title)
+                    if question:
+                        chapter_data['questions'].append({
+                            'solo_level': level,
+                            'question_data': question
+                        })
             
             return chapter_data if chapter_data['questions'] else None
             
@@ -226,16 +398,18 @@ REQUIREMENTS:
 - Test basic recognition of terms with minimal understanding
 - Simple identification or recall without deep comprehension
 - Follow pattern: "What is X?" or "What does Y mean?"
+- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
+- Keep each option under 120 characters (concise answers)
 - Create 4 multiple choice options (A, B, C, D)
 - Only one correct answer
-- Provide clear explanation traceable to content
+- Provide clear explanation (under 250 characters)
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
             
             'multistructural': f"""{solo_definitions}
 
@@ -245,17 +419,19 @@ REQUIREMENTS:
 - Focus on several relevant aspects that are treated independently
 - Ask student to list multiple components or characteristics
 - Do NOT ask about connections between elements
+- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
+- Keep each option under 120 characters (concise answers)
 - Follow pattern: "List the components of X" or "Which of these are characteristics of Y?"
 - Create 4 multiple choice options (A, B, C, D)
 - Only one correct answer
-- Provide clear explanation
+- Provide clear explanation (under 250 characters)
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
             
             'relational': f"""{solo_definitions}
 
@@ -266,17 +442,19 @@ REQUIREMENTS:
 - Ask about cause-and-effect relationships
 - Ask for comparisons and contrasts
 - Ask how concepts are connected
+- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
+- Keep each option under 120 characters (concise answers)
 - Follow pattern: "How does X affect Y?" or "What is the relationship between A and B?"
 - Create 4 multiple choice options (A, B, C, D)
 - Only one correct answer
-- Explain the integrated understanding required
+- Provide clear explanation (under 250 characters)
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
             
             'extended_abstract': f"""{solo_definitions}
 
@@ -286,18 +464,20 @@ REQUIREMENTS:
 - Ask student to apply concepts to new or hypothetical situations
 - Go beyond the content with real-world application
 - Ask for predictions, hypotheses, or creative solutions
+- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
+- Keep each option under 120 characters (concise answers)
 - Follow pattern: "What would happen if...?" or "How would you apply X in situation Y?"
 - Present a novel scenario not directly in the original content
 - Create 4 multiple choice options (A, B, C, D)
 - Only one correct answer
-- Explain how this demonstrates transfer of learning
+- Provide clear explanation (under 250 characters)
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text."""
+IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy."""
         }
         
         return prompts.get(level, prompts['prestructural'])
@@ -356,16 +536,82 @@ IMPORTANT: Return ONLY the JSON object, no other text."""
             return None
     
     def _parse_question_response(self, response: str) -> Dict[str, Any]:
-        """Parse API response to extract question data"""
+        """Parse API response to extract question data and validate length"""
         try:
             # Try to extract JSON from response
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
-                return json.loads(json_match.group())
+                parsed = json.loads(json_match.group())
+                return self._validate_and_clean_question(parsed)
             else:
                 return None
         except json.JSONDecodeError:
             return None
+    
+    def _validate_and_clean_question(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate and clean question data to ensure reasonable lengths
+        
+        Args:
+            question_data: Raw question data from API
+            
+        Returns:
+            Cleaned question data with enforced length limits
+        """
+        try:
+            # Enforce length limits
+            MAX_QUESTION_LEN = 200  # Maximum characters for question
+            MAX_ANSWER_LEN = 150    # Maximum characters for answer/option
+            MAX_EXPLANATION_LEN = 300  # Maximum characters for explanation
+            
+            # Clean question
+            if 'question' in question_data:
+                q = question_data['question']
+                if len(q) > MAX_QUESTION_LEN:
+                    # Try to find first sentence
+                    sentences = q.split('?')
+                    question_data['question'] = sentences[0] + '?' if sentences else q[:MAX_QUESTION_LEN]
+            
+            # Clean options
+            if 'options' in question_data and isinstance(question_data['options'], list):
+                cleaned_options = []
+                for opt in question_data['options']:
+                    if len(opt) > MAX_ANSWER_LEN:
+                        # Truncate at word boundary
+                        truncated = opt[:MAX_ANSWER_LEN]
+                        last_space = truncated.rfind(' ')
+                        if last_space > 20:
+                            truncated = truncated[:last_space] + '...'
+                        cleaned_options.append(truncated)
+                    else:
+                        cleaned_options.append(opt)
+                question_data['options'] = cleaned_options
+            
+            # Clean correct answer
+            if 'correct_answer' in question_data:
+                ans = question_data['correct_answer']
+                if len(ans) > MAX_ANSWER_LEN:
+                    truncated = ans[:MAX_ANSWER_LEN]
+                    last_space = truncated.rfind(' ')
+                    if last_space > 20:
+                        truncated = truncated[:last_space] + '...'
+                    question_data['correct_answer'] = truncated
+            
+            # Clean explanation
+            if 'explanation' in question_data:
+                exp = question_data['explanation']
+                if len(exp) > MAX_EXPLANATION_LEN:
+                    sentences = exp.split('. ')
+                    cleaned_exp = sentences[0]
+                    if len(cleaned_exp) > MAX_EXPLANATION_LEN:
+                        cleaned_exp = cleaned_exp[:MAX_EXPLANATION_LEN-3] + '...'
+                    question_data['explanation'] = cleaned_exp
+            
+            return question_data
+        except Exception as e:
+            print(f"Error validating question: {str(e)}")
+            return question_data
+    
     
     def _generate_mock_question(self, content: str, level: str, context: str) -> Dict[str, Any]:
         """Generate mock question for testing - extracts real content for better fallback"""

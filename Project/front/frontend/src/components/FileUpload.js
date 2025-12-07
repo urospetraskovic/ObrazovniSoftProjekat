@@ -5,10 +5,18 @@ function FileUpload({ file, onFileSelect, onGenerate, loading }) {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type === 'text/plain') {
-      onFileSelect(selectedFile);
-    } else {
-      alert('Please select a .txt file');
+    if (selectedFile) {
+      const fileType = selectedFile.type;
+      const fileName = selectedFile.name.toLowerCase();
+      
+      const isValidTxt = fileType === 'text/plain' || fileName.endsWith('.txt');
+      const isValidPdf = fileType === 'application/pdf' || fileName.endsWith('.pdf');
+      
+      if (isValidTxt || isValidPdf) {
+        onFileSelect(selectedFile);
+      } else {
+        alert('Please select a .txt or .pdf file');
+      }
     }
   };
 
@@ -20,7 +28,7 @@ function FileUpload({ file, onFileSelect, onGenerate, loading }) {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".txt"
+            accept=".txt,.pdf"
             onChange={handleFileChange}
             id="file-input"
           />
@@ -28,7 +36,7 @@ function FileUpload({ file, onFileSelect, onGenerate, loading }) {
             htmlFor="file-input"
             className="file-input-label"
           >
-            {file ? `✓ ${file.name}` : '📁 Click to select .txt file or drag & drop'}
+            {file ? `✓ ${file.name}` : '📁 Click to select .txt or .pdf file'}
           </label>
         </div>
 
@@ -36,7 +44,7 @@ function FileUpload({ file, onFileSelect, onGenerate, loading }) {
           <div className="file-info">
             <div><strong>File:</strong> {file.name}</div>
             <div><strong>Size:</strong> {(file.size / 1024).toFixed(2)} KB</div>
-            <div><strong>Type:</strong> {file.type}</div>
+            <div><strong>Type:</strong> {file.type || 'document'}</div>
           </div>
         )}
 
