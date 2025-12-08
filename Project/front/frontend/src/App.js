@@ -128,16 +128,15 @@ function App() {
     }
   };
 
-  const handleDownloadQuiz = async () => {
-    if (!quizData) return;
-
+  const handleDownloadQuizWithModifications = async (modifiedQuizData) => {
     try {
       setLoading(true);
-      // Send quiz to backend to save
-      const response = await axios.post(`${API_URL}/save-quiz`, quizData);
+      // Send modified quiz to backend to save
+      const response = await axios.post(`${API_URL}/save-quiz`, modifiedQuizData);
       
       if (response.data.success) {
         setSuccess(`Quiz saved! File: ${response.data.filename}`);
+        setQuizData(modifiedQuizData); // Update the local state with modifications
       }
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Failed to save quiz';
@@ -205,7 +204,7 @@ function App() {
         ) : (
           <QuizDisplay
             quizData={quizData}
-            onDownload={handleDownloadQuiz}
+            onDownload={handleDownloadQuizWithModifications}
             onClear={handleClearQuiz}
           />
         )}

@@ -1,0 +1,334 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "The United States occupies a vast area of North America, spanning from the Atlantic Ocean\nto the Pacific Ocean and from Canada in the north to Mexico ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Christopher Columbus",
+            "explanation": "The content explicitly states Christopher Columbus sailed under the Spanish flag in 1492, reaching the Caribbean islands and initiating sustained European contact with the Americas.",
+            "options": [
+              "A) Christopher Columbus",
+              "B) Vasco da Gama",
+              "C) Ferdinand Magellan",
+              "D) Leif Erikson"
+            ],
+            "question": "Who sailed to the Americas in 1492?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Spain, France, England",
+            "explanation": "The content explicitly lists Spain, France, and England as the primary European explorers during early colonization, with no mention of other nations in this context.",
+            "options": [
+              "A) Spain, France, England",
+              "B) Portugal, Netherlands, Italy",
+              "C) Germany, Russia, Sweden",
+              "D) Denmark, Belgium, Austria"
+            ],
+            "question": "Which European countries explored early America?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Slowed exploration due to terrain and distances",
+            "explanation": "The vast size and diverse landscapes (mountains, plains) created obstacles, slowing inland exploration as Europeans faced challenging terrain and vast distances.",
+            "options": [
+              "A) Slowed exploration due to terrain and distances",
+              "B) Encouraged rapid colonization for resources",
+              "C) Had no impact, focused on coasts",
+              "D) Led to immediate territorial conflicts"
+            ],
+            "question": "How did North America's vast geography affect European exploration?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Delayed European settlement due to mountainous terrain",
+            "explanation": "The Sierra Nevada and Rocky Mountains would create significant barriers to eastward expansion, unlike the accessible river systems and plains accessible from the East Coast.",
+            "options": [
+              "A) Faster colonization due to proximity to Asia",
+              "B) Delayed European settlement due to mountainous terrain",
+              "C) Earlier conflicts with Native American tribes",
+              "D) Increased French influence in the region"
+            ],
+            "question": "How might US history differ if early explorers landed on the West Coast instead of the Caribbean?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "The United States occupies a vast area of North America, spanning from the At..."
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "Between the early 1600s and the late 1700s, English colonists established thirteen colonies\nalong the Atlantic coast of North America. These colonies ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Thirteen colonies",
+            "explanation": "The text explicitly states 'thirteen colonies' were established between the early 1600s and late 1700s, requiring only basic recognition.",
+            "options": [
+              "A) Thirteen colonies",
+              "B) Ten colonies",
+              "C) Fifteen colonies",
+              "D) Twenty colonies"
+            ],
+            "question": "What is the number of English colonies established along the Atlantic coast?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Small farms, fishing, shipbuilding, commerce",
+            "explanation": "The northern colonies (e.g., Massachusetts) relied on small farms, fishing, shipbuilding, and commerce due to their colder climate and coastal geography, as stated in the content.",
+            "options": [
+              "A) Small farms, fishing, shipbuilding, commerce",
+              "B) Grain farming, trade, religious diversity",
+              "C) Plantation agriculture, tobacco, slave labor",
+              "D) Fur trading, cattle ranching, gold mining"
+            ],
+            "question": "Which characteristics describe the economies of the northern English colonies?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Northern rocky soil fostered shipbuilding; Southern fertile land enabled plantations; Middle grew grains.",
+            "explanation": "Content shows Northern colonies developed shipbuilding/fishing due to poor soil/cold climate; Southern fertile land/long growing seasons supported plantations; Middle colonies used fertile land for grains and trade hubs.",
+            "options": [
+              "A) Northern rocky soil fostered shipbuilding; Southern fertile land enabled plantations; Middle grew grains.",
+              "B) Northern warm climate encouraged farming; Southern ports boosted fishing; Middle focused on slavery.",
+              "C) Geography had minimal impact as all colonies prioritized identical trade networks.",
+              "D) Religious diversity determined economic structures more than physical geography."
+            ],
+            "question": "How did geography influence economic differences among the English colonies?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Mining and livestock herding",
+            "explanation": "Mountainous terrain and limited agriculture would mirror northern colonies' adaptation to harsh climates by focusing on resource extraction (mining) and hardy livestock, rather than crops requiring fertile flatlands.",
+            "options": [
+              "A) Mining and livestock herding",
+              "B) Large-scale plantation agriculture",
+              "C) Grain farming and commerce",
+              "D) Fishing and shipbuilding"
+            ],
+            "question": "What economy would colonists likely develop in a mountainous region with short growing seasons?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Between the early 1600s and the late 1700s, English colonists established thi..."
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "Growing tensions between the thirteen colonies and Great Britain during the 1760s and 1770s\nled to the American Revolution. The colonists objected to ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) A protest against British tea taxes",
+            "explanation": "The Boston Tea Party was a 1773 colonial protest where tea was dumped into Boston Harbor to oppose British taxation. Other options misrepresent the event.",
+            "options": [
+              "A) A protest against British tea taxes",
+              "B) A formal negotiation with Britain",
+              "C) A colonial military victory",
+              "D) A British trade agreement"
+            ],
+            "question": "What was the Boston Tea Party?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in 'Growing tensions between the thirteen colonies and Great Britain during the 1...'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fueled unified protests like boycotts and the Boston Tea Party",
+            "explanation": "Taxation without representation sparked coordinated colonial resistance (boycotts, Boston Tea Party), demonstrating cause-effect between British policies and collective revolutionary actions.",
+            "options": [
+              "A) Fueled unified protests like boycotts and the Boston Tea Party",
+              "B) Increased loyalty to Britain through economic dependence",
+              "C) Prompted immediate military alliances with France",
+              "D) Reduced colonial focus on self-governance principles"
+            ],
+            "question": "How did British taxation without representation affect colonial actions leading to the Revolution?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "C) Britain would likely crush the rebellion",
+            "explanation": "French military/financial support was crucial to Washington's victories. Without it, British naval superiority and resources would likely overwhelm the underfunded Continental Army.",
+            "options": [
+              "A) The colonies would have won independence faster",
+              "B) A stalemate would force negotiated peace",
+              "C) Britain would likely crush the rebellion",
+              "D) Spain would replace France as primary ally"
+            ],
+            "question": "What if France had not supported the colonies during the Revolutionary War?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Growing tensions between the thirteen colonies and Great Britain during the 1..."
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "THE CONSTITUTION AND EARLY REPUBLIC\nThe U.S. Constitution, drafted in 1787 and ratified in 1788, established the framework for the\nfederal government ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) First ten amendments guaranteeing freedoms",
+            "explanation": "The Bill of Rights refers to the first ten amendments to the Constitution, ratified in 1791, guaranteeing fundamental freedoms as per the content.",
+            "options": [
+              "A) First ten amendments guaranteeing freedoms",
+              "B) The original Constitution document",
+              "C) Laws passed by the first Congress",
+              "D) George Washington's inaugural speech"
+            ],
+            "question": "What is the Bill of Rights?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Freedom of speech, religion, assembly, and protections for the accused",
+            "explanation": "The Bill of Rights (first 10 amendments) explicitly guarantees freedoms of speech, religion, assembly, and protections for the accused. Other options describe constitutional structures unrelated to the Bill of Rights.",
+            "options": [
+              "A) Freedom of speech, religion, assembly, and protections for the accused",
+              "B) Legislative, executive, and judicial branches",
+              "C) System of checks and balances",
+              "D) Right to vote and pay taxes"
+            ],
+            "question": "Which of these are components of the Bill of Rights?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fears of federal power led to demands for guaranteed rights",
+            "explanation": "The checks/balances system concentrated power concerns, prompting Anti-Federalists to demand explicit individual protections, resulting in the Bill of Rights as a compromise.",
+            "options": [
+              "A) Fears of federal power led to demands for guaranteed rights",
+              "B) Enlightenment ideals directly required individual freedoms",
+              "C) Washington's precedents ensured judicial protections",
+              "D) State constitutions needed alignment with federal ones"
+            ],
+            "question": "How did the Constitution's checks and balances influence the creation of the Bill of Rights?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Supreme Court declares the action unconstitutional",
+            "explanation": "Checks and balances prevent unilateral power grabs. The judiciary would rule dissolution unconstitutional, as branches can't abolish each other per Constitutional design.",
+            "options": [
+              "A) Supreme Court declares the action unconstitutional",
+              "B) Congress impeaches the president",
+              "C) President succeeds with no opposition",
+              "D) States immediately secede from the Union"
+            ],
+            "question": "What would happen if a president attempted to dissolve Congress today?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "THE CONSTITUTION AND EARLY REPUBLIC"
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "Throughout the 19th century, the United States experienced rapid westward expansion driven\nby the concept of \"Manifest Destiny\"\u2014the belief that Americ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Belief that US expansion across the continent was inevitable",
+            "explanation": "Manifest Destiny refers to the 19th-century belief that American territorial expansion across the continent was both justified and unavoidable, as stated in the content.",
+            "options": [
+              "A) Belief that US expansion across the continent was inevitable",
+              "B) A law forcing Native American relocation",
+              "C) A treaty with Mexico over territory",
+              "D) The plan to abolish slavery in new states"
+            ],
+            "question": "What was Manifest Destiny?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Purchase, negotiation, warfare",
+            "explanation": "The content explicitly states expansion occurred through purchase, negotiation, and warfare. Other options include methods not directly mentioned as primary drivers.",
+            "options": [
+              "A) Purchase, negotiation, warfare",
+              "B) Purchase, trade agreements, diplomacy",
+              "C) Negotiation, treaties, exploration",
+              "D) Warfare, farming, land grants"
+            ],
+            "question": "Which methods facilitated U.S. westward expansion in the 19th century?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) New territories reignited debates over slavery's expansion, escalating tensions",
+            "explanation": "Westward expansion created new territories where slavery's status had to be decided, repeatedly fracturing compromises (Missouri, 1850, Kansas-Nebraska) and deepening North-South divisions, ultimately leading to secession.",
+            "options": [
+              "A) New territories reignited debates over slavery's expansion, escalating tensions",
+              "B) Expansion reduced economic reliance on slavery, angering the South",
+              "C) Native displacement redirected focus away from slavery compromises",
+              "D) Northern states opposed expansion to maintain political dominance"
+            ],
+            "question": "How did westward expansion intensify conflicts over slavery leading to the Civil War?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Condemnation and conflict over sovereignty violations",
+            "explanation": "Manifest Destiny justified displacement and conflict historically; modern application would violate international sovereignty norms, triggering diplomatic backlash and potential warfare, mirroring 19th-century consequences.",
+            "options": [
+              "A) Condemnation and conflict over sovereignty violations",
+              "B) Peaceful acceptance due to historical precedent",
+              "C) Economic collaboration without territorial disputes",
+              "D) Global isolation but successful territorial gains"
+            ],
+            "question": "How might a modern nation invoking Manifest Destiny for expansion impact international relations?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "Throughout the 19th century, the United States experienced rapid westward exp..."
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "usa_history_lesson.pdf",
+    "generated_at": "2025-12-08T22:39:44.192660",
+    "question_mode": "auto",
+    "total_chapters": 6,
+    "total_questions": 20
+  }
+}
