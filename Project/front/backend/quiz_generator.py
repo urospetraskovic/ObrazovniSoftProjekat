@@ -69,9 +69,9 @@ class SoloQuizGenerator:
                 content_length = len(content)
                 chapter_count = len(chapters)
                 
-                # Base calculation: roughly 1 question per 500 characters, min 4 per chapter
-                questions_by_length = max(4, content_length // 500)
-                questions_by_chapters = chapter_count * 4
+                # Base calculation: roughly 1 question per 500 characters, min 5 per chapter
+                questions_by_length = max(5, content_length // 500)
+                questions_by_chapters = chapter_count * 5
                 
                 # Use the higher of the two to avoid too few questions for continuous text
                 total_questions = max(questions_by_length, questions_by_chapters)
@@ -80,24 +80,26 @@ class SoloQuizGenerator:
                 
                 question_mode = 'auto'
             else:
-                total_questions = config.get('total_questions', len(chapters) * 4)
+                total_questions = config.get('total_questions', len(chapters) * 5)
                 question_mode = 'manual'
             
             # Determine SOLO distribution
             if config.get('distribution_mode') == 'auto' or config.get('solo_distribution') is None:
-                # Auto mode: use balanced distribution
+                # Auto mode: use balanced distribution (5 SOLO levels)
                 solo_distribution = {
-                    'prestructural': 0.15,
-                    'multistructural': 0.35,
-                    'relational': 0.35,
+                    'prestructural': 0.10,
+                    'unistructural': 0.15,
+                    'multistructural': 0.30,
+                    'relational': 0.30,
                     'extended_abstract': 0.15
                 }
                 distribution_mode = 'auto'
             else:
                 solo_distribution = config.get('solo_distribution', {
-                    'prestructural': 0.15,
-                    'multistructural': 0.35,
-                    'relational': 0.35,
+                    'prestructural': 0.10,
+                    'unistructural': 0.15,
+                    'multistructural': 0.30,
+                    'relational': 0.30,
                     'extended_abstract': 0.15
                 })
                 distribution_mode = 'manual'
@@ -116,7 +118,7 @@ class SoloQuizGenerator:
             }
             
             questions_generated = 0
-            questions_per_chapter = max(1, total_questions // len(chapters)) if chapters else 4
+            questions_per_chapter = max(1, total_questions // len(chapters)) if chapters else 5
             
             # Generate questions for each chapter
             for idx, chapter_content in enumerate(chapters):
@@ -250,7 +252,7 @@ class SoloQuizGenerator:
         Returns:
             Dictionary containing chapter data with questions
         """
-        return self._process_chapter_smart(chapter_content, chapter_num, 4, {
+        return self._process_chapter_smart(chapter_content, chapter_num, 5, {
             'prestructural': 0.15,
             'multistructural': 0.35,
             'relational': 0.35,
@@ -278,10 +280,11 @@ class SoloQuizGenerator:
         """
         if solo_distribution is None:
             solo_distribution = {
-                'prestructural': 0.20,
-                'multistructural': 0.20,
+                'prestructural': 0.10,
+                'unistructural': 0.15,
+                'multistructural': 0.25,
                 'relational': 0.30,
-                'extended_abstract': 0.10
+                'extended_abstract': 0.20
             }
         
         try:
@@ -304,8 +307,8 @@ class SoloQuizGenerator:
                 'questions': []
             }
             
-            # Calculate questions per level based on distribution (only 4 SOLO levels)
-            solo_levels = ['prestructural', 'multistructural', 'relational', 'extended_abstract']
+            # Calculate questions per level based on distribution (all 5 SOLO levels)
+            solo_levels = ['prestructural', 'unistructural', 'multistructural', 'relational', 'extended_abstract']
             questions_per_level = {}
             
             for level in solo_levels:
@@ -368,34 +371,108 @@ class SoloQuizGenerator:
         """Build prompt for API request with complete SOLO taxonomy definitions"""
         
         solo_definitions = """
-SOLO TAXONOMY - DETAILED LEVEL DEFINITIONS (Based on Biggs & Collis):
+SOLO TAXONOMY - COMPREHENSIVE LEVEL DEFINITIONS (Based on Biggs & Collis):
 
-1. PRESTRUCTURAL: The task is not attacked appropriately; the student hasn't really understood the point and uses too simple a way of going about it. Students respond with irrelevant comments, exhibit lack of understanding, often missing the point entirely.
-   - Questions test basic recognition of terms with minimal understanding
-   - Simple identification without comprehension
-   - "What is X?" (basic recall)
+1. PRESTRUCTURAL (Surface Learning - Quantitative):
+   Definition: Student doesn't understand the topic or has never encountered it. Responses simply miss the point and show little evidence of relevant learning.
+   
+   Characteristics:
+   - Student may respond with "I don't know"
+   - Gives irrelevant comments that are off-topic
+   - Provides factually inaccurate information
+   - May parrot what they're "supposed to say" without understanding
+   - Long responses that sound impressive but don't answer the question
+   
+   Question Examples:
+   - "What is X?" (basic recall, no comprehension needed)
+   - "Define Y in one word"
+   - "Which of these is an example of Z?"
+   
+   Key Point: Test if student has encountered the term/concept at all, not whether they understand it.
 
-2. UNISTRUCTURAL: The student's response only focuses on one relevant aspect. Students give slightly relevant but vague answers that lack depth.
-   - Focus on a single aspect or characteristic
-   - Direct recognition or definition of a concept
-   - "Define X" or "What does Y mean?"
+2. UNISTRUCTURAL (Surface Learning - Quantitative):
+   Definition: Student understands only ONE or TWO elements of the task but misses many important parts needed for true understanding. Knowledge remains at terminology level.
+   
+   Characteristics:
+   - Can identify and name a few things
+   - Knows some relevant terms but can't explain them in depth
+   - Can follow simple procedures that were explicitly taught
+   - Gives vague or general answers
+   - Missing critical components of full understanding
+   
+   Question Examples:
+   - "What is the main characteristic of X?"
+   - "Name the process that does Y"
+   - "Which term describes Z?"
+   
+   Key Point: Student focuses on ONE aspect but ignores other important elements. Like a single puzzle piece in isolation.
 
-3. MULTISTRUCTURAL: The student's response focuses on several relevant aspects but they are treated independently and additively. Assessment is primarily quantitative. Students may know the concept in bits but don't know how to connect or explain relationships.
-   - Listing multiple characteristics or components
-   - Enumeration without explaining connections between elements
-   - "List the components of X" or "What are the characteristics of Y?"
+3. MULTISTRUCTURAL (Surface Learning - Quantitative):
+   Definition: Student has acquired lots of knowledge but can't put it together yet. Knowledge remains at the level of remembering, memorizing, and listing. Surface-level understanding - like having all Ikea furniture pieces spread on the floor but not knowing how to assemble them.
+   
+   Characteristics:
+   - Can list multiple facts, components, or characteristics
+   - Knowledge remains fragmented and disconnected
+   - Cannot see relationships between parts
+   - Cannot apply concepts in new or innovative ways
+   - Heavy focus on memorization and enumeration
+   - Assessment is primarily quantitative (counting facts)
+   
+   Question Examples:
+   - "List the components of X"
+   - "What are the characteristics of Y?"
+   - "Name all the factors involved in Z"
+   - "Which of these are features of X?" (lists multiple independent items)
+   
+   Key Point: Student knows many separate pieces but cannot connect them. No systemic thinking yet.
 
-4. RELATIONAL: The different aspects have become integrated into a coherent whole. This level represents adequate understanding of a topic. Students can identify various patterns and view a topic from distinct perspectives.
-   - Explaining cause and effect relationships
-   - Comparisons and contrasts
-   - Analysis of relationships between concepts
-   - "How does X affect Y?" or "Compare A and B"
+4. RELATIONAL (Deep Learning - Qualitative):
+   Definition: Student sees how parts of a topic fit together. A QUALITATIVE CHANGE occurs - no longer just listing facts but understanding the integrated whole. First level showing deep understanding.
+   
+   Characteristics:
+   - Can identify patterns and connections
+   - Explains how parts link together into a coherent system
+   - Can compare and contrast different elements
+   - Views topic from multiple perspectives
+   - Uses systemic and theoretical modeling
+   - Understands cause-and-effect relationships
+   - Can explain WHY things work the way they do
+   
+   Question Examples:
+   - "How does X affect Y?"
+   - "What is the relationship between A and B?"
+   - "Compare and contrast X and Y"
+   - "Why does Z happen when X is present?"
+   - "Explain how these parts work together as a system"
+   
+   Key Point: Moving from "knowing facts" to "understanding systems." Student can see the big picture.
 
-5. EXTENDED ABSTRACT: The previous integrated whole may be conceptualized at a higher level of abstraction and generalized to a new topic or area. Students may apply classroom concepts in real life.
-   - Application of knowledge in new situations
-   - Hypotheses and predictions
-   - Evaluation and creation of new approaches
-   - "What would happen if..." or "How would you apply X in situation Y?"
+5. EXTENDED ABSTRACT (Deep Learning - Qualitative):
+   Definition: Student has sophisticated understanding and can apply knowledge in various contexts BEYOND what was directly taught. Essence is going beyond what was given. Creates new knowledge through deep understanding.
+   
+   Characteristics:
+   - Can apply knowledge to entirely new and different contexts
+   - Generates theoretical ideas
+   - Makes predictions about future events using principles learned
+   - Can create new combinations of ideas
+   - Understands principles at an abstract level
+   - Can work with knowledge outside the classroom/original context
+   - Sophisticated, nuanced understanding
+   
+   Question Examples:
+   - "What would happen if X were different?"
+   - "How would you apply principles of X in a completely new situation Y?"
+   - "If we changed Z, what would be the consequences?"
+   - "How would concept X change our understanding of unrelated field Y?"
+   - "Predict what would happen when you apply X to scenario Z"
+   
+   Key Point: Student can transfer knowledge to NEW contexts and generate NEW knowledge. Highest level of thinking.
+
+IMPORTANT NOTES:
+- Levels 1-3 are SURFACE learning (quantitative, fact-focused)
+- Levels 4-5 are DEEP learning (qualitative, understanding-focused)
+- Each level builds on the previous one
+- Questions should test ONLY the specified level, not multiple levels
 """
         
         # Use more content for better context (1000 chars instead of 500)
@@ -404,92 +481,184 @@ SOLO TAXONOMY - DETAILED LEVEL DEFINITIONS (Based on Biggs & Collis):
         prompts = {
             'prestructural': f"""{solo_definitions}
 
-TASK: Based on the content about '{context}' below, create a PRESTRUCTURAL level question.
+TASK: Create a PRESTRUCTURAL level question based on the content about '{context}'.
+
+THIS LEVEL TESTS: Basic recognition and recall with minimal understanding. Student may not understand the topic at all.
 
 REQUIREMENTS:
-- Test basic recognition of terms with minimal understanding
-- Simple identification or recall without deep comprehension
-- Follow pattern: "What is X?" or "What does Y mean?"
-- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
-- Keep each option under 120 characters (concise answers)
-- Create 4 multiple choice options (A, B, C, D)
-- Only one correct answer
-- Provide clear explanation (under 250 characters)
+✓ Question should test if student has heard of or can identify a BASIC TERM/CONCEPT
+✓ No deep understanding required - just recognition
+✓ Question should be simple and direct
+✓ Example patterns:
+  - "What is [term]?"
+  - "Which of these is an example of [concept]?"
+  - "What does [term] mean?" (basic definition)
+✓ Keep question under 150 characters (SHORT and SIMPLE)
+✓ Keep each option under 120 characters
+✓ Create 4 multiple choice options (A, B, C, D)
+✓ Only ONE correct answer
+✓ Explanation should be brief (under 250 characters)
+
+WHAT NOT TO DO:
+✗ Don't ask about relationships or connections
+✗ Don't require listing multiple items
+✗ Don't ask students to explain WHY or HOW
+✗ Don't make it trick questions or too complex
+✗ Don't ask students to apply knowledge to new situations
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Make questions SIMPLE and test RECOGNITION only.""",
+            
+            'unistructural': f"""{solo_definitions}
+
+TASK: Create a UNISTRUCTURAL level question based on the content about '{context}'.
+
+THIS LEVEL TESTS: Understanding of ONE or TWO specific elements from the content. Student knows some key concepts but hasn't yet seen the broader picture or multiple aspects.
+
+REQUIREMENTS:
+✓ Question should focus on ONE main aspect, characteristic, or concept from the content
+✓ Student should be able to identify or explain a SINGLE important element
+✓ Question can ask about simple cause-effect or a single relationship
+✓ Example patterns:
+  - "What is the main characteristic/purpose of [single concept]?"
+  - "What does [single element] do or represent?"
+  - "Which of these best describes [one specific aspect]?"
+  - "What is the primary function/role of [single thing]?"
+✓ Keep question under 150 characters
+✓ Keep each option under 120 characters
+✓ Create 4 multiple choice options (A, B, C, D)
+✓ Only ONE correct answer
+✓ Explanation should be brief (under 250 characters)
+
+WHAT NOT TO DO:
+✗ Don't ask about multiple unrelated components
+✗ Don't ask how different parts connect or relate
+✗ Don't require listing multiple items
+✗ Don't ask students to compare or contrast
+✗ Don't ask about broader systems or integrated understanding
+✗ Don't ask students to apply to new situations
+
+Content: {content_preview}
+
+Return ONLY valid JSON with these fields:
+{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
+
+IMPORTANT: Return ONLY the JSON object, no other text. Questions should focus on ONE element only.""",
             
             'multistructural': f"""{solo_definitions}
 
-TASK: Based on the content about '{context}' below, create a MULTISTRUCTURAL level question.
+TASK: Create a MULTISTRUCTURAL level question based on the content about '{context}'.
+
+THIS LEVEL TESTS: Multiple independent facts, components, or characteristics that are NOT connected. Student knows the pieces but can't see how they relate.
 
 REQUIREMENTS:
-- Focus on several relevant aspects that are treated independently
-- Ask student to list multiple components or characteristics
-- Do NOT ask about connections between elements
-- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
-- Keep each option under 120 characters (concise answers)
-- Follow pattern: "List the components of X" or "Which of these are characteristics of Y?"
-- Create 4 multiple choice options (A, B, C, D)
-- Only one correct answer
-- Provide clear explanation (under 250 characters)
+✓ Question should ask student to LIST or IDENTIFY multiple separate items
+✓ The listed items should NOT require explaining HOW they connect
+✓ Question should enumerate components, features, or characteristics
+✓ Example patterns:
+  - "Which of these are characteristics/components/features of [topic]?"
+  - "List the factors/parts/elements involved in [concept]"
+  - "What are the different [plural noun] that [verb]?"
+  - "Which of these are examples of [concept]?" (multiple independent examples)
+✓ Keep question under 150 characters
+✓ Keep each option under 120 characters
+✓ Create 4 multiple choice options (A, B, C, D) where CORRECT option lists multiple items
+✓ Only ONE correct answer
+✓ Explanation should be brief (under 250 characters)
+
+WHAT NOT TO DO:
+✗ Don't ask HOW or WHY things are related
+✗ Don't ask about cause-and-effect
+✗ Don't ask students to compare or contrast
+✗ Don't ask about relationships between items
+✗ Don't require system-level thinking
+✗ Don't ask students to apply to new situations
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Question should test LISTING or IDENTIFYING, not UNDERSTANDING relationships.""",
             
             'relational': f"""{solo_definitions}
 
-TASK: Based on the content about '{context}' below, create a RELATIONAL level question.
+TASK: Create a RELATIONAL level question based on the content about '{context}'.
+
+THIS LEVEL TESTS: How parts connect and work together as an integrated system. Student understands cause-and-effect, relationships, and patterns. Deep understanding of how things fit together.
 
 REQUIREMENTS:
-- Integrate multiple aspects into a coherent whole
-- Ask about cause-and-effect relationships
-- Ask for comparisons and contrasts
-- Ask how concepts are connected
-- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
-- Keep each option under 120 characters (concise answers)
-- Follow pattern: "How does X affect Y?" or "What is the relationship between A and B?"
-- Create 4 multiple choice options (A, B, C, D)
-- Only one correct answer
-- Provide clear explanation (under 250 characters)
+✓ Question should ask about RELATIONSHIPS, CONNECTIONS, or INTEGRATION
+✓ Student must show understanding of HOW or WHY things relate
+✓ Question should require seeing patterns or systems
+✓ Example patterns:
+  - "How does [X] affect [Y]?"
+  - "What is the relationship between [A] and [B]?"
+  - "Why does [X] happen when [Y] is present?"
+  - "Compare and contrast [A] and [B]"
+  - "Explain how [components] work together to create [result]"
+  - "What pattern connects [X] and [Y]?"
+✓ Keep question under 150 characters
+✓ Keep each option under 120 characters
+✓ Create 4 multiple choice options (A, B, C, D)
+✓ Correct answer should explain a CONNECTION or RELATIONSHIP
+✓ Only ONE correct answer
+✓ Explanation should clarify the relationship (under 250 characters)
+
+WHAT NOT TO DO:
+✗ Don't just ask for definitions or names
+✗ Don't ask for simple lists without connections
+✗ Don't ask about applying to completely new contexts
+✗ Don't make it only require basic recall
+✗ Don't avoid asking about systematic thinking
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy.""",
+IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require understanding of HOW/WHY things connect and work together.""",
             
             'extended_abstract': f"""{solo_definitions}
 
-TASK: Based on the content about '{context}' below, create an EXTENDED ABSTRACT level question.
+TASK: Create an EXTENDED ABSTRACT level question based on the content about '{context}'.
+
+THIS LEVEL TESTS: Ability to apply knowledge to NEW contexts not directly taught. Student creates new knowledge and can generalize principles. Highest level of cognitive thinking.
 
 REQUIREMENTS:
-- Ask student to apply concepts to new or hypothetical situations
-- Go beyond the content with real-world application
-- Ask for predictions, hypotheses, or creative solutions
-- Keep question under 150 characters (SHORT, NOT PARAGRAPHS)
-- Keep each option under 120 characters (concise answers)
-- Follow pattern: "What would happen if...?" or "How would you apply X in situation Y?"
-- Present a novel scenario not directly in the original content
-- Create 4 multiple choice options (A, B, C, D)
-- Only one correct answer
-- Provide clear explanation (under 250 characters)
+✓ Question should ask student to apply content to a NEW, DIFFERENT context or hypothetical situation
+✓ The situation should NOT be directly mentioned in the source content
+✓ Student must use principles learned to work with something unfamiliar
+✓ Example patterns:
+  - "What would happen if [different scenario] occurred?"
+  - "How would you apply [principle from content] to [completely new situation]?"
+  - "If we changed [variable], what would be the consequences?"
+  - "Predict what would happen when [new context] is combined with [principle]"
+  - "How might [new field/situation] be affected by [principle learned]?"
+✓ Keep question under 150 characters
+✓ Keep each option under 120 characters
+✓ Create 4 multiple choice options (A, B, C, D)
+✓ Correct answer should show transfer of learning to new context
+✓ Only ONE correct answer
+✓ Explanation should show why the principle transfers (under 250 characters)
+
+WHAT NOT TO DO:
+✗ Don't ask questions directly answered in the content
+✗ Don't ask for simple recall or definitions
+✗ Don't ask for basic listings
+✗ Don't ask only about relationships within the original content
+✗ Don't make the new context too similar to original (must be genuinely different)
 
 Content: {content_preview}
 
 Return ONLY valid JSON with these fields:
 {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
 
-IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, not wordy."""
+IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require applying knowledge to a NEW scenario not directly in the content."""
         }
         
         return prompts.get(level, prompts['prestructural'])
@@ -647,6 +816,17 @@ IMPORTANT: Return ONLY the JSON object, no other text. Make questions CONCISE, n
                 ],
                 'correct_answer': f'A) {key_sentence[:50]}...',
                 'explanation': f'This prestructural question tests basic recognition of {key_term} from the content.'
+            },
+            'unistructural': {
+                'question': f"What is the main characteristic or role of {key_term} in '{context}'?",
+                'options': [
+                    f'A) It provides {key_sentence[:40]}',
+                    'B) It has no specific function',
+                    'C) It contradicts other concepts',
+                    'D) It is completely unrelated'
+                ],
+                'correct_answer': f'A) It provides {key_sentence[:40]}',
+                'explanation': 'This unistructural question tests understanding of ONE main aspect or characteristic of a concept.'
             },
             'multistructural': {
                 'question': f"Which of these are components or characteristics mentioned in '{context}'?",
