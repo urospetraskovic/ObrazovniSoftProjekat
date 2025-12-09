@@ -1,7 +1,13 @@
 # SOLO Taxonomy Quiz Generator - Web Application
 
-cd D:\GitHub\ObrazovniSoftProjekat\Project\front\backend
-..\\.venv\\Scripts\\python.exe app.py
+**Terminal 1 - Backend:**
+```powershell
+cd backend
+.\venv\Scripts\python.exe app.py
+```
 
-cd D:\GitHub\ObrazovniSoftProjekat\Project\front\frontend
+**Terminal 2 - Frontend:**
+```powershell
+cd frontend
 npm start
+```

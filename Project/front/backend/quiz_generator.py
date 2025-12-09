@@ -65,7 +65,19 @@ class SoloQuizGenerator:
             # Determine total questions
             if config.get('question_mode') == 'auto' or config.get('total_questions') is None:
                 # Auto mode: calculate based on content length and chapters
-                total_questions = max(4, len(chapters) * 3)  # 3 questions per chapter minimum
+                # More intelligent calculation: base on content length + chapter count
+                content_length = len(content)
+                chapter_count = len(chapters)
+                
+                # Base calculation: roughly 1 question per 500 characters, min 4 per chapter
+                questions_by_length = max(4, content_length // 500)
+                questions_by_chapters = chapter_count * 4
+                
+                # Use the higher of the two to avoid too few questions for continuous text
+                total_questions = max(questions_by_length, questions_by_chapters)
+                # Cap at reasonable max (100 questions)
+                total_questions = min(total_questions, 100)
+                
                 question_mode = 'auto'
             else:
                 total_questions = config.get('total_questions', len(chapters) * 4)

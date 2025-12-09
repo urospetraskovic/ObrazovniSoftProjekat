@@ -1,0 +1,82 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "THE HISTORY OF HUMAN CIVILIZATION: A CONTINUOUS NARRATIVE\nThe history of human civilization stretches back thousands of years, encompassing the remark...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) The shift from hunting to farming",
+            "explanation": "The text defines it as the transition from nomadic hunting/gathering to sedentary farming, starting in the Fertile Crescent.",
+            "options": [
+              "A) The shift from hunting to farming",
+              "B) The invention of the steam engine",
+              "C) The development of digital technology",
+              "D) The rise of ancient empires"
+            ],
+            "question": "What is the agricultural revolution?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Surplus food, population growth, specialized roles",
+            "explanation": "The text explicitly states agricultural revolution enabled surplus food, population growth, and specialized roles. Other options describe earlier nomadic life or later developments.",
+            "options": [
+              "A) Surplus food, population growth, specialized roles",
+              "B) Nomadic lifestyles, hunting tools, cave art",
+              "C) Industrial machinery, global trade networks",
+              "D) Democratic governance, written legal codes"
+            ],
+            "question": "Which characteristics mark the agricultural revolution in human civilization?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Enabled population growth and social hierarchies",
+            "explanation": "Surplus food allowed sustained population growth, freeing individuals from food production to specialize in other roles, leading to complex social hierarchies \u2013 a key transition described in the content.",
+            "options": [
+              "A) Enabled population growth and social hierarchies",
+              "B) Reduced technological innovation significantly",
+              "C) Increased nomadic lifestyle dependencies",
+              "D) Prevented development of specialized roles"
+            ],
+            "question": "How did surplus food production from agriculture affect early civilizations?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Civilizations emerge independently in other regions later",
+            "explanation": "Agricultural revolutions occurred independently in multiple regions (e.g., Mesoamerica, China). Without the Fertile Crescent, other regions would eventually develop agriculture, though with different cultural trajectories and timelines.",
+            "options": [
+              "A) Civilizations emerge independently in other regions later",
+              "B) Human societies remain hunter-gatherers permanently",
+              "C) Technological progress accelerates worldwide",
+              "D) Similar civilizations arise simultaneously in different regions"
+            ],
+            "question": "What if agriculture never developed in the Fertile Crescent?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "THE HISTORY OF HUMAN CIVILIZATION: A CONTINUOUS NARRATIVE"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "history_continuous.txt",
+    "generated_at": "2025-12-09T11:25:59.487373",
+    "question_mode": "auto",
+    "total_chapters": 1,
+    "total_questions": 4
+  }
+}
