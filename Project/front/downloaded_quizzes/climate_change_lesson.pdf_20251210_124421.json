@@ -1,0 +1,257 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "--- Page 1 --- CLIMATE CHANGE: UNDERSTANDING GLOBAL WARMING Climate change represents one of the most pressing challenges facing humanity in the twent...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) The rise in Earth's temperature due to human activities",
+            "explanation": "The content states global warming is primarily driven by human activities increasing greenhouse gases, causing temperature rise (1.1\u00b0C since pre-industrial times).",
+            "options": [
+              "A) The rise in Earth's temperature due to human activities",
+              "B) Natural cycles of climate variation",
+              "C) The thinning of the ozone layer",
+              "D) Air pollution from factories"
+            ],
+            "question": "What is global warming?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By increasing extreme weather frequency",
+            "explanation": "Human activities increase greenhouse gases, trapping heat and altering atmospheric systems. This energy imbalance intensifies weather extremes like droughts, storms, and heatwaves as per climate science principles.",
+            "options": [
+              "A) By increasing extreme weather frequency",
+              "B) By reducing temperature fluctuations",
+              "C) By stabilizing atmospheric pressure",
+              "D) By reversing seasonal temperature changes"
+            ],
+            "question": "How do human-driven greenhouse gases influence global weather patterns?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Unpredictable regional weather disruptions",
+            "explanation": "Solar radiation management doesn't reduce greenhouse gases, so underlying climate drivers remain. Altering sunlight distribution could cause unintended regional climate shifts, like droughts or monsoons.",
+            "options": [
+              "A) Unpredictable regional weather disruptions",
+              "B) Immediate drop in global temperatures",
+              "C) Rapid decrease in ocean acidification",
+              "D) Complete halt to sea-level rise"
+            ],
+            "question": "What would be a major risk of deploying solar radiation management to counteract global warming?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 1 --- CLIMATE CHANGE: UNDERSTANDING GLOBAL WARMING Climate change re..."
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "parts per million today. Human Activities Driving Climate Change The primary driver of modern climate change is the burning of fossil fuels for electr...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) A unit measuring concentration",
+            "explanation": "Prestructural questions test basic recall. 'Parts per million' is a concentration unit, not a gas, cause, or fuel (as distractors suggest).",
+            "options": [
+              "A) A unit measuring concentration",
+              "B) A greenhouse gas emitted by cars",
+              "C) The main cause of deforestation",
+              "D) A type of fossil fuel"
+            ],
+            "question": "What is 'parts per million'?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fossil fuel burning, transportation, agriculture, deforestation",
+            "explanation": "The text identifies fossil fuel use (electricity/transport), agriculture (livestock/fertilizers), and deforestation as primary human-driven CO\u2082 sources. Other options include non-contributors or solutions.",
+            "options": [
+              "A) Fossil fuel burning, transportation, agriculture, deforestation",
+              "B) Nuclear power plants, solar farms, hydroelectric dams",
+              "C) Ocean currents, volcanic activity, natural wetlands",
+              "D) Recycling programs, electric vehicles, wind energy"
+            ],
+            "question": "Which activities are major contributors to current CO\u2082 levels?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in 'parts per million today' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) CO2 ppm would significantly decrease rapidly",
+            "explanation": "Fossil fuels are the primary CO2 source (67% global emissions). Immediate ban would drastically reduce emissions from energy/transportation sectors, outweighing slower-reducing sources like agriculture.",
+            "options": [
+              "A) CO2 ppm would significantly decrease rapidly",
+              "B) CO2 ppm would decline slowly due to existing atmospheric CO2",
+              "C) CO2 ppm would increase from alternative emission sources",
+              "D) CO2 ppm would remain unchanged due to other sectors"
+            ],
+            "question": "What would happen if all countries banned fossil fuels by 2030?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "parts per million today"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "disrupting the timing of plant flowering and animal migration that had evolved over thousands of years. Environmental and Biological Impacts Climate c...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Climate change",
+            "explanation": "The text explicitly states climate change causes disruption in timing of natural cycles like flowering and migration, while other options aren't mentioned in this context.",
+            "options": [
+              "A) Climate change",
+              "B) Pollution",
+              "C) Deforestation",
+              "D) Overfishing"
+            ],
+            "question": "What is disrupting plant flowering and animal migration timing?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Coral reefs, polar bears, amphibians",
+            "explanation": "The content explicitly cites coral reefs (as ecosystems), polar bears, and amphibians as directly impacted by climate change. Other options include broader groups (e.g., forests) or unrelated species.",
+            "options": [
+              "A) Coral reefs, polar bears, amphibians",
+              "B) Fish populations, forests, insects",
+              "C) Birds, mammals, reptiles",
+              "D) Algae, plankton, seaweed"
+            ],
+            "question": "Which are species impacted by climate change?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Causes species extinction, habitat loss, and food chain disruptions",
+            "explanation": "Disrupting timing affects reproductive cycles and migration patterns, leading to mismatches in ecosystems, species extinction, habitat loss, and disrupted food chains, reducing biodiversity.",
+            "options": [
+              "A) Causes species extinction, habitat loss, and food chain disruptions",
+              "B) Only increases short-term migration rates",
+              "C) Enhances adaptation through genetic mutations",
+              "D) Reduces human agricultural productivity solely"
+            ],
+            "question": "How does climate change disrupting plant and animal timing affect ecosystem biodiversity?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Increased mismatches in pollination and migration timing",
+            "explanation": "Early spring would desynchronize interdependent biological events (e.g., flowers blooming before pollinators emerge), mirroring climate change disruptions described in the content where evolved timing relationships break down.",
+            "options": [
+              "A) Increased mismatches in pollination and migration timing",
+              "B) Immediate extinction of all non-adapted species",
+              "C) No significant impact on ecosystems",
+              "D) Only disrupt bird migrations, not plants"
+            ],
+            "question": "What would happen if spring arrived 2 months earlier globally?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "disrupting the timing of plant flowering and animal migration that had evolve..."
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "diseases expanding their geographic range toward the poles. Economic impacts are substantial, including costs associated with property damage from ext...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) The area where a species or disease is found",
+            "explanation": "Prestructural questions test basic term recognition. 'Geographic range' simply describes distribution areas, not movement, pole regions, or impacts.",
+            "options": [
+              "A) The area where a species or disease is found",
+              "B) The movement of diseases toward colder areas",
+              "C) Regions near the North and South Poles",
+              "D) The economic impact of diseases"
+            ],
+            "question": "What does 'geographic range' refer to?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Property damage, agricultural losses, healthcare costs, infrastructure damage",
+            "explanation": "Option A lists direct economic impacts from the content. B covers geopolitical consequences, C describes mitigation strategies, and D focuses on vulnerability factors - all non-economic aspects.",
+            "options": [
+              "A) Property damage, agricultural losses, healthcare costs, infrastructure damage",
+              "B) Geopolitical instability, climate migration, conflict over resources",
+              "C) Renewable energy transition, energy efficiency improvements",
+              "D) Developing nations' adaptation challenges, low-income population risks"
+            ],
+            "question": "Which are economic impacts of diseases expanding poleward?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Increased healthcare costs and adaptation challenges despite lower emissions",
+            "explanation": "Developing nations face higher healthcare costs and adaptation burdens from climate-driven diseases due to limited resources, despite contributing least to emissions.",
+            "options": [
+              "A) Increased healthcare costs and adaptation challenges despite lower emissions",
+              "B) Reduced agricultural productivity due to colder climates",
+              "C) Greater access to advanced medical treatments",
+              "D) Decreased migration from resource scarcity"
+            ],
+            "question": "How does climate-driven disease expansion disproportionately affect developing nations?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Increased tropical disease spread to mid-latitudes via wind-carried vectors",
+            "explanation": "Altered wind patterns could transport disease vectors (e.g., mosquitoes) beyond traditional ranges, expanding infection risks to new populations not prepared for these diseases, mirroring real climate-driven vector migration patterns.",
+            "options": [
+              "A) Increased tropical disease spread to mid-latitudes via wind-carried vectors",
+              "B) Complete eradication of vector-borne diseases globally",
+              "C) Accelerated ocean current shifts reducing coastal infections",
+              "D) Stabilized agricultural zones reducing malnutrition-related diseases"
+            ],
+            "question": "What would happen if geoengineering cooled poles but disrupted wind patterns?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "diseases expanding their geographic range toward the poles"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "climate_change_lesson.pdf",
+    "generated_at": "2025-12-09T11:03:22.316247",
+    "question_mode": "auto",
+    "total_chapters": 5,
+    "total_questions": 16
+  }
+}

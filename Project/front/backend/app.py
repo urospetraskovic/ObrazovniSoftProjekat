@@ -10,6 +10,9 @@ from PyPDF2 import PdfReader
 app = Flask(__name__)
 CORS(app)
 
+print("[STARTUP] Flask app initialized")
+print("[STARTUP] Importing SoloQuizGenerator...")
+
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 DOWNLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'downloaded_quizzes')
@@ -144,6 +147,51 @@ def generate_quiz_from_text():
         except Exception as e:
             print(f"Error generating quiz: {str(e)}")
             return jsonify({'error': f'Failed to generate quiz: {str(e)}'}), 500
+    
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
+
+@app.route('/api/resume-quiz', methods=['POST'])
+def resume_quiz():
+    """Resume quiz generation from where it left off"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Get the quiz data directly from request (pass the quiz object instead of filename)
+        existing_quiz = data.get('existing_quiz')
+        original_file = data.get('original_file')
+        content = data.get('content')
+        resume_from_chapter = data.get('resume_from_chapter', 3)
+        
+        if not existing_quiz or not content:
+            return jsonify({'error': 'Missing existing_quiz or content'}), 400
+        
+        # Get config from existing quiz
+        config = existing_quiz.get('metadata', {}).get('config')
+        
+        # Resume generation
+        try:
+            generator = SoloQuizGenerator()
+            # Reset provider state for new batch
+            generator.api_exhausted = False
+            
+            quiz_data = generator.generate_quiz(
+                content, 
+                original_file or 'resumed_quiz.txt',
+                config,
+                resume_from_chapter=resume_from_chapter,
+                existing_quiz=existing_quiz
+            )
+            
+            return jsonify(quiz_data), 200
+            
+        except Exception as e:
+            print(f"Error resuming quiz: {str(e)}")
+            return jsonify({'error': f'Failed to resume quiz: {str(e)}'}), 500
     
     except Exception as e:
         print(f"Unexpected error: {str(e)}")

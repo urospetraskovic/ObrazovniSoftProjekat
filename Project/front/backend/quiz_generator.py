@@ -6,16 +6,20 @@ from dotenv import load_dotenv
 import requests
 from typing import Dict, List, Any
 
-load_dotenv()
+# Load environment variables
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(env_path)
 
 class SoloQuizGenerator:
     """
     SOLO Taxonomy Quiz Generator
     Generates educational quizzes from text content using SOLO taxonomy levels
+    Supports OpenRouter API with GitHub Models as fallback
     """
     
     def __init__(self):
         """Initialize the quiz generator with API configuration"""
+        # OpenRouter API keys
         self.api_keys = [
             os.getenv('OPENROUTER_API_KEY'),
             os.getenv('OPENROUTER_API_KEY_2'),
@@ -30,16 +34,27 @@ class SoloQuizGenerator:
         # Filter out None values
         self.api_keys = [key for key in self.api_keys if key]
         
+        # GitHub Models API token (fallback)
+        self.github_token = os.getenv('GITHUB_TOKEN')
+        
         if not self.api_keys:
-            print("Warning: No API keys configured. Using mock responses.")
+            print("Warning: No OpenRouter API keys configured.")
             self.api_keys = ['mock']
+        else:
+            print(f"[INIT] OpenRouter: {len(self.api_keys)} API keys loaded")
+        
+        if not self.github_token:
+            print("[INIT] Warning: No GitHub token configured for fallback model.")
+        else:
+            print(f"[INIT] GitHub Models: Token loaded ({self.github_token[:30]}...)")
         
         self.current_key_index = 0
         self.provider = "openrouter"
+        self.api_exhausted = False
     
-    def generate_quiz(self, content: str, filename: str, config: Dict[str, Any] = None) -> Dict[str, Any]:
+    def generate_quiz(self, content: str, filename: str, config: Dict[str, Any] = None, resume_from_chapter: int = 1, existing_quiz: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Main method to generate quiz from content
+        Main method to generate quiz from content with resume capability
         
         Args:
             content: Text content to generate quiz from
@@ -50,13 +65,27 @@ class SoloQuizGenerator:
                 - solo_distribution: dict with level percentages or None
                 - distribution_mode: 'auto' or 'manual'
                 - use_smart_chunking: bool (default: True)
+            resume_from_chapter: Chapter number to resume from (default: 1)
+            existing_quiz: Existing quiz data to resume (optional)
             
         Returns:
             Dictionary containing quiz data with chapters and questions
         """
         try:
+            is_resuming = resume_from_chapter > 1 or existing_quiz is not None
+            if is_resuming:
+                print(f"\n[RESUME] Continuing quiz from chapter {resume_from_chapter}")
+            else:
+                print(f"\n[START] Generating quiz from: {filename}")
+            print(f"[PROVIDERS] Primary: OpenRouter (9 keys) | Fallback: GitHub Models gpt-4o")
             # Use smart chunking by default
             chapters = self._split_into_chapters_smart(content, config)
+            
+            # Cap chapters to limit total questions to ~25 (API constraint: 50 prompts/day)
+            # With 2-3 questions per chapter, max chapters = 10
+            max_chapters = 10
+            if len(chapters) > max_chapters:
+                chapters = chapters[:max_chapters]
             
             # Determine config
             if config is None:
@@ -69,61 +98,74 @@ class SoloQuizGenerator:
                 content_length = len(content)
                 chapter_count = len(chapters)
                 
-                # Base calculation: roughly 1 question per 500 characters, min 5 per chapter
-                questions_by_length = max(5, content_length // 500)
-                questions_by_chapters = chapter_count * 5
+                # Base calculation: roughly 1 question per 500 characters, min 2-3 per chapter
+                questions_by_length = max(3, content_length // 500)
+                questions_by_chapters = chapter_count * 2
                 
                 # Use the higher of the two to avoid too few questions for continuous text
                 total_questions = max(questions_by_length, questions_by_chapters)
-                # Cap at reasonable max (100 questions)
-                total_questions = min(total_questions, 100)
+                # Cap at 25 questions (OpenRouter API limit: 50 prompts per day)
+                total_questions = min(total_questions, 25)
                 
                 question_mode = 'auto'
             else:
-                total_questions = config.get('total_questions', len(chapters) * 5)
+                total_questions = min(config.get('total_questions', len(chapters) * 2), 25)
                 question_mode = 'manual'
             
             # Determine SOLO distribution
             if config.get('distribution_mode') == 'auto' or config.get('solo_distribution') is None:
-                # Auto mode: use balanced distribution (5 SOLO levels)
+                # Auto mode: use balanced distribution (4 SOLO levels)
                 solo_distribution = {
-                    'prestructural': 0.10,
-                    'unistructural': 0.15,
+                    'unistructural': 0.20,
                     'multistructural': 0.30,
                     'relational': 0.30,
-                    'extended_abstract': 0.15
+                    'extended_abstract': 0.20
                 }
                 distribution_mode = 'auto'
             else:
                 solo_distribution = config.get('solo_distribution', {
-                    'prestructural': 0.10,
-                    'unistructural': 0.15,
+                    'unistructural': 0.20,
                     'multistructural': 0.30,
                     'relational': 0.30,
-                    'extended_abstract': 0.15
+                    'extended_abstract': 0.20
                 })
                 distribution_mode = 'manual'
             
-            quiz_data = {
-                'metadata': {
-                    'filename': filename,
-                    'generated_at': datetime.now().isoformat(),
-                    'total_chapters': len(chapters),
-                    'total_questions': 0,
-                    'question_mode': question_mode,
-                    'distribution_mode': distribution_mode,
-                    'config': config
-                },
-                'chapters': []
-            }
+            # Initialize or resume quiz data
+            if existing_quiz is not None:
+                quiz_data = existing_quiz
+                questions_generated = quiz_data['metadata']['progress']['questions_generated']
+                # Remove the "API Limit Reached" placeholder if it exists
+                quiz_data['chapters'] = [ch for ch in quiz_data['chapters'] if ch.get('title') != '⚠️ API Limit Reached']
+            else:
+                quiz_data = {
+                    'metadata': {
+                        'filename': filename,
+                        'generated_at': datetime.now().isoformat(),
+                        'total_chapters': len(chapters),
+                        'total_questions': 0,
+                        'question_mode': question_mode,
+                        'distribution_mode': distribution_mode,
+                        'config': config,
+                        'progress': {
+                            'chapters_completed': 0,
+                            'total_chapters': len(chapters),
+                            'questions_generated': 0,
+                            'total_questions_target': total_questions
+                        }
+                    },
+                    'chapters': []
+                }
+                questions_generated = 0
             
-            questions_generated = 0
-            questions_per_chapter = max(1, total_questions // len(chapters)) if chapters else 5
+            questions_per_chapter = max(1, total_questions // len(chapters)) if chapters else 2
             
-            # Generate questions for each chapter
-            for idx, chapter_content in enumerate(chapters):
-                if questions_generated >= total_questions:
+            # Generate questions for each chapter (resume from specified chapter)
+            for idx in range(resume_from_chapter - 1, len(chapters)):
+                if questions_generated >= total_questions or self.api_exhausted:
                     break
+                
+                chapter_content = chapters[idx]
                     
                 # Calculate remaining questions for this chapter
                 remaining = total_questions - questions_generated
@@ -136,9 +178,36 @@ class SoloQuizGenerator:
                     solo_distribution
                 )
                 if chapter_data:
-                    quiz_data['chapters'].append(chapter_data)
-                    questions_generated += len(chapter_data.get('questions', []))
-                    quiz_data['metadata']['total_questions'] = questions_generated
+                    # Check if we got actual questions or if API is exhausted
+                    if chapter_data.get('questions'):
+                        quiz_data['chapters'].append(chapter_data)
+                        questions_generated += len(chapter_data.get('questions', []))
+                        quiz_data['metadata']['total_questions'] = questions_generated
+                        quiz_data['metadata']['progress']['chapters_completed'] = idx + 1
+                        quiz_data['metadata']['progress']['questions_generated'] = questions_generated
+                    else:
+                        # No questions generated - API exhausted
+                        if self.api_exhausted:
+                            break
+            
+            # If API was exhausted, add a note chapter
+            if self.api_exhausted or (questions_generated < total_questions and questions_generated > 0):
+                next_chapter = len(quiz_data['chapters']) + 1
+                quiz_data['chapters'].append({
+                    'chapter_number': next_chapter,
+                    'title': '⚠️ API Limit Reached',
+                    'content_preview': 'Quiz generation was limited by API constraints.',
+                    'questions': [{
+                        'solo_level': 'info',
+                        'question_data': {
+                            'question': 'Quiz generation stopped due to API limits',
+                            'explanation': f'Generated {questions_generated}/{total_questions} questions. Click "Resume Quiz" to continue from chapter {next_chapter}.',
+                            'options': [f'Note: Resume from chapter {next_chapter}'],
+                            'correct_answer': f'Note: Resume from chapter {next_chapter}'
+                        }
+                    }]
+                })
+                quiz_data['metadata']['resume_from_chapter'] = next_chapter
             
             return quiz_data
             
@@ -253,9 +322,9 @@ class SoloQuizGenerator:
             Dictionary containing chapter data with questions
         """
         return self._process_chapter_smart(chapter_content, chapter_num, 5, {
-            'prestructural': 0.15,
-            'multistructural': 0.35,
-            'relational': 0.35,
+            'unistructural': 0.25,
+            'multistructural': 0.30,
+            'relational': 0.30,
             'extended_abstract': 0.15
         })
     
@@ -280,9 +349,8 @@ class SoloQuizGenerator:
         """
         if solo_distribution is None:
             solo_distribution = {
-                'prestructural': 0.10,
-                'unistructural': 0.15,
-                'multistructural': 0.25,
+                'unistructural': 0.20,
+                'multistructural': 0.30,
                 'relational': 0.30,
                 'extended_abstract': 0.20
             }
@@ -307,8 +375,8 @@ class SoloQuizGenerator:
                 'questions': []
             }
             
-            # Calculate questions per level based on distribution (all 5 SOLO levels)
-            solo_levels = ['prestructural', 'unistructural', 'multistructural', 'relational', 'extended_abstract']
+            # Calculate questions per level based on distribution (all 4 SOLO levels)
+            solo_levels = ['unistructural', 'multistructural', 'relational', 'extended_abstract']
             questions_per_level = {}
             
             for level in solo_levels:
@@ -341,12 +409,12 @@ class SoloQuizGenerator:
             context: Chapter context/title
             
         Returns:
-            Dictionary with question data
+            Dictionary with question data, or None if API unavailable
         """
         try:
             if self.api_keys[0] == 'mock':
                 print(f"Using mock questions (no API keys configured)")
-                return self._generate_mock_question(content, level, context)
+                return None
             
             # Call API to generate question
             prompt = self._build_prompt(content, level, context)
@@ -357,320 +425,114 @@ class SoloQuizGenerator:
                 if parsed:
                     return parsed
                 else:
-                    print(f"Failed to parse API response for {level}. Response: {response[:100]}")
-                    return self._generate_mock_question(content, level, context)
+                    print(f"Failed to parse API response for {level}. API exhausted.")
+                    return None
             else:
-                print(f"API returned None for {level} question. Using mock.")
-                return self._generate_mock_question(content, level, context)
+                print(f"API returned None for {level} question. API exhausted.")
+                return None
                 
         except Exception as e:
             print(f"Error generating {level} question: {str(e)}")
-            return self._generate_mock_question(content, level, context)
+            return None
     
     def _build_prompt(self, content: str, level: str, context: str) -> str:
-        """Build prompt for API request with complete SOLO taxonomy definitions"""
+        """Build optimized prompt with detailed SOLO Taxonomy definitions"""
         
-        solo_definitions = """
-SOLO TAXONOMY - COMPREHENSIVE LEVEL DEFINITIONS (Based on Biggs & Collis):
-
-1. PRESTRUCTURAL (Surface Learning - Quantitative):
-   Definition: Student doesn't understand the topic or has never encountered it. Responses simply miss the point and show little evidence of relevant learning.
-   
-   Characteristics:
-   - Student may respond with "I don't know"
-   - Gives irrelevant comments that are off-topic
-   - Provides factually inaccurate information
-   - May parrot what they're "supposed to say" without understanding
-   - Long responses that sound impressive but don't answer the question
-   
-   Question Examples:
-   - "What is X?" (basic recall, no comprehension needed)
-   - "Define Y in one word"
-   - "Which of these is an example of Z?"
-   
-   Key Point: Test if student has encountered the term/concept at all, not whether they understand it.
-
-2. UNISTRUCTURAL (Surface Learning - Quantitative):
-   Definition: Student understands only ONE or TWO elements of the task but misses many important parts needed for true understanding. Knowledge remains at terminology level.
-   
-   Characteristics:
-   - Can identify and name a few things
-   - Knows some relevant terms but can't explain them in depth
-   - Can follow simple procedures that were explicitly taught
-   - Gives vague or general answers
-   - Missing critical components of full understanding
-   
-   Question Examples:
-   - "What is the main characteristic of X?"
-   - "Name the process that does Y"
-   - "Which term describes Z?"
-   
-   Key Point: Student focuses on ONE aspect but ignores other important elements. Like a single puzzle piece in isolation.
-
-3. MULTISTRUCTURAL (Surface Learning - Quantitative):
-   Definition: Student has acquired lots of knowledge but can't put it together yet. Knowledge remains at the level of remembering, memorizing, and listing. Surface-level understanding - like having all Ikea furniture pieces spread on the floor but not knowing how to assemble them.
-   
-   Characteristics:
-   - Can list multiple facts, components, or characteristics
-   - Knowledge remains fragmented and disconnected
-   - Cannot see relationships between parts
-   - Cannot apply concepts in new or innovative ways
-   - Heavy focus on memorization and enumeration
-   - Assessment is primarily quantitative (counting facts)
-   
-   Question Examples:
-   - "List the components of X"
-   - "What are the characteristics of Y?"
-   - "Name all the factors involved in Z"
-   - "Which of these are features of X?" (lists multiple independent items)
-   
-   Key Point: Student knows many separate pieces but cannot connect them. No systemic thinking yet.
-
-4. RELATIONAL (Deep Learning - Qualitative):
-   Definition: Student sees how parts of a topic fit together. A QUALITATIVE CHANGE occurs - no longer just listing facts but understanding the integrated whole. First level showing deep understanding.
-   
-   Characteristics:
-   - Can identify patterns and connections
-   - Explains how parts link together into a coherent system
-   - Can compare and contrast different elements
-   - Views topic from multiple perspectives
-   - Uses systemic and theoretical modeling
-   - Understands cause-and-effect relationships
-   - Can explain WHY things work the way they do
-   
-   Question Examples:
-   - "How does X affect Y?"
-   - "What is the relationship between A and B?"
-   - "Compare and contrast X and Y"
-   - "Why does Z happen when X is present?"
-   - "Explain how these parts work together as a system"
-   
-   Key Point: Moving from "knowing facts" to "understanding systems." Student can see the big picture.
-
-5. EXTENDED ABSTRACT (Deep Learning - Qualitative):
-   Definition: Student has sophisticated understanding and can apply knowledge in various contexts BEYOND what was directly taught. Essence is going beyond what was given. Creates new knowledge through deep understanding.
-   
-   Characteristics:
-   - Can apply knowledge to entirely new and different contexts
-   - Generates theoretical ideas
-   - Makes predictions about future events using principles learned
-   - Can create new combinations of ideas
-   - Understands principles at an abstract level
-   - Can work with knowledge outside the classroom/original context
-   - Sophisticated, nuanced understanding
-   
-   Question Examples:
-   - "What would happen if X were different?"
-   - "How would you apply principles of X in a completely new situation Y?"
-   - "If we changed Z, what would be the consequences?"
-   - "How would concept X change our understanding of unrelated field Y?"
-   - "Predict what would happen when you apply X to scenario Z"
-   
-   Key Point: Student can transfer knowledge to NEW contexts and generate NEW knowledge. Highest level of thinking.
-
-IMPORTANT NOTES:
-- Levels 1-3 are SURFACE learning (quantitative, fact-focused)
-- Levels 4-5 are DEEP learning (qualitative, understanding-focused)
-- Each level builds on the previous one
-- Questions should test ONLY the specified level, not multiple levels
-"""
-        
-        # Use more content for better context (1000 chars instead of 500)
-        content_preview = content[:1000]
+        # Keep content preview SHORT (600 chars)
+        content_preview = content[:600]
         
         prompts = {
-            'prestructural': f"""{solo_definitions}
-
-TASK: Create a PRESTRUCTURAL level question based on the content about '{context}'.
-
-THIS LEVEL TESTS: Basic recognition and recall with minimal understanding. Student may not understand the topic at all.
-
-REQUIREMENTS:
-✓ Question should test if student has heard of or can identify a BASIC TERM/CONCEPT
-✓ No deep understanding required - just recognition
-✓ Question should be simple and direct
-✓ Example patterns:
-  - "What is [term]?"
-  - "Which of these is an example of [concept]?"
-  - "What does [term] mean?" (basic definition)
-✓ Keep question under 150 characters (SHORT and SIMPLE)
-✓ Keep each option under 120 characters
-✓ Create 4 multiple choice options (A, B, C, D)
-✓ Only ONE correct answer
-✓ Explanation should be brief (under 250 characters)
-
-WHAT NOT TO DO:
-✗ Don't ask about relationships or connections
-✗ Don't require listing multiple items
-✗ Don't ask students to explain WHY or HOW
-✗ Don't make it trick questions or too complex
-✗ Don't ask students to apply knowledge to new situations
+            'unistructural': f"""Create a UNISTRUCTURAL level question about '{context}'.
 
 Content: {content_preview}
 
-Return ONLY valid JSON with these fields:
-{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
+UNISTRUCTURAL LEVEL DEFINITION:
+At this stage, the learner gets to know just a single relevant aspect of a task or subject; the student gets a basic understanding of a concept or task. Therefore, a student is able to make easy and apparent connections, but he or she does not have any idea how significant that information be or not. In addition, the students' response indicates a concrete understanding of the task, but it focuses on only one relevant aspect.
 
-IMPORTANT: Return ONLY the JSON object, no other text. Make questions SIMPLE and test RECOGNITION only.""",
-            
-            'unistructural': f"""{solo_definitions}
+TASK: Create a question that tests knowledge of ONE specific fact/concept. Student should identify or name a single element directly stated in the content.
 
-TASK: Create a UNISTRUCTURAL level question based on the content about '{context}'.
+Requirements:
+- Focus on ONE isolated aspect only
+- No connections to other concepts required
+- Question < 150 chars
+- 4 MC options (A-D), one correct
+- Explanation < 250 chars
 
-THIS LEVEL TESTS: Understanding of ONE or TWO specific elements from the content. Student knows some key concepts but hasn't yet seen the broader picture or multiple aspects.
+Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-REQUIREMENTS:
-✓ Question should focus on ONE main aspect, characteristic, or concept from the content
-✓ Student should be able to identify or explain a SINGLE important element
-✓ Question can ask about simple cause-effect or a single relationship
-✓ Example patterns:
-  - "What is the main characteristic/purpose of [single concept]?"
-  - "What does [single element] do or represent?"
-  - "Which of these best describes [one specific aspect]?"
-  - "What is the primary function/role of [single thing]?"
-✓ Keep question under 150 characters
-✓ Keep each option under 120 characters
-✓ Create 4 multiple choice options (A, B, C, D)
-✓ Only ONE correct answer
-✓ Explanation should be brief (under 250 characters)
-
-WHAT NOT TO DO:
-✗ Don't ask about multiple unrelated components
-✗ Don't ask how different parts connect or relate
-✗ Don't require listing multiple items
-✗ Don't ask students to compare or contrast
-✗ Don't ask about broader systems or integrated understanding
-✗ Don't ask students to apply to new situations
+            'multistructural': f"""Create a MULTISTRUCTURAL level question about '{context}'.
 
 Content: {content_preview}
 
-Return ONLY valid JSON with these fields:
-{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
+MULTISTRUCTURAL LEVEL DEFINITION:
+At this stage, students gain an understanding of numerous relevant independent aspects. Despite understanding the relationship between different aspects, its relationship to the whole remains unclear. Suppose the teacher is teaching about several topics and ideas, the students can make varied connections, but they fail to understand the significance of the whole. The students' responses are based on relevant aspects, but their responses are handled independently.
 
-IMPORTANT: Return ONLY the JSON object, no other text. Questions should focus on ONE element only.""",
-            
-            'multistructural': f"""{solo_definitions}
+TASK: Create a question that tests knowledge of MULTIPLE separate facts/features. Student should list or identify several independent elements WITHOUT explaining how they connect.
 
-TASK: Create a MULTISTRUCTURAL level question based on the content about '{context}'.
+Requirements:
+- Multiple items or aspects, but handled independently
+- Don't require showing relationships between items
+- Question < 150 chars
+- 4 MC options (A-D), one correct
+- Explanation < 250 chars
 
-THIS LEVEL TESTS: Multiple independent facts, components, or characteristics that are NOT connected. Student knows the pieces but can't see how they relate.
+Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-REQUIREMENTS:
-✓ Question should ask student to LIST or IDENTIFY multiple separate items
-✓ The listed items should NOT require explaining HOW they connect
-✓ Question should enumerate components, features, or characteristics
-✓ Example patterns:
-  - "Which of these are characteristics/components/features of [topic]?"
-  - "List the factors/parts/elements involved in [concept]"
-  - "What are the different [plural noun] that [verb]?"
-  - "Which of these are examples of [concept]?" (multiple independent examples)
-✓ Keep question under 150 characters
-✓ Keep each option under 120 characters
-✓ Create 4 multiple choice options (A, B, C, D) where CORRECT option lists multiple items
-✓ Only ONE correct answer
-✓ Explanation should be brief (under 250 characters)
-
-WHAT NOT TO DO:
-✗ Don't ask HOW or WHY things are related
-✗ Don't ask about cause-and-effect
-✗ Don't ask students to compare or contrast
-✗ Don't ask about relationships between items
-✗ Don't require system-level thinking
-✗ Don't ask students to apply to new situations
+            'relational': f"""Create a RELATIONAL level question about '{context}'.
 
 Content: {content_preview}
 
-Return ONLY valid JSON with these fields:
-{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
+RELATIONAL LEVEL DEFINITION:
+This stage relates to aspects of knowledge combining to form a structure. By this stage, the student is able to understand the importance of different parts in relation to the whole. They are able to connect concepts and ideas, so it provides a coherent knowledge of the whole thing. Moreover, the students' response indicates an understanding of the task by combining all the parts, and they can demonstrate how each part contributes to the whole.
 
-IMPORTANT: Return ONLY the JSON object, no other text. Question should test LISTING or IDENTIFYING, not UNDERSTANDING relationships.""",
-            
-            'relational': f"""{solo_definitions}
+TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
 
-TASK: Create a RELATIONAL level question based on the content about '{context}'.
+Requirements:
+- Ask about relationships, connections, or cause-effect WITHIN the content
+- Require understanding of how parts fit together into a coherent whole
+- Student must show how different elements relate to each other
+- Question < 150 chars
+- 4 MC options (A-D), one correct
+- Explanation < 250 chars
 
-THIS LEVEL TESTS: How parts connect and work together as an integrated system. Student understands cause-and-effect, relationships, and patterns. Deep understanding of how things fit together.
+Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-REQUIREMENTS:
-✓ Question should ask about RELATIONSHIPS, CONNECTIONS, or INTEGRATION
-✓ Student must show understanding of HOW or WHY things relate
-✓ Question should require seeing patterns or systems
-✓ Example patterns:
-  - "How does [X] affect [Y]?"
-  - "What is the relationship between [A] and [B]?"
-  - "Why does [X] happen when [Y] is present?"
-  - "Compare and contrast [A] and [B]"
-  - "Explain how [components] work together to create [result]"
-  - "What pattern connects [X] and [Y]?"
-✓ Keep question under 150 characters
-✓ Keep each option under 120 characters
-✓ Create 4 multiple choice options (A, B, C, D)
-✓ Correct answer should explain a CONNECTION or RELATIONSHIP
-✓ Only ONE correct answer
-✓ Explanation should clarify the relationship (under 250 characters)
-
-WHAT NOT TO DO:
-✗ Don't just ask for definitions or names
-✗ Don't ask for simple lists without connections
-✗ Don't ask about applying to completely new contexts
-✗ Don't make it only require basic recall
-✗ Don't avoid asking about systematic thinking
+            'extended_abstract': f"""Create an EXTENDED ABSTRACT level question about '{context}'.
 
 Content: {content_preview}
 
-Return ONLY valid JSON with these fields:
-{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
+EXTENDED ABSTRACT LEVEL DEFINITION:
+By this level, students are able to make connections within the provided task, and they also create connections beyond that. They develop the ability to transfer and generalise the concepts and principles from one subject area into a particular domain. Therefore, the students' response indicates that they can conceptualise beyond the level of what has been taught. They are able to propose new concepts and ideas depending on their understanding of the task or subject taught.
 
-IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require understanding of HOW/WHY things connect and work together.""",
-            
-            'extended_abstract': f"""{solo_definitions}
+TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Student should predict, generalize, or solve scenarios beyond what was directly taught. Requires transfer of learning to new domains.
 
-TASK: Create an EXTENDED ABSTRACT level question based on the content about '{context}'.
+Requirements:
+- Ask about applying/generalizing content to a NEW different situation
+- Scenario should NOT be directly mentioned in the content
+- Requires student to conceptualize beyond what was taught
+- Student must demonstrate ability to transfer knowledge to new contexts
+- Question < 150 chars
+- 4 MC options (A-D), one correct
+- Explanation < 250 chars
 
-THIS LEVEL TESTS: Ability to apply knowledge to NEW contexts not directly taught. Student creates new knowledge and can generalize principles. Highest level of cognitive thinking.
-
-REQUIREMENTS:
-✓ Question should ask student to apply content to a NEW, DIFFERENT context or hypothetical situation
-✓ The situation should NOT be directly mentioned in the source content
-✓ Student must use principles learned to work with something unfamiliar
-✓ Example patterns:
-  - "What would happen if [different scenario] occurred?"
-  - "How would you apply [principle from content] to [completely new situation]?"
-  - "If we changed [variable], what would be the consequences?"
-  - "Predict what would happen when [new context] is combined with [principle]"
-  - "How might [new field/situation] be affected by [principle learned]?"
-✓ Keep question under 150 characters
-✓ Keep each option under 120 characters
-✓ Create 4 multiple choice options (A, B, C, D)
-✓ Correct answer should show transfer of learning to new context
-✓ Only ONE correct answer
-✓ Explanation should show why the principle transfers (under 250 characters)
-
-WHAT NOT TO DO:
-✗ Don't ask questions directly answered in the content
-✗ Don't ask for simple recall or definitions
-✗ Don't ask for basic listings
-✗ Don't ask only about relationships within the original content
-✗ Don't make the new context too similar to original (must be genuinely different)
-
-Content: {content_preview}
-
-Return ONLY valid JSON with these fields:
-{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}
-
-IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require applying knowledge to a NEW scenario not directly in the content."""
+Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
         }
         
-        return prompts.get(level, prompts['prestructural'])
+        return prompts.get(level, prompts['unistructural'])
     
     def _call_api(self, prompt: str) -> str:
-        """Call OpenRouter API"""
+        """
+        Call API for question generation
+        Primary: OpenRouter API with key rotation (9 keys)
+        Fallback: GitHub Models API
+        """
         try:
             api_key = self.api_keys[self.current_key_index]
             
             if api_key == 'mock':
                 return None
             
+            # OpenRouter request
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
@@ -695,31 +557,109 @@ IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require app
             )
             
             if response.status_code == 200:
+                print(f"[OK] OpenRouter key {self.current_key_index + 1}/{len(self.api_keys)}")
                 return response.json()["choices"][0]["message"]["content"]
             elif response.status_code == 429:
-                # Rate limit - try next key
-                print(f"Rate limited on key {self.current_key_index}. Trying next key...")
+                # Rate limited - try next key
+                print(f"[429] Rate limited on key {self.current_key_index + 1}/{len(self.api_keys)}")
                 if self.current_key_index < len(self.api_keys) - 1:
                     self.current_key_index += 1
                     return self._call_api(prompt)
                 else:
-                    print("All API keys rate limited")
-                    return None
+                    # All OpenRouter keys exhausted - try GitHub
+                    print("[FALLBACK] All OpenRouter keys rate-limited. Switching to GitHub Models...")
+                    github_result = self._call_github_api(prompt)
+                    if github_result:
+                        return github_result
+                    else:
+                        print("[CRITICAL] Both OpenRouter AND GitHub Models APIs are exhausted!")
+                        self.api_exhausted = True
+                        return None
             else:
-                print(f"API error {response.status_code}: {response.text[:200]}")
-                return None
+                # Other error - try next key
+                print(f"[{response.status_code}] OpenRouter error. Trying next key...")
+                if self.current_key_index < len(self.api_keys) - 1:
+                    self.current_key_index += 1
+                    return self._call_api(prompt)
+                else:
+                    print("[FALLBACK] All OpenRouter keys failed. Switching to GitHub Models...")
+                    return self._call_github_api(prompt)
             
         except requests.Timeout:
-            print("API request timeout")
+            print("[TIMEOUT] Request timeout - trying fallback")
+            if self.current_key_index < len(self.api_keys) - 1:
+                self.current_key_index += 1
+                return self._call_api(prompt)
+            else:
+                return self._call_github_api(prompt)
+        except Exception as e:
+            print(f"[ERROR] API call error: {type(e).__name__}: {str(e)}")
+            if self.current_key_index < len(self.api_keys) - 1:
+                self.current_key_index += 1
+                return self._call_api(prompt)
+            else:
+                print("[FALLBACK] All OpenRouter keys failed. Trying GitHub Models...")
+                return self._call_github_api(prompt)
+    
+    def _call_github_api(self, prompt: str) -> str:
+        """Call GitHub Models API (gpt-4o) as fallback"""
+        try:
+            if not self.github_token:
+                print("[ERROR] GitHub token not configured - cannot use fallback API")
+                self.api_exhausted = True
+                return None
+            
+            print("[GitHub API] Calling gpt-4o model...")
+            headers = {
+                "Authorization": f"Bearer {self.github_token}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": "gpt-4o",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful educational assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 800,
+                "top_p": 1
+            }
+            
+            response = requests.post(
+                "https://models.github.ai/inference/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                print("[SUCCESS] GitHub Models API working (gpt-4o)")
+                return response.json()["choices"][0]["message"]["content"]
+            elif response.status_code == 429:
+                print("[RATE_LIMIT] GitHub Models also rate-limited (quota exhausted)")
+                self.api_exhausted = True
+                return None
+            else:
+                print(f"[GitHub API Error] Status {response.status_code}: {response.text[:300]}")
+                return None
+                
+        except requests.Timeout:
+            print("[GitHub API] Request timeout (30s)")
+            self.api_exhausted = True
+            return None
+        except requests.ConnectionError as e:
+            print(f"[GitHub API] Connection error: {str(e)}")
+            self.api_exhausted = True
             return None
         except Exception as e:
-            print(f"API call error: {str(e)}")
+            print(f"[GitHub API Exception] {type(e).__name__}: {str(e)}")
+            self.api_exhausted = True
             return None
     
     def _parse_question_response(self, response: str) -> Dict[str, Any]:
-        """Parse API response to extract question data and validate length"""
+        """Parse API response to extract question data"""
         try:
-            # Try to extract JSON from response
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
                 parsed = json.loads(json_match.group())
@@ -730,26 +670,16 @@ IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require app
             return None
     
     def _validate_and_clean_question(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate and clean question data to ensure reasonable lengths
-        
-        Args:
-            question_data: Raw question data from API
-            
-        Returns:
-            Cleaned question data with enforced length limits
-        """
+        """Validate and clean question data to enforce reasonable lengths"""
         try:
-            # Enforce length limits
-            MAX_QUESTION_LEN = 200  # Maximum characters for question
-            MAX_ANSWER_LEN = 150    # Maximum characters for answer/option
-            MAX_EXPLANATION_LEN = 300  # Maximum characters for explanation
+            MAX_QUESTION_LEN = 200
+            MAX_ANSWER_LEN = 150
+            MAX_EXPLANATION_LEN = 300
             
             # Clean question
             if 'question' in question_data:
                 q = question_data['question']
                 if len(q) > MAX_QUESTION_LEN:
-                    # Try to find first sentence
                     sentences = q.split('?')
                     question_data['question'] = sentences[0] + '?' if sentences else q[:MAX_QUESTION_LEN]
             
@@ -758,7 +688,6 @@ IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require app
                 cleaned_options = []
                 for opt in question_data['options']:
                     if len(opt) > MAX_ANSWER_LEN:
-                        # Truncate at word boundary
                         truncated = opt[:MAX_ANSWER_LEN]
                         last_space = truncated.rfind(' ')
                         if last_space > 20:
@@ -792,75 +721,4 @@ IMPORTANT: Return ONLY the JSON object, no other text. Question MUST require app
         except Exception as e:
             print(f"Error validating question: {str(e)}")
             return question_data
-    
-    
-    def _generate_mock_question(self, content: str, level: str, context: str) -> Dict[str, Any]:
-        """Generate mock question for testing - extracts real content for better fallback"""
-        
-        # Extract key terms from content
-        sentences = content.split('.')
-        key_sentence = sentences[0] if sentences else content[:100]
-        
-        # Extract some key words from content
-        words = [w.strip() for w in content.split() if len(w) > 5 and w[0].isupper()]
-        key_term = words[0] if words else "concept"
-        
-        level_templates = {
-            'prestructural': {
-                'question': f"What is {key_term}?",
-                'options': [
-                    f'A) {key_sentence[:50]}...',
-                    'B) A type of technology',
-                    'C) An irrelevant concept',
-                    'D) A historical fact'
-                ],
-                'correct_answer': f'A) {key_sentence[:50]}...',
-                'explanation': f'This prestructural question tests basic recognition of {key_term} from the content.'
-            },
-            'unistructural': {
-                'question': f"What is the main characteristic or role of {key_term} in '{context}'?",
-                'options': [
-                    f'A) It provides {key_sentence[:40]}',
-                    'B) It has no specific function',
-                    'C) It contradicts other concepts',
-                    'D) It is completely unrelated'
-                ],
-                'correct_answer': f'A) It provides {key_sentence[:40]}',
-                'explanation': 'This unistructural question tests understanding of ONE main aspect or characteristic of a concept.'
-            },
-            'multistructural': {
-                'question': f"Which of these are components or characteristics mentioned in '{context}'?",
-                'options': [
-                    'A) Energy flow, populations, and ecosystems',
-                    'B) Only abstract concepts',
-                    'C) Personal opinions',
-                    'D) Random unrelated facts'
-                ],
-                'correct_answer': 'A) Energy flow, populations, and ecosystems',
-                'explanation': 'This multistructural question identifies multiple components without explaining their relationships.'
-            },
-            'relational': {
-                'question': f"How do the different aspects in '{context}' connect to form a coherent understanding?",
-                'options': [
-                    'A) They are completely independent',
-                    'B) They work together in an integrated system',
-                    'C) Only one aspect is important',
-                    'D) They contradict each other'
-                ],
-                'correct_answer': 'B) They work together in an integrated system',
-                'explanation': 'This relational question asks about how concepts integrate and relate to each other systemically.'
-            },
-            'extended_abstract': {
-                'question': f"If we applied the principles from '{context}' to a new situation, what might we predict?",
-                'options': [
-                    'A) The principles cannot be applied elsewhere',
-                    'B) We could predict outcomes in similar systems',
-                    'C) The concepts are too specific to one context',
-                    'D) There is no way to transfer this knowledge'
-                ],
-                'correct_answer': 'B) We could predict outcomes in similar systems',
-                'explanation': 'This extended abstract question requires transferring learned principles to new, hypothetical scenarios.'
-            }
-        }
-        
-        return level_templates.get(level, level_templates['prestructural'])
+

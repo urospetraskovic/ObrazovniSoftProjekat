@@ -6,15 +6,18 @@ import QuizLoader from './components/QuizLoader';
 import QuizDisplay from './components/QuizDisplay';
 import TextInput from './components/TextInput';
 import QuizConfig from './components/QuizConfig';
+import ProgressBar from './components/ProgressBar';
 
 function App() {
   const [file, setFile] = useState(null);
   const [quizData, setQuizData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showConfig, setShowConfig] = useState(false);
   const [pendingConfig, setPendingConfig] = useState(null);
+  const [originalContent, setOriginalContent] = useState(null);
 
   const API_URL = 'http://localhost:5000/api';
 
@@ -30,9 +33,16 @@ function App() {
       return;
     }
 
-    // Show config dialog instead of generating directly
-    setPendingConfig({ type: 'file', file: file });
-    setShowConfig(true);
+    // Read file content for resuming later
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      setOriginalContent(e.target.result);
+      
+      // Show config dialog instead of generating directly
+      setPendingConfig({ type: 'file', file: file });
+      setShowConfig(true);
+    };
+    reader.readAsText(file);
   };
 
   const handleGenerateWithConfig = async (config) => {
@@ -46,6 +56,7 @@ function App() {
     formData.append('config', JSON.stringify(config));
 
     setLoading(true);
+    setProgress(null);
     setError(null);
     setSuccess(null);
     setShowConfig(false);
@@ -57,6 +68,11 @@ function App() {
         },
       });
 
+      // Extract progress info if available
+      if (response.data.metadata && response.data.metadata.progress) {
+        setProgress(response.data.metadata.progress);
+      }
+
       setQuizData(response.data);
       setSuccess('Quiz generated successfully!');
       setFile(null);
@@ -67,6 +83,43 @@ function App() {
     } finally {
       setLoading(false);
       setPendingConfig(null);
+    }
+  };
+
+  const handleResumeQuiz = async () => {
+    if (!quizData || !originalContent) {
+      setError('Cannot resume quiz - missing content');
+      return;
+    }
+
+    const resumeChapter = quizData.metadata?.resume_from_chapter || 3;
+    
+    setLoading(true);
+    setProgress(null);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await axios.post(`${API_URL}/resume-quiz`, {
+        existing_quiz: quizData,
+        original_file: quizData.metadata.filename,
+        content: originalContent,
+        resume_from_chapter: resumeChapter,
+      });
+
+      // Extract progress info if available
+      if (response.data.metadata && response.data.metadata.progress) {
+        setProgress(response.data.metadata.progress);
+      }
+
+      setQuizData(response.data);
+      setSuccess(`Quiz resumed! Now generating from chapter ${resumeChapter}...`);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to resume quiz';
+      setError(errorMessage);
+      console.error('Error resuming:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,6 +150,7 @@ function App() {
     }
 
     setLoading(true);
+    setProgress(null);
     setError(null);
     setSuccess(null);
     setShowConfig(false);
@@ -106,6 +160,11 @@ function App() {
         content: pendingConfig.content,
         config: config,
       });
+
+      // Extract progress info if available
+      if (response.data.metadata && response.data.metadata.progress) {
+        setProgress(response.data.metadata.progress);
+      }
 
       setQuizData(response.data);
       setSuccess('Quiz generated successfully from text!');
@@ -168,6 +227,7 @@ function App() {
 
         {error && <div className="error">{error}</div>}
         {success && <div className="success">{success}</div>}
+        {loading && <ProgressBar progress={progress} message="Generating quiz..." />}
 
         {!quizData ? (
           <div className="main-content">
@@ -206,6 +266,8 @@ function App() {
             quizData={quizData}
             onDownload={handleDownloadQuizWithModifications}
             onClear={handleClearQuiz}
+            onResume={handleResumeQuiz}
+            canResume={quizData?.metadata?.resume_from_chapter !== undefined}
           />
         )}
       </div>

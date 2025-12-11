@@ -1,0 +1,816 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "--- Page 1 ---\nOPERATIVNI SISTEMI\nVirtuelna memorijaSlajdovi sukreirani naosnovu knjige \u201cOperativni sistemi , principi unutra \u0161nje organizacije i diza...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Allowing more memory use than physically available",
+            "explanation": "Virtual memory's core function is to extend usable memory beyond physical RAM capacity through disk storage.",
+            "options": [
+              "A) Allowing more memory use than physically available",
+              "B) Speeding up processor calculations",
+              "C) Managing all hardware components",
+              "D) Replacing RAM entirely with disk storage"
+            ],
+            "question": "What is the primary function of virtual memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Process management, Memory management, File system",
+            "explanation": "Correct answer lists multiple core OS components without requiring relational understanding. Other options include non-OS application features.",
+            "options": [
+              "A) Process management, Memory management, File system",
+              "B) Web browser interface, Cloud storage integration",
+              "C) Hardware diagnostics, Antivirus protection",
+              "D) Spreadsheet functions, Presentation templates"
+            ],
+            "question": "Which options list features of an operating system?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Allows programs to exceed physical memory size, Uses paging or segmentation, Provides memory isolation",
+            "explanation": "Correct answer lists key characteristics of virtual memory separately without requiring relational understanding. Other options mix incorrect features unrelated to virtual memory.",
+            "options": [
+              "A) Allows programs to exceed physical memory size, Uses paging or segmentation, Provides memory isolation",
+              "B) Direct hardware access, Fixed-size memory partitions, No address translation",
+              "C) Only uses physical RAM, Requires contiguous memory allocation, Shared memory spaces",
+              "D) Eliminates need for storage devices, Uses single memory space for all processes, No memory protection"
+            ],
+            "question": "Which of the following are characteristics of virtual memory?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By using disk space to extend RAM capacity when physical memory is full",
+            "explanation": "Virtual memory creates a relationship where disk storage acts as an extension of physical RAM, allowing the OS to manage memory demands by swapping data between them when needed.",
+            "options": [
+              "A) By using disk space to extend RAM capacity when physical memory is full",
+              "B) By isolating physical memory from secondary storage for security",
+              "C) By replacing physical memory entirely with faster disk storage",
+              "D) Through direct access of CPU to secondary storage without RAM"
+            ],
+            "question": "How does virtual memory integrate physical memory and secondary storage in an operating system?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Allows processes larger than physical memory by using disk storage",
+            "explanation": "Virtual memory extends usable memory capacity by integrating disk storage with physical memory, enabling systems to run larger processes than physical RAM alone could support.",
+            "options": [
+              "A) Allows processes larger than physical memory by using disk storage",
+              "B) Speeds up physical memory access through address translation",
+              "C) Reduces the need for secondary storage devices",
+              "D) Completely replaces physical memory with disk space"
+            ],
+            "question": "What is the primary relationship between virtual memory and physical memory in an operating system?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Virtual addresses couldn't be translated to physical addresses",
+            "explanation": "The MMU handles critical virtual-to-physical address translation. Without it, virtual memory cannot function as addresses remain unresolved, making the system inoperable.",
+            "options": [
+              "A) Virtual addresses couldn't be translated to physical addresses",
+              "B) Physical memory capacity would automatically increase",
+              "C) Page swapping operations would become faster",
+              "D) Applications would directly access larger physical memory"
+            ],
+            "question": "What would happen if a computer's Memory Management Unit (MMU) was removed in a system using virtual memory?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 1 ---"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "--- Page 3 ---\nKarakteristike upravljanja memorijom\n\uf0a8Memorijske reference su logi\u010dke adrese koje \nse dinami \u010dki prevode u fizi\u010dke adrese u toku \nizvr\u0161...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Deo diska za sme\u0161tanje delova procesa koji se trenutno izvr\u0161avaju",
+            "explanation": "Prema stranici 5, virtuelna memorija je definisana kao deo diska namenjen za sme\u0161tanje delova procesa koji se trenutno izvr\u0161avaju.",
+            "options": [
+              "A) Deo diska za sme\u0161tanje delova procesa koji se trenutno izvr\u0161avaju",
+              "B) Glavna memorija ra\u010dunara koja direktno komunicira sa CPU",
+              "C) Particija za trajno skladi\u0161tenje podataka kad sistem nije aktivan",
+              "D) Brza pomo\u0107na memorija za privremeno \u010duvanje instrukcija"
+            ],
+            "question": "\u0160ta je virtuelna memorija prema datom sadr\u017eaju?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Logical address translation, process relocation, non-contiguous allocation",
+            "explanation": "Page 3 explicitly lists: dynamic address translation (1st bullet), process relocation (2nd bullet), and non-contiguous allocation (4th bullet). Other options include virtual memory (Page 5) or incorrect features.",
+            "options": [
+              "A) Logical address translation, process relocation, non-contiguous allocation",
+              "B) Virtual memory implementation, multiprogramming efficiency, disk partitioning",
+              "C) Physical address consistency, process continuity, simultaneous execution",
+              "D) Fixed memory allocation, uniform process parts, mandatory full loading"
+            ],
+            "question": "Which of these are characteristics of memory management according to Page 3 content?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Dynamic address translation, process swapping, non-contiguous memory allocation",
+            "explanation": "Option A lists multiple independent memory management characteristics from Page 3 without requiring relationship understanding \u2013 dynamic translation, swapping, and non-contiguous allocation.",
+            "options": [
+              "A) Dynamic address translation, process swapping, non-contiguous memory allocation",
+              "B) Virtual memory reduces main memory limitations, enables multiprogramming",
+              "C) Logical addresses are physical addresses, processes require contiguous space",
+              "D) All process parts must reside in main memory during execution"
+            ],
+            "question": "Which of the following lists characteristics of memory management?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) They allow processes to be split and loaded dynamically, enabling parts to be stored on disk",
+            "explanation": "Dynamic translation maps logical to physical addresses flexibly, while non-contiguous storage permits splitting processes. Together, they enable loading only required parts into memory, with others residing on disk (virtual memory).",
+            "options": [
+              "A) They allow processes to be split and loaded dynamically, enabling parts to be stored on disk",
+              "B) They compress memory contents to fit more data in physical RAM",
+              "C) They ensure all process parts occupy fixed contiguous memory blocks",
+              "D) They prioritize frequently accessed segments in CPU registers"
+            ],
+            "question": "How do dynamic address translation and non-contiguous storage enable virtual memory?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 3 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 3 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 3 ---"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "--- Page 8 ---\nPrednosti nove strategije \nupravljanja memorijom\n\uf0a8Deo memorije mo\u017ee biti \ndeljen od strane vi\u0161e procesa\n\uf0a4Ista stranica se mapira u \nvir...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 8 ---\nPrednosti nove strategije",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 8 ---\nPrednosti nove strategije",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Prednosti in '--- Page 8 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 8 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 8 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 8 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 8 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 8 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 8 ---"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "--- Page 10 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako se pri izvr\u0161avanju procesa referencira \nstranica koja je u glavnoj memoriji, pristupa se \ntra\u017eenoj lokaciji i...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 10 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 10 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Izvr\u0161avanje in '--- Page 10 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 10 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 10 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 10 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 10 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 10 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 10 ---"
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "--- Page 12 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako se referencira stranica koja nije u glavnoj \nmemoriji\n\uf0a4To je gre\u0161ka stranice (eng. page fault )\n\uf0a4Hardver utvr...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 12 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 12 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Izvr\u0161avanje in '--- Page 12 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 12 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 12 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 12 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 12 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 12 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 12 ---"
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "--- Page 21 ---\nPrincip lokalnosti\n\uf0a4Tokom du\u017eeg perioda menjaju se delovi procesa \nkoji se koriste\n\uf0a4U kratkom intervalu procesor uglavnom radi sa \nmal...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 21 ---\nPrincip lokalnosti\n\uf0a4Toko",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 21 ---\nPrincip lokalnosti\n\uf0a4Toko",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Princip in '--- Page 21 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 21 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 21 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 21 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 21 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 21 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 21 ---"
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "--- Page 28 ---\nStruktura tabele stranica\n\uf0a8Pri izvr\u0161avanju procesa, naj\u010de\u0161\u0107e se po\u010detna \nadresa tabele stranica dr\u017ei u registru\n\uf0a4Ova adresa se \u010duva u ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 28 ---\nStruktura tabele stranic",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 28 ---\nStruktura tabele stranic",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Struktura in '--- Page 28 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 28 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 28 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 28 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 28 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 28 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 28 ---"
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "--- Page 30 ---\nTLB Bafer\n\uf0a8Akose koristi virtuelna memorija , prisvakom\nreferenciranju podataka trebaju dvapristupa memoriji :\n\uf0a4Jedan da se preuzme st...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 30 ---\nTLB Bafer\n\uf0a8Akose koristi",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 30 ---\nTLB Bafer\n\uf0a8Akose koristi",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Translation in '--- Page 30 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 30 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 30 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 30 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 30 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 30 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 30 ---"
+    },
+    {
+      "chapter_number": 9,
+      "content_preview": "--- Page 34 ---\nTLB \u2013asocijativno preslikavanje\n\uf0a8TLB sadr\u017ei samo neke od stavki tabele \nstranica\n\uf0a4ne mo\u017ee se stavka jednostavno prona\u0107i \nindeksiranjem...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It provides --- Page 34 ---\nTLB \u2013asocijativno presli",
+            "explanation": "This unistructural question tests understanding of ONE main aspect or characteristic of a concept.",
+            "options": [
+              "A) It provides --- Page 34 ---\nTLB \u2013asocijativno presli",
+              "B) It has no specific function",
+              "C) It contradicts other concepts",
+              "D) It is completely unrelated"
+            ],
+            "question": "What is the main characteristic or role of Direktno in '--- Page 34 ---'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Energy flow, populations, and ecosystems",
+            "explanation": "This multistructural question identifies multiple components without explaining their relationships.",
+            "options": [
+              "A) Energy flow, populations, and ecosystems",
+              "B) Only abstract concepts",
+              "C) Personal opinions",
+              "D) Random unrelated facts"
+            ],
+            "question": "Which of these are components or characteristics mentioned in '--- Page 34 ---'?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) They work together in an integrated system",
+            "explanation": "This relational question asks about how concepts integrate and relate to each other systemically.",
+            "options": [
+              "A) They are completely independent",
+              "B) They work together in an integrated system",
+              "C) Only one aspect is important",
+              "D) They contradict each other"
+            ],
+            "question": "How do the different aspects in '--- Page 34 ---' connect to form a coherent understanding?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) We could predict outcomes in similar systems",
+            "explanation": "This extended abstract question requires transferring learned principles to new, hypothetical scenarios.",
+            "options": [
+              "A) The principles cannot be applied elsewhere",
+              "B) We could predict outcomes in similar systems",
+              "C) The concepts are too specific to one context",
+              "D) There is no way to transfer this knowledge"
+            ],
+            "question": "If we applied the principles from '--- Page 34 ---' to a new situation, what might we predict?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 34 ---"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "08_-_Virtuelna_memorija.pdf",
+    "generated_at": "2025-12-11T11:49:43.783330",
+    "progress": {
+      "chapters_completed": 9,
+      "questions_generated": 52,
+      "total_chapters": 10,
+      "total_questions_target": 50
+    },
+    "question_mode": "auto",
+    "total_chapters": 10,
+    "total_questions": 52
+  }
+}

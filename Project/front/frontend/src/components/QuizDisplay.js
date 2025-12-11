@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function QuizDisplay({ quizData, onDownload, onClear }) {
+function QuizDisplay({ quizData, onDownload, onClear, onResume, canResume }) {
   const [expandedQuestions, setExpandedQuestions] = useState({});
   const [editingChapter, setEditingChapter] = useState(null);
   const [chapterTitles, setChapterTitles] = useState(
@@ -274,17 +274,32 @@ function QuizDisplay({ quizData, onDownload, onClear }) {
           {removedQuestions.size > 0 && (
             <p>🗑️ {removedQuestions.size} question(s) marked for removal</p>
           )}
+          {canResume && (
+            <p style={{ color: '#FF6B6B', fontWeight: 'bold' }}>
+              ⚠️ Quiz generation was limited by API constraints
+            </p>
+          )}
         </div>
-        <button className="btn-primary btn-download" onClick={handleDownloadWithChanges}>
-          💾 Download Quiz (JSON)
-        </button>
-        <button
-          className="btn-secondary"
-          onClick={onClear}
-          style={{ marginLeft: '10px' }}
-        >
-          ↺ Generate New Quiz
-        </button>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button className="btn-primary btn-download" onClick={handleDownloadWithChanges}>
+            💾 Download Quiz (JSON)
+          </button>
+          {canResume && (
+            <button 
+              className="btn-primary" 
+              onClick={onResume}
+              style={{ backgroundColor: '#FF6B6B' }}
+            >
+              ▶️ Resume Quiz Generation
+            </button>
+          )}
+          <button
+            className="btn-secondary"
+            onClick={onClear}
+          >
+            ↺ Generate New Quiz
+          </button>
+        </div>
       </div>
     </div>
   );

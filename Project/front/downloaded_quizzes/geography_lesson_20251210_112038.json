@@ -1,0 +1,341 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "UNDERSTANDING MAPS AND LOCATION\n\nGeography is the study of Earth's surface, its features, and the relationships between places and people. One of the ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) UNDERSTANDING MAPS AND LOCATION\n\nGeography is the ...",
+            "explanation": "This prestructural question tests basic recognition of UNDERSTANDING from the content.",
+            "options": [
+              "A) UNDERSTANDING MAPS AND LOCATION\n\nGeography is the ...",
+              "B) A type of technology",
+              "C) An irrelevant concept",
+              "D) A historical fact"
+            ],
+            "question": "What is UNDERSTANDING?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Scale, compass rose, legend, latitude",
+            "explanation": "A lists multiple independent map-reading elements without requiring connections. B and D show map types/features, while C mixes a valid element with unrelated data.",
+            "options": [
+              "A) Scale, compass rose, legend, latitude",
+              "B) Political boundaries, climate zones",
+              "C) Latitude and population density",
+              "D) Rivers, mountains, valleys"
+            ],
+            "question": "Which option lists key elements used to read a map?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Latitude determines north-south position, longitude determines east-west position.",
+            "explanation": "Latitude and longitude work together as a coordinate system; latitude provides vertical positioning while longitude provides horizontal positioning. Both are needed to identify any point on Earth's surface through their intersecting relationship.",
+            "options": [
+              "A) Latitude determines north-south position, longitude determines east-west position.",
+              "B) Latitude shows distance from the equator, longitude measures time zones.",
+              "C) Longitude lines are vertical, latitude lines are horizontal.",
+              "D) Only latitude is needed for accurate global positioning."
+            ],
+            "question": "Why are both latitude and longitude lines necessary to pinpoint an exact location on a map?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Together they create a grid system for exact coordinates using two references",
+            "explanation": "Latitude and longitude lines work together relationally: latitude provides vertical positioning (north/south) while longitude provides horizontal positioning (east/west), creating an integrated coordinate system for precise location.",
+            "options": [
+              "A) Latitude measures north-south position; longitude measures east-west position",
+              "B) Together they create a grid system for exact coordinates using two references",
+              "C) Latitude shows distance from the equator; longitude shows distance from prime meridian",
+              "D) They replace the need for other map elements like scale or legend"
+            ],
+            "question": "Why are both latitude and longitude lines essential for pinpointing a location on a map?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Compass rose indicating cardinal directions",
+            "explanation": "Directional orientation (north/south/east/west) remains fundamental for navigation in any spatial context, whether real or fictional. Other elements are context-specific adaptations.",
+            "options": [
+              "A) Compass rose indicating cardinal directions",
+              "B) Political boundaries between kingdoms",
+              "C) Climate zones showing magical regions",
+              "D) Population density of mythical creatures"
+            ],
+            "question": "When designing a map for a fantasy video game world, which real-world map element would remain essential for navigation?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "UNDERSTANDING MAPS AND LOCATION"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "WEATHER AND CLIMATE\n\nWeather and climate are often confused, but they represent different concepts. Weather refers to the atmospheric conditions at a ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Atmospheric conditions at a specific place and time",
+            "explanation": "Weather refers to short-term atmospheric conditions (like today's temperature), while climate describes long-term patterns (option B/D). Options C describes the water cycle.",
+            "options": [
+              "A) Atmospheric conditions at a specific place and time",
+              "B) Average conditions over 30 years",
+              "C) Water movement through the environment",
+              "D) Long-term patterns of temperature"
+            ],
+            "question": "What does weather refer to?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "C) Average weather patterns over 30 years or more",
+            "explanation": "Climate is defined by long-term weather averages (typically 30+ years), not short-term conditions or processes.",
+            "options": [
+              "A) Atmospheric conditions at a specific time and place",
+              "B) Daily changes in temperature and precipitation",
+              "C) Average weather patterns over 30 years or more",
+              "D) The process of water evaporation and precipitation"
+            ],
+            "question": "What is the primary characteristic of climate?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Temperature, rainfall, wind speed",
+            "explanation": "Weather involves short-term atmospheric conditions (temperature, rainfall, wind speed) at specific times/places, fitting multistructural requirements to list separate elements without connections.",
+            "options": [
+              "A) Temperature, rainfall, wind speed",
+              "B) 30-year averages, regional patterns, long-term trends",
+              "C) Evaporation rates, solar radiation levels, ocean currents",
+              "D) Latitude, altitude, proximity to water bodies"
+            ],
+            "question": "Which option lists characteristics of weather?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Evaporation, condensation, precipitation",
+            "explanation": "The content explicitly lists evaporation, condensation, and precipitation as the main water cycle processes. Other options include outcomes (B), unrelated factors (C), or components (D).",
+            "options": [
+              "A) Evaporation, condensation, precipitation",
+              "B) Rain, snow, sleet, hail",
+              "C) Heating, cooling, pressure changes",
+              "D) Oceans, clouds, atmosphere"
+            ],
+            "question": "Which list includes ONLY main processes in the water cycle as described?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) They cause clear and stable weather due to descending air",
+            "explanation": "High-pressure systems create stable weather because descending air prevents cloud formation, while low-pressure systems (B/D) cause rising air that forms clouds and storms. C describes wind patterns but not direct weather outcomes.",
+            "options": [
+              "A) They cause clear and stable weather due to descending air",
+              "B) They result in stormy conditions with heavy rainfall",
+              "C) They increase wind speed by creating pressure differences",
+              "D) They lead to frequent cloud formation and precipitation"
+            ],
+            "question": "How do high-pressure systems influence weather conditions?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Rising air cools and condenses, forming clouds and precipitation",
+            "explanation": "Low-pressure systems cause air to rise, cool, and condense water vapor into clouds. This process of condensation leads to precipitation, resulting in stormy weather conditions.",
+            "options": [
+              "A) Rising air cools and condenses, forming clouds and precipitation",
+              "B) High-pressure air pushes storms toward low-pressure zones",
+              "C) Ocean currents increase moisture in low-pressure areas",
+              "D) Low-pressure systems prevent cloud formation, causing sudden storms"
+            ],
+            "question": "Why do low-pressure systems typically lead to stormy weather conditions?"
+          },
+          "solo_level": "relational"
+        }
+      ],
+      "title": "WEATHER AND CLIMATE"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "LANDFORMS AND EARTH'S STRUCTURE\n\nEarth's surface is constantly changing due to forces acting both above and below ground. The planet's outer layer, ca...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Crust",
+            "explanation": "The crust is Earth's outer layer, directly stated in the content without requiring deeper understanding.",
+            "options": [
+              "A) Crust",
+              "B) Mantle",
+              "C) Core",
+              "D) Atmosphere"
+            ],
+            "question": "What is the name of Earth's outermost layer?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Tectonic plates",
+            "explanation": "The text states Earth's crust (outer layer) is broken into tectonic plates, forming the basis for landform creation.",
+            "options": [
+              "A) Tectonic plates",
+              "B) Volcanic magma",
+              "C) Mountain ranges",
+              "D) River deltas"
+            ],
+            "question": "What is Earth's outer layer broken into?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Volcanic activity, plate collision, crust fractures",
+            "explanation": "Option A lists the three mountain-forming processes described: volcanic (magma eruptions), fold (plate collisions), and fault-block (crust fractures). Other options include non-mountain-forming processes.",
+            "options": [
+              "A) Volcanic activity, plate collision, crust fractures",
+              "B) Earthquakes, erosion, sediment deposition",
+              "C) Glacier movement, wind erosion, volcanic activity",
+              "D) Sediment deposition, crust fractures, plate collision"
+            ],
+            "question": "Which of these are processes that form mountains?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Plates collide and compress rock layers upward",
+            "explanation": "Fold mountains form when tectonic plates collide, causing horizontal compression that forces rock layers to bend and uplift into folded mountain ranges over geologic time.",
+            "options": [
+              "A) Plates collide and compress rock layers upward",
+              "B) Magma erupts through gaps between plates",
+              "C) Erosion wears down crust at collision zones",
+              "D) Plates pull apart causing crust to fracture"
+            ],
+            "question": "How do tectonic plate collisions create fold mountains?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By pushing rock layers upward and creating folds",
+            "explanation": "Fold mountains form specifically when tectonic plates collide, applying pressure that forces rock layers to bend and uplift into folded structures, demonstrating a direct cause-effect relationship between plate movement and landform creation.",
+            "options": [
+              "A) By pushing rock layers upward and creating folds",
+              "B) Through volcanic eruptions of molten rock",
+              "C) By depositing sediments in river valleys",
+              "D) Through erosion of existing mountain ranges"
+            ],
+            "question": "How do tectonic plate collisions contribute to the formation of fold mountains?"
+          },
+          "solo_level": "relational"
+        }
+      ],
+      "title": "LANDFORMS AND EARTH'S STRUCTURE"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "NATURAL RESOURCES AND SUSTAINABILITY\n\nNatural resources are materials and energy sources found in nature that humans use to meet their needs. These re...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Materials and energy sources found in nature that humans use",
+            "explanation": "The content defines natural resources as materials and energy sources found in nature used to meet human needs. This matches option A directly, while other options describe man-made or unrelated concepts.",
+            "options": [
+              "A) Materials and energy sources found in nature that humans use",
+              "B) Things made in factories for people to buy",
+              "C) Money saved for future generations",
+              "D) New inventions created by scientists"
+            ],
+            "question": "What is a natural resource?"
+          },
+          "solo_level": "prestructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) They can be replenished naturally over time",
+            "explanation": "Renewable resources can be naturally replenished, unlike non-renewable resources which are finite.",
+            "options": [
+              "A) They can be replenished naturally over time",
+              "B) They exist in limited quantities on Earth",
+              "C) They are primarily used for generating electricity",
+              "D) They must be recycled to be reused"
+            ],
+            "question": "What is the main characteristic of renewable resources?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Solar energy, wind energy, forests",
+            "explanation": "Option A lists multiple renewable resources (solar, wind, forests) without requiring connections. Other options mix renewable/non-renewable resources.",
+            "options": [
+              "A) Solar energy, wind energy, forests",
+              "B) Coal, oil, natural gas",
+              "C) Hydroelectric power, minerals, solar",
+              "D) Wind, coal, forests"
+            ],
+            "question": "Which of these lists includes only renewable resources?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) It maintains availability by balancing harvest rates with regrowth",
+            "explanation": "Sustainable forestry creates a system where harvesting and natural regrowth are balanced, connecting resource use to replenishment cycles to ensure long-term availability.",
+            "options": [
+              "A) It maintains availability by balancing harvest rates with regrowth",
+              "B) It increases short-term supply by accelerating tree cutting",
+              "C) It converts forests into non-renewable mineral resources",
+              "D) It prioritizes immediate economic gains over ecological balance"
+            ],
+            "question": "How does sustainable forestry management impact the availability of forest resources over time?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Develop aquaculture systems that mimic natural nutrient cycles",
+            "explanation": "Sustainable principles require renewable systems that maintain ecological balance. Aquaculture mimicking natural cycles ensures long-term productivity without resource depletion, adapting land-based sustainability concepts to aquatic environments.",
+            "options": [
+              "A) Develop aquaculture systems that mimic natural nutrient cycles",
+              "B) Harvest all fish species equally to maintain population balances",
+              "C) Import terrestrial crops from Earth for land-based farming",
+              "D) Focus exclusively on deep-sea mineral extraction"
+            ],
+            "question": "If humanity colonized an ocean planet with scarce land resources, how should sustainable management principles be adapted?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "NATURAL RESOURCES AND SUSTAINABILITY"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "geography_lesson.txt",
+    "generated_at": "2025-12-10T11:06:56.098243",
+    "question_mode": "auto",
+    "total_chapters": 5,
+    "total_questions": 26
+  }
+}

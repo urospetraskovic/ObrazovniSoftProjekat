@@ -27,3 +27,6 @@ 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
 
 Qwen: Qwen3 235B A22B (free)
 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
+
+Github token
+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

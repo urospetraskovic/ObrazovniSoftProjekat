@@ -1,0 +1,204 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "--- Page 1 ---\nOPERATIVNI SISTEMI\nVirtuelna memorijaSlajdovi sukreirani naosnovu knjige \u201cOperativni sistemi , principi unutra \u0161nje organizacije i diza...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) The book by William Stallings",
+            "explanation": "The content on virtual memory is based on the book 'Operativni sistemi, principi unutra\u0161nje organizacije i dizajna, 7. izdanje' by William Stallings.",
+            "options": [
+              "A) The book by William Stallings",
+              "B) Personal research papers",
+              "C) Online articles on operating systems",
+              "D) Lecture notes from 2015"
+            ],
+            "question": "What is the main source of the content on virtual memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Kernel, File System, Device Drivers, User Interface",
+            "explanation": "The components of an operating system typically include the kernel, file system, device drivers, and user interface.",
+            "options": [
+              "A) Kernel, File System, Device Drivers, User Interface",
+              "B) Kernel, Operating Modes, The Internet, Artificial Intelligence",
+              "C) File System, Operating System History, Kernel, Programming Languages",
+              "D) User Interface, Kernel, Networking History, Device Programming"
+            ],
+            "question": "Which of these are components of an operating system?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) It allows programs to use more memory than physically available by utilizing storage.",
+            "explanation": "Virtual memory enables an operating system to use disk space as an extension of RAM, allowing efficient execution of larger programs and multitasking.",
+            "options": [
+              "A) It allows programs to use more memory than physically available by utilizing storage.",
+              "B) It directly increases the speed of the CPU.",
+              "C) It eliminates the need for physical memory in the system.",
+              "D) It prevents software from crashing due to bugs."
+            ],
+            "question": "How does virtual memory contribute to the efficiency of an operating system?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By dynamically allocating memory across distributed servers",
+            "explanation": "Virtual memory principles involve dynamic allocation of memory resources, which can be applied to cloud computing to optimize resource distribution across multiple servers.",
+            "options": [
+              "A) By dynamically allocating memory across distributed servers",
+              "B) By using more physical memory on each server",
+              "C) By limiting memory usage to pre-defined static partitions",
+              "D) By removing virtualization to reduce memory overhead"
+            ],
+            "question": "How would virtual memory principles apply to optimizing resource allocation in cloud computing environments?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 1 ---"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "--- Page 3 ---\nKarakteristike upravljanja memorijom\n\uf0a8Memorijske reference su logi\u010dke adrese koje \nse dinami \u010dki prevode u fizi\u010dke adrese u toku \nizvr\u0161...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) To store parts of processes currently executing on disk",
+            "explanation": "Virtual memory is used to store parts of processes that are currently executing on disk, allowing for efficient multiprogramming and reducing main memory limitations.",
+            "options": [
+              "A) To store parts of processes currently executing on disk",
+              "B) To increase the size of physical main memory",
+              "C) To replace the need for main memory entirely",
+              "D) To prevent memory fragmentation"
+            ],
+            "question": "What is the purpose of virtual memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Logical addresses translate dynamically to physical addresses, processes can be divided into smaller parts",
+            "explanation": "Option A lists two independent characteristics of memory management: dynamic address translation and the ability to divide processes into smaller parts. Other options include incorrect or unrelated details.",
+            "options": [
+              "A) Logical addresses translate dynamically to physical addresses, processes can be divided into smaller parts",
+              "B) Logical addresses are static, processes must occupy consecutive memory locations",
+              "C) Only entire processes are loaded into main memory, parts must always be in use simultaneously",
+              "D) Processes cannot be moved or divided, memory locations remain fixed during execution"
+            ],
+            "question": "Which of the following are characteristics of memory management?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) It allows processes to occupy non-contiguous memory locations and reduces unused memory.",
+            "explanation": "Logical-to-physical address translation allows dynamic memory allocation, while process splitting ensures unused parts do not occupy memory, optimizing usage.",
+            "options": [
+              "A) It allows processes to occupy non-contiguous memory locations and reduces unused memory.",
+              "B) It prevents processes from being swapped in and out of memory during execution.",
+              "C) It ensures all parts of a process are loaded into main memory simultaneously.",
+              "D) It eliminates the need for virtual memory by using only physical memory."
+            ],
+            "question": "How does the combination of logical-to-physical address translation and process splitting enable efficient memory usage?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fewer page swaps would occur, improving performance.",
+            "explanation": "Doubling physical memory would reduce the need for frequent page swaps, as more processes or their parts could reside in physical memory, improving performance. However, virtual memory would still be needed for efficient multiprogramming.",
+            "options": [
+              "A) Fewer page swaps would occur, improving performance.",
+              "B) Processes would no longer require division into smaller parts.",
+              "C) All processes would run entirely in physical memory at once.",
+              "D) Virtual memory would become unnecessary in all cases."
+            ],
+            "question": "How would memory management change if physical memory size doubled but virtual memory size remained constant?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 3 ---"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "--- Page 8 ---\nPrednosti nove strategije \nupravljanja memorijom\n\uf0a8Deo memorije mo\u017ee biti \ndeljen od strane vi\u0161e procesa\n\uf0a4Ista stranica se mapira u \nvir...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) To enable communication between processes",
+            "explanation": "Shared memory allows communication between processes by mapping the same memory page to the virtual space of multiple processes.",
+            "options": [
+              "A) To enable communication between processes",
+              "B) To increase the size of the memory",
+              "C) To reduce cache memory usage",
+              "D) To allow processes to execute faster"
+            ],
+            "question": "What is one purpose of shared memory in the new strategy?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Sharing memory between multiple processes",
+            "explanation": "The new memory management strategy allows for sharing memory between multiple processes, mapping the same page into virtual spaces, and using shared memory for inter-process communication.",
+            "options": [
+              "A) Sharing memory between multiple processes",
+              "B) Indicating whether a page is in memory",
+              "C) Mapping the same page into multiple virtual spaces",
+              "D) Using shared memory for inter-process communication"
+            ],
+            "question": "Which of these are features of the new memory management strategy?"
+          },
+          "solo_level": "multistructural"
+        }
+      ],
+      "title": "--- Page 8 ---"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "Quiz generation was limited by API constraints.",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "Note: Check back tomorrow for more questions",
+            "explanation": "No more API requests available today. Please try again tomorrow to continue generating questions.",
+            "options": [
+              "Note: Check back tomorrow for more questions"
+            ],
+            "question": "Quiz generation stopped due to API limits"
+          },
+          "solo_level": "info"
+        }
+      ],
+      "title": "\u26a0\ufe0f API Limit Reached"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "08_-_Virtuelna_memorija.pdf",
+    "generated_at": "2025-12-11T13:21:07.789749",
+    "progress": {
+      "chapters_completed": 3,
+      "questions_generated": 10,
+      "total_chapters": 10,
+      "total_questions_target": 25
+    },
+    "question_mode": "auto",
+    "total_chapters": 10,
+    "total_questions": 10
+  }
+}
