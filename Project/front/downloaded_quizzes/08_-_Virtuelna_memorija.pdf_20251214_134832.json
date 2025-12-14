@@ -1,0 +1,789 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "--- Page 1 ---\nOPERATIVNI SISTEMI\nVirtuelna memorijaSlajdovi sukreirani naosnovu knjige \u201cOperativni sistemi , principi unutra \u0161nje organizacije i diza...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) William Stallings",
+            "explanation": "Page 1 explicitly states the slides are based on the book 'Operativni sistemi, principi unutra\u0161nje organizacije i dizajna, 7. izdanje' by William Stallings. This question tests direct recall of a single fact without requiring any interpretation or connections.",
+            "options": [
+              "A) William Stallings",
+              "B) Andrew Tanenbaum",
+              "C) Abraham Silberschatz",
+              "D) Linus Torvalds"
+            ],
+            "question": "Who is the author of the book referenced on Page 1?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Logical address translation, process swapping, non-contiguous allocation",
+            "explanation": "Page 3 explicitly lists: 1) Logical addresses dynamically translated to physical, 2) Processes swapped in/out of memory, and 3) Processes divided into non-contiguous parts. Virtual memory (Page 1) and book references are contextual elements, not listed characteristics.",
+            "options": [
+              "A) Logical address translation, process swapping, non-contiguous allocation",
+              "B) Virtual memory implementation, logical address translation, kernel scheduling",
+              "C) Process swapping, book references, physical address mapping",
+              "D) Virtual memory, non-contiguous allocation, disk partitioning"
+            ],
+            "question": "Which features are stated as characteristics of memory management?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) MMU translates logical addresses to any physical locations",
+            "explanation": "Virtual memory uses the MMU to decouple logical addresses from physical locations",
+            "options": [
+              "A) MMU translates logical addresses to any physical locations",
+              "B) It provides more physical memory than actually available",
+              "C) It allows multiple processes to run simultaneously",
+              "D) It swaps inactive processes to disk automatically"
+            ],
+            "question": "How does virtual memory enable processes to be non-contiguous in physical memory?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Virtual resources map dynamically to physical infrastructure",
+            "explanation": "Just as virtual memory abstracts/logical addresses from physical memory locations, cloud computing dynamically maps virtual resources (VMs, storage) to physical infrastructure",
+            "options": [
+              "A) Virtual resources map dynamically to physical infrastructure",
+              "B) All cloud hardware must use identical specifications",
+              "C) Resources require centralized scheduling to function",
+              "D) Cloud efficiency depends on minimizing virtual machines"
+            ],
+            "question": "How is virtual memory's dynamic address translation analogous to resource allocation in cloud computing?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 1 ---"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "--- Page 9 ---\nIzvr\u0161avanje procesa\n\uf0a8Rezidentni skup\n\uf0a4delovi procesa koji su u glavnoj memoriji u \nodre\u0111enom trenutku\n\uf0a4Postoji indikacija za svaku stra...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Delove procesa u glavnoj memoriji u odre\u0111enom trenutku",
+            "explanation": "Page 9 eksplicitno defini\u0161e rezidentni skup kao 'delove procesa koji su u glavnoj memoriji u odre\u0111enom trenutku'. Ostale opcije opisuju koncepte sa drugih stranica (B: Page 12) ili nisu pomenute.",
+            "options": [
+              "A) Delove procesa u glavnoj memoriji u odre\u0111enom trenutku",
+              "B) Gre\u0161ku prilikom referenciranja stranice koja nije u memoriji",
+              "C) Ukupan broj stranica procesa",
+              "D) Hardverski indikator za pristup memoriji"
+            ],
+            "question": "\u0160ta predstavlja rezidentni skup prema sadr\u017eaju na Page 9?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Parts of process in memory + Page presence indication",
+            "explanation": "Page 9 explicitly defines: 1) Resident set as parts of process currently in main memory, and 2) The existence of page presence indication. Other options include elements from later pages (B,C) or unrelated concepts (D).",
+            "options": [
+              "A) Parts of process in memory + Page presence indication",
+              "B) Page fault handling + Memory access process",
+              "C) Process execution rules + Hardware verification",
+              "D) Memory allocation size + CPU scheduling priority"
+            ],
+            "question": "What are the TWO main aspects defined about the resident set (Rezidentni skup) on Page 9?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Absence of the indicator triggers a page fault",
+            "explanation": "The resident set's page indicators (Page 9) track which pages are in memory",
+            "options": [
+              "A) Absence of the indicator triggers a page fault",
+              "B) Hardware directly checks the resident set for page validity",
+              "C) Page faults update the resident set's indicators",
+              "D) The indicator prevents all page faults by preloading pages"
+            ],
+            "question": "How does the resident set's page indicator relate to page faults during process execution?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Patron requests a book not on shelves, retrieved from storage",
+            "explanation": "A page fault occurs when required data isn't in main memory (like books not on shelves), requiring retrieval from secondary storage (library storage). Other options involve resource management or catalog updates, not missing-resource fetching analogous to page faults.",
+            "options": [
+              "A) Patron requests a book not on shelves, retrieved from storage",
+              "B) Popular book is checked out, triggering a hold queue",
+              "C) Damaged book is removed and sent for repair",
+              "D) New book purchase is added to the catalog"
+            ],
+            "question": "How would a library system MOST similarly experience a 'page fault' scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 9 ---"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "--- Page 18 ---\nEfikasnost virtuelne memorije\n\uf0a8Ako je \ud835\udc5d=0.001\n\uf0a4Jedno od hiljadu referenciranja izaziva gre\u0161ku \nstranice\n\uf0a8Tada je \ud835\udc61=8.2\ud835\udf07\ud835\udc60\n\uf0a8To je uspore...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) p < 0.0000025",
+            "explanation": "The text explicitly states that the page fault rate must be 'less than 0.0000025' (or 1 in 400,000 references) to achieve good performance, as calculated in the inequality on page 18. Options B and C show incorrect values, while D uses equality instead of a strict inequality.",
+            "options": [
+              "A) p < 0.0000025",
+              "B) p = 0.001",
+              "C) p < 0.00004",
+              "D) p = 0.0000025"
+            ],
+            "question": "According to page 18, what is the maximum acceptable page fault rate (p) to maintain good performance?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Lower p reduces slowdown by decreasing page fault frequency",
+            "explanation": "Page 18's inequality (p < 0.0000025) shows that reducing page fault frequency (p) directly minimizes performance slowdown caused by disk access delays. The 40x slowdown at p=0.001 versus <10% slowdown requirement demonstrates this inverse relationship between p and efficiency.",
+            "options": [
+              "A) Lower p reduces slowdown by decreasing page fault frequency",
+              "B) Higher p improves efficiency by increasing RAM access speed",
+              "C) p=0.001 optimizes performance by balancing RAM and disk access",
+              "D) System slowdown is independent of p due to thrashing effects"
+            ],
+            "question": "Based on Page 18, how does page fault rate (p) relate to maintaining virtual memory performance?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) \u22640.025%",
+            "explanation": "Applying virtual memory slowdown logic: Total time = 50\u03bcs + (p \u00d7 10ms). For \u22645% slowdown: 1 + (10,000\u03bcs/50\u03bcs)p \u2264 1.05 \u2192 200p \u2264 0.05 \u2192 p \u2264 0.00025 (0.025%).",
+            "options": [
+              "A) \u22640.025%",
+              "B) \u22640.25%",
+              "C) \u22640.5%",
+              "D) \u22641%"
+            ],
+            "question": "A network system has 50\u03bcs packet processing time. If packet loss requires 10ms retransmission, what max loss rate keeps slowdown under 5%?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 18 ---"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "--- Page 25 ---\nPodr\u0161ka za virtuelnu memoriju\n\uf0a8Hardverska\n\uf0a4Hardver procesora mora da podr\u017ei adresiranje \nstranica/segmenata\n\uf0a8Softverska\n\uf0a4OS mora da po...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Addressing pages/segments",
+            "explanation": "Page 25 explicitly states that hardware support requires the processor's hardware to enable 'adresiranje stranica/segmenata' (addressing of pages/segments). Other options describe software functions (B) or concepts from later pages (C-D).",
+            "options": [
+              "A) Addressing pages/segments",
+              "B) Moving pages between memory types",
+              "C) Dividing processes into pages",
+              "D) Maintaining page tables"
+            ],
+            "question": "According to Page 25, what must the processor's hardware support for virtual memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Hardware addressing support + OS memory management",
+            "explanation": "Page 25 explicitly lists hardware support (processor addressing capability) and software support (OS moving pages between memories) as the two main requirements. Other options reference page table elements (B/C from pp.26-27) or unrelated components (D).",
+            "options": [
+              "A) Hardware addressing support + OS memory management",
+              "B) Page tables + Process division into pages",
+              "C) Frame numbering + Presence bit (P)",
+              "D) Secondary storage + TLB implementation"
+            ],
+            "question": "According to page 25, what are the TWO main requirements for virtual memory support?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By tracking page presence/location so the OS knows when to move pages",
+            "explanation": "The page table's presence bit (P) and frame numbers (Page 27) allow the OS to identify which pages are in memory vs. disk. This directly supports the OS's responsibility (Page 25) to move pages between memory levels, connecting hardware addressing with software management.",
+            "options": [
+              "A) By tracking page presence/location so the OS knows when to move pages",
+              "B) By handling hardware addressing of pages autonomously",
+              "C) By dividing processes into pages without OS involvement",
+              "D) By storing all pages permanently in main memory"
+            ],
+            "question": "How does the page table (Page 26-27) enable the OS's role in virtual memory support (Page 25)?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Local cache acts as 'main memory', remote storage as 'disk', and a manifest tracks file locations",
+            "explanation": "This mirrors paging: local cache (fast access \u2248 RAM) holds active files, remote storage (slow \u2248 disk) holds all files, and the manifest (like a page table) tracks what's cached. Presence bits correlate with manifest entries, and 'swaps' occur when fetching uncached files.",
+            "options": [
+              "A) Local cache acts as 'main memory', remote storage as 'disk', and a manifest tracks file locations",
+              "B) Remote storage acts as 'main memory', local cache as 'disk', with encryption as the presence bit",
+              "C) File compression replaces page tables, while network latency mimics presence bits",
+              "D) User permissions function like frame numbers, and file sizes determine page swaps"
+            ],
+            "question": "How would virtual memory paging principles apply to a cloud storage system that caches frequently accessed files locally?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 25 ---"
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "--- Page 32 ---\nReferenciranje uz kori\u0161\u0107enje TLB\n\uf0a8Proverava se da li je stranica u glavnoj \nmemoriji\n\uf0a4Ako nije, generi\u0161e se gre\u0161ka stranice ( page fau...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Transfer the page from external to working memory and update the page table",
+            "explanation": "Page 32 explicitly states that when a page fault occurs, the OS is responsible for transferring the page from external to working memory and updating the page table",
+            "options": [
+              "A) Transfer the page from external to working memory and update the page table",
+              "B) Update the TLB with the referenced page table entry",
+              "C) Generate a page fault error",
+              "D) Check if the page is in main memory"
+            ],
+            "question": "What is the responsibility of the operating system (OS) when a page fault occurs?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Check page in memory \u2192 Handle page fault \u2192 OS transfers page \u2192 Update page table \u2192 Update TLB",
+            "explanation": "Page 32 explicitly lists these five independent steps: checking memory presence, handling page faults, OS page transfer, page table update, and TLB update. Other options omit steps (B, C), add unrelated steps from Page 34 (C), or include incorrect steps (D).",
+            "options": [
+              "A) Check page in memory \u2192 Handle page fault \u2192 OS transfers page \u2192 Update page table \u2192 Update TLB",
+              "B) Check TLB \u2192 Generate fault \u2192 Update page table \u2192 Update cache",
+              "C) Check page in memory \u2192 Update TLB \u2192 Handle associative mapping",
+              "D) OS transfers page \u2192 Update page table \u2192 Check permissions \u2192 Update TLB"
+            ],
+            "question": "Which option lists ALL steps in referencing using TLB as described on Page 32?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) OS fetches page, updates page table, then TLB adds the entry",
+            "explanation": "A page fault requires the OS to fetch the page from secondary memory, update the page table to reflect its new location in RAM, and then update the TLB to cache this translation. This sequence maintains coherence between the TLB (hardware cache) and the page table (OS-managed structure).",
+            "options": [
+              "A) OS fetches page, updates page table, then TLB adds the entry",
+              "B) OS updates TLB directly, then fetches the missing page",
+              "C) TLB triggers page table updates before OS intervention",
+              "D) Page table updates bypass TLB until the next access"
+            ],
+            "question": "When a page fault occurs during TLB referencing, how does the OS ensure the TLB and page table work together?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Checking local DNS cache before external lookup",
+            "explanation": "Just like TLB checks memory first before page faults, DNS cache checks local records before external resolution",
+            "options": [
+              "A) Checking local DNS cache before external lookup",
+              "B) Encrypting cached DNS entries for security",
+              "C) Prioritizing frequently accessed CPU instructions",
+              "D) Compressing hard drive data during cache misses"
+            ],
+            "question": "How would TLB/page fault principles apply to a web browser's DNS cache system?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 32 ---"
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "--- Page 39 ---\nTabela stranica\n\uf0a8Tabela stranica mo\u017ee da bude prevelika da bi \nse \u010duvala u glavnoj memoriji\n\uf0a8Jedna varijanta re\u0161enja je sme\u0161tanje tabe...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Storing it in virtual memory",
+            "explanation": "Page 39 explicitly states that storing the page table in virtual memory is one solution when it's too large for main memory. Option B is discussed on Page 40 (not in scope), while C and D aren't mentioned in the provided content.",
+            "options": [
+              "A) Storing it in virtual memory",
+              "B) Using hierarchical page tables",
+              "C) Increasing main memory size",
+              "D) Compressing the page table"
+            ],
+            "question": "According to Page 39, what is one solution when a page table is too large for main memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Too large for main memory; stored in virtual memory; divided into pages",
+            "explanation": "Page 39 states page tables can be too large for main memory, may be stored in virtual memory, and are divided into pages. Options B/C/D include elements not mentioned (hierarchy, CPU caching, segmentation, hardware registers) or omit required features.",
+            "options": [
+              "A) Too large for main memory; stored in virtual memory; divided into pages",
+              "B) Requires hierarchical structure; partially in main memory",
+              "C) Fully cached in CPU; uses segmentation",
+              "D) Fixed-size entries; stored only in hardware registers"
+            ],
+            "question": "According to Page 39, which describes page table characteristics?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) By splitting the table into smaller, layered tables to avoid storing one large structure",
+            "explanation": "Hierarchical tables fragment the single large table into smaller sub-tables (p.40), addressing the memory issue from p.39. Only active sub-tables need to reside in main memory, while others can remain in virtual storage, reducing memory pressure while maintaining access efficiency.",
+            "options": [
+              "A) By splitting the table into smaller, layered tables to avoid storing one large structure",
+              "B) By increasing the size of main memory to accommodate large tables",
+              "C) By storing the entire table in virtual memory permanently",
+              "D) By eliminating the need for page tables entirely"
+            ],
+            "question": "How does the hierarchical page table design (p.40) solve the problem of oversized page tables described on p.39?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Structuring metadata in multiple tiers for faster file access",
+            "explanation": "Hierarchical page tables solve size issues through multi-level addressing",
+            "options": [
+              "A) Structuring metadata in multiple tiers for faster file access",
+              "B) Compressing all stored data to reduce physical space",
+              "C) Storing entire directories in RAM for immediate access",
+              "D) Duplicating files across all storage nodes"
+            ],
+            "question": "Applying hierarchical page table principles to optimize cloud storage would most likely involve:"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 39 ---"
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "--- Page 47 ---\nZa\u0161tita memorije\n\uf0a8Da li je odre\u0111ena memorijska lokacija\n\uf0a4Samo za \u010ditanje \n\uf0a4\u010citanje i upis\n\uf0a4Samo za izvr\u0161avanje\n\uf0a8Implementira se dodatn...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Additional bits in the page table entry",
+            "explanation": "Page 47 explicitly states that memory protection is implemented using 'additional bits in the page table entry', with one bit for each protection type (read-only, read/write, execute-only). Other options describe unrelated memory protection mechanisms not mentioned on this page.",
+            "options": [
+              "A) Additional bits in the page table entry",
+              "B) Processor flag registers",
+              "C) Kernel-level access checks",
+              "D) Memory segmentation registers"
+            ],
+            "question": "According to Page 47, how is memory protection for read, write, and execute implemented?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Read-only/read-write/execute bits; Page table bits; Virtual address isolation",
+            "explanation": "The correct answer lists independent aspects from Pages 47-48: (1) Three protection types (read-only/read-write/execute-only), (2) Implementation via page table bits, and (3) Virtual address isolation preventing cross-process access",
+            "options": [
+              "A) Read-only/read-write/execute bits; Page table bits; Virtual address isolation",
+              "B) Encryption; Execute-only; Access control lists",
+              "C) Hardware modules; Virtual address translation; Read-only",
+              "D) Page table bits; Kernel-mode protection; Execute-only"
+            ],
+            "question": "According to Pages 47-48, what aspects describe memory protection?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Hardware checks bits during virtual-to-physical translation to enforce access rights",
+            "explanation": "Protection bits in page table entries (p47) are enforced by hardware during address translation (p48)",
+            "options": [
+              "A) Hardware checks bits during virtual-to-physical translation to enforce access rights",
+              "B) They are stored in virtual addresses to prevent unauthorized access",
+              "C) The OS uses them to allocate memory pages to processes",
+              "D) They allow processes to directly modify other processes' memory"
+            ],
+            "question": "How do page table protection bits (p47) relate to virtual memory's memory protection (p48)?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Virtualization layers enforcing permission bits in resource allocation tables",
+            "explanation": "Just as page table bits control memory access rights, cloud hypervisors can use similar permission mechanisms in resource tables to isolate tenants",
+            "options": [
+              "A) Virtualization layers enforcing permission bits in resource allocation tables",
+              "B) Encrypting each tenant's data at rest in shared storage",
+              "C) Physically separating tenant servers in data centers",
+              "D) Implementing network firewalls between tenant environments"
+            ],
+            "question": "How could memory protection concepts (like page table bits) be applied to isolate cloud computing tenants?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 47 ---"
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "--- Page 55 ---\nPolitika sme\u0161tanja\n\uf0a8Odre\u0111uje gde u glavnoj memoriji proces treba \nda bude sme\u0161ten\n\uf0a8Ako sistem koristi strani\u010denje (\u0161to je slu\u010daj u \nve...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It becomes irrelevant",
+            "explanation": "Page 55 explicitly states that placement policy is irrelevant in systems using paging because the memory address translation hardware works uniformly regardless of which physical frame contains the page.",
+            "options": [
+              "A) It becomes irrelevant",
+              "B) It becomes critically important",
+              "C) It determines which page to replace",
+              "D) It depends on process priority"
+            ],
+            "question": "According to Page 55, what happens to placement policy relevance in systems using paging?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Placement policy, Replacement policy, Irrelevance of placement in paging systems",
+            "explanation": "Page 55 discusses placement policy and its irrelevance in paging systems. Pages 56-57 focus on replacement policy and its goal of minimizing page faults. Segmentation, dynamic loading, and frame allocation aren't mentioned in these pages.",
+            "options": [
+              "A) Placement policy, Replacement policy, Irrelevance of placement in paging systems",
+              "B) Replacement policy, Segmentation, Page fault minimization",
+              "C) Address translation, Page fault minimization, Dynamic loading",
+              "D) Frame allocation, Segmentation, Replacement policy"
+            ],
+            "question": "Which items are explicitly discussed on pages 55-57?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Replacement policy becomes critical since placement doesn't optimize memory",
+            "explanation": "Page 55 states placement is irrelevant in paging systems because hardware handles address translation uniformly. This shifts ALL optimization responsibility to the replacement policy (Pages 56-57), which must minimize page faults by strategically selecting pages to replace when memory is full.",
+            "options": [
+              "A) Replacement policy becomes critical since placement doesn't optimize memory",
+              "B) Both policies become equally unimportant due to hardware address translation",
+              "C) Placement policy dictates replacement choices despite its irrelevance",
+              "D) Replacement policy only matters when placement is manually configured"
+            ],
+            "question": "In a paging system, how does the placement policy's irrelevance affect the importance of the replacement policy?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Prioritize removing books least likely to be borrowed soon",
+            "explanation": "Just as page replacement algorithms minimize page faults by removing pages unlikely to be used soon, libraries should remove books predicted to have low future demand",
+            "options": [
+              "A) Prioritize removing books least likely to be borrowed soon",
+              "B) Remove the largest physical books first to free space",
+              "C) Randomly replace books when new arrivals need space",
+              "D) Always remove oldest books regardless of borrowing frequency"
+            ],
+            "question": "How can computer memory page replacement strategies be applied to optimize a public library's limited shelf space management?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 55 ---"
+    },
+    {
+      "chapter_number": 9,
+      "content_preview": "--- Page 62 ---\nOptimalna politika\n\uf0a8Bira se ona stranica za koju je vreme do \nslede\u0107e reference najdu\u017ee\n\n--- Page 63 ---\nOptimalna politika\n\uf0a8Ova polit...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) The page with the longest time until its next reference",
+            "explanation": "Page 62 explicitly states that the optimal policy selects 'the page for which the time until the next reference is longest.' The other options describe different replacement algorithms (B: LRU, C: MFU, D: FIFO), which are not mentioned on this page.",
+            "options": [
+              "A) The page with the longest time until its next reference",
+              "B) The page that was least recently used",
+              "C) The page that is most frequently accessed",
+              "D) The page that was first loaded into memory"
+            ],
+            "question": "According to page 62, what is the selection criterion for the optimal page replacement policy?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Selects page with longest time to next reference; Cannot be implemented; Used as benchmark; Page fault occurs when page not in memory",
+            "explanation": "Option A correctly lists independent facts from the content: selection criteria (page 62), impracticality (page 63), benchmark use (page 63), and page fault definition (page 64). Other options mix incorrect or unrelated details.",
+            "options": [
+              "A) Selects page with longest time to next reference; Cannot be implemented; Used as benchmark; Page fault occurs when page not in memory",
+              "B) Uses FIFO ordering; Requires future knowledge; Needs 5 memory frames; Prevents all page faults",
+              "C) Randomly replaces pages; Easy to implement; Monitors past references; Uses 3 frames in the example",
+              "D) Prioritizes frequently used pages; Implemented via hardware; Always selects oldest page; No page faults"
+            ],
+            "question": "What are characteristics of the Optimal Page Replacement Policy?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Its reliance on future references creates an ideal standard to compare practical algorithms",
+            "explanation": "The optimal policy (Page 62) uses future reference knowledge to minimize page faults. Though unimplementable (Page 63), this theoretical perfection provides a baseline to measure real algorithms (like FIFO/LRU) by showing how close they get to this ideal under the same conditions (Page 64).",
+            "options": [
+              "A) Its reliance on future references creates an ideal standard to compare practical algorithms",
+              "B) It can be implemented if the OS predicts references accurately",
+              "C) Its complexity forces OS developers to use simpler policies",
+              "D) The page fault example proves it works with 3 frames"
+            ],
+            "question": "How does the optimal page replacement policy's description connect to its role as a benchmark despite being unimplementable?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Inventory management using demand forecasts to keep high-need items",
+            "explanation": "The Optimal Policy relies on perfect future knowledge (like page references) to optimize decisions. Inventory management similarly uses demand forecasts (future knowledge) to retain items needed soonest - directly transferring the core 'longest unused' principle to a new domain.",
+            "options": [
+              "A) Inventory management using demand forecasts to keep high-need items",
+              "B) Traffic lights adjusting sequences based on real-time congestion",
+              "C) Sports teams selecting players based on past performance stats",
+              "D) Weather forecasts prioritizing recent data over historical patterns"
+            ],
+            "question": "Which scenario best applies the Optimal Page Replacement Policy's principle of using future knowledge for decision optimization?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 62 ---"
+    },
+    {
+      "chapter_number": 10,
+      "content_preview": "--- Page 72 ---\nPrva unutra, prva napolje -primer\n\uf0a8Vi\u0161e gre\u0161aka od LRU\n\uf0a8Za razliku od LRU ne prepoznaje stranice koje su \n\u010de\u0161\u0107e referencirane od ostal...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Sets the usage bit to one",
+            "explanation": "Page 73 explicitly states that hardware 'updates a usage bit' by setting it to one when a page is referenced or loaded into memory, which is a core mechanism in LRU approximation policies.",
+            "options": [
+              "A) Sets the usage bit to one",
+              "B) Resets the usage bit to zero",
+              "C) Updates the reference counter",
+              "D) Moves the page to the front of the queue"
+            ],
+            "question": "According to page 73, what does hardware do when a page is referenced or loaded in LRU approximation?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Hardware automatically updates usage bits, reducing OS overhead",
+            "explanation": "The hardware automatically updates the usage bit when a page is referenced, eliminating the need for the OS to manually track accesses",
+            "options": [
+              "A) Hardware automatically updates usage bits, reducing OS overhead",
+              "B) Hardware selects pages to remove based on usage bits",
+              "C) Software manually tracks all page references without hardware",
+              "D) The usage bit replaces the need for any page replacement policy"
+            ],
+            "question": "How does the hardware support (usage bit) relate to the efficiency of LRU approximation algorithms?"
+          },
+          "solo_level": "relational"
+        }
+      ],
+      "title": "--- Page 72 ---"
+    },
+    {
+      "chapter_number": 11,
+      "content_preview": "--- Page 79 ---\nUpravljanje rezidentnim skupom\n\uf0a8OS za svaki proces treba da odlu\u010di koliko \nokvira da mu dodeli za sme\u0161tanje stranica\n\uf0a4\u0160to je manje mem...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Principle of locality",
+            "explanation": "The text states that due to the principle of locality, adding more frames beyond a threshold has no noticeable effect on page faults. This is explicitly mentioned in the final bullet point on page 79.",
+            "options": [
+              "A) Principle of locality",
+              "B) Limited physical memory availability",
+              "C) Increased process switching overhead",
+              "D) Higher memory fragmentation"
+            ],
+            "question": "According to page 79, why doesn't increasing allocated frames beyond a certain point reduce page faults?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "B) Frame count per process, concurrent processes, page fault rate, locality effect",
+            "explanation": "Page 79 explicitly lists four independent factors: 1) OS decides frame count per process, 2) fewer frames enable more concurrent processes, 3) fewer frames increase page faults, and 4) locality limits benefits of extra frames",
+            "options": [
+              "A) Concurrent processes, page faults, locality principle, restarting instructions",
+              "B) Frame count per process, concurrent processes, page fault rate, locality effect",
+              "C) Memory fragmentation, CPU utilization, power consumption, thread priority",
+              "D) Virtual memory size, disk I/O speed, cache size, interrupt frequency"
+            ],
+            "question": "According to page 79, which factors influence OS frame allocation decisions?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fewer frames per process increase concurrent processes but raise page faults, while locality limits gains beyond thresholds",
+            "explanation": "Page 79 shows the trade-off: fewer frames allow more processes in memory (increasing concurrency) but cause more page faults",
+            "options": [
+              "A) Fewer frames per process increase concurrent processes but raise page faults, while locality limits gains beyond thresholds",
+              "B) More frames always reduce page faults and maximize process concurrency without limitations",
+              "C) Minimal resident sets guarantee zero page faults but severely restrict process concurrency",
+              "D) Frame allocation solely depends on hardware capacity, not page fault trade-offs"
+            ],
+            "question": "How do frame allocation trade-offs impact overall system performance in virtual memory management?"
+          },
+          "solo_level": "relational"
+        }
+      ],
+      "title": "--- Page 79 ---"
+    },
+    {
+      "chapter_number": 12,
+      "content_preview": "--- Page 86 ---\nAlgoritam u\u010destalosti gre\u0161ke stranice\n\uf0a8Svakoj stranici se pridru\u017euje bit upotrebe\n\uf0a8Broja\u010d referenci koji broji koliko je proteklo \nref...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Bit upotrebe",
+            "explanation": "Prvi element na strani 86 eksplicitno navodi: 'Svakoj stranici se pridru\u017euje bit upotrebe'. Ostale opcije su druge komponente algoritma: broja\u010d referenci meri vreme izme\u0111u gre\u0161aka, prag F je granica za pro\u0161irenje/smanjenje skupa, a rezidentni skup je skup u\u010ditanih stranica.",
+            "options": [
+              "A) Bit upotrebe",
+              "B) Broja\u010d referenci",
+              "C) Prag F",
+              "D) Rezidentni skup"
+            ],
+            "question": "\u0160ta se pridru\u017euje svakoj stranici prema algoritmu u\u010destalosti gre\u0161ke stranice na strani 86?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Usage bit, reference counter, threshold F comparison",
+            "explanation": "Page 86 explicitly lists three key components: a usage bit per page, a reference counter tracking time since the last fault, and comparison of the counter to threshold F during page faults. Options B-D include elements not mentioned (FIFO, priority, dirty bit, etc.).",
+            "options": [
+              "A) Usage bit, reference counter, threshold F comparison",
+              "B) Usage bit, FIFO list, reference counter",
+              "C) Reference counter, priority levels, working set size",
+              "D) Threshold F, dirty bit, resident set timer"
+            ],
+            "question": "According to page 86, which components are part of the Page Fault Frequency Algorithm?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Expands set if time since last fault < F; contracts by removing unused pages if time > F",
+            "explanation": "The algorithm compares the reference counter to threshold F during page faults",
+            "options": [
+              "A) Expands set if time since last fault < F; contracts by removing unused pages if time > F",
+              "B) Expands set if time > F; always removes pages with usage bit 1 when contracting",
+              "C) Only expands the set when usage bits are all 0; ignores F for contraction",
+              "D) Uses F to determine which specific page to replace, regardless of usage bits"
+            ],
+            "question": "How does the page fault frequency algorithm use the reference counter (F) and usage bits to manage the resident set size?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Increase stock if frequent shortages occur below threshold, else reduce unused items",
+            "explanation": "The algorithm dynamically adjusts resources (memory/inventory) based on recent demand frequency",
+            "options": [
+              "A) Increase stock if frequent shortages occur below threshold, else reduce unused items",
+              "B) Always maintain stock levels above a fixed threshold",
+              "C) Randomly adjust stock based on past sales data",
+              "D) Prioritize restocking only high-demand items"
+            ],
+            "question": "How would the page fault frequency algorithm principles apply to inventory management?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 86 ---"
+    },
+    {
+      "chapter_number": 13,
+      "content_preview": "--- Page 91 ---\nPolitika \u010di\u0161\u0107enja\n\uf0a8Odlu\u010duje kada se izmenjena stranica upisuje \nnazad u sekundarnu memoriju\n\uf0a8\u010ci\u0161\u0107enje po zahtevu\n\uf0a4Stranica se upisuje ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) It is written when selected for replacement",
+            "explanation": "\u010ci\u0161\u0107enje po zahtevu means the page is written back to the disk only when it is chosen for replacement, as stated in the content.",
+            "options": [
+              "A) It is written when selected for replacement",
+              "B) It is written in advance in batches",
+              "C) It is not written to the disk",
+              "D) It is immediately deleted"
+            ],
+            "question": "What happens to a page during '\u010di\u0161\u0107enje po zahtevu'?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Cleaning on demand and pre-cleaning",
+            "explanation": "The text describes cleaning on demand (writing when selected for replacement) and pre-cleaning (writing in batches before replacement).",
+            "options": [
+              "A) Cleaning on demand and pre-cleaning",
+              "B) Buffering and caching",
+              "C) Segmentation and paging",
+              "D) Indexing and partitioning"
+            ],
+            "question": "Which methods are mentioned for writing pages to secondary memory?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Pred\u010di\u0161\u0107enje may waste resources if the page is modified again.",
+            "explanation": "Pred\u010di\u0161\u0107enje writes pages ahead but can waste resources if pages are modified again, while \u010di\u0161\u0107enje po zahtevu writes only during replacement, avoiding redundancy.",
+            "options": [
+              "A) Pred\u010di\u0161\u0107enje may waste resources if the page is modified again.",
+              "B) Pred\u010di\u0161\u0107enje ensures no resources are wasted.",
+              "C) \u010ci\u0161\u0107enje po zahtevu optimizes resources by immediate disk writes.",
+              "D) \u010ci\u0161\u0107enje po zahtevu wastes resources by delaying disk writes."
+            ],
+            "question": "How does pred\u010di\u0161\u0107enje impact resource usage compared to \u010di\u0161\u0107enje po zahtevu?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Pre-scheduling data backups to cloud servers in batches",
+            "explanation": "Pred\u010di\u0161\u0107enje involves proactive updates in batches. Similarly, cloud systems could pre-schedule backups to reduce resource strain during peak demand.",
+            "options": [
+              "A) Pre-scheduling data backups to cloud servers in batches",
+              "B) Storing all data changes instantly without delay",
+              "C) Only backing up data when the user initiates a request",
+              "D) Ignoring data changes until storage is almost full"
+            ],
+            "question": "How would 'pred\u010di\u0161\u0107enje' apply to cloud storage systems with frequent data updates?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 91 ---"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "08_-_Virtuelna_memorija.pdf",
+    "generated_at": "2025-12-14T13:05:13.532396",
+    "progress": {
+      "chapters_completed": 13,
+      "questions_generated": 48,
+      "total_chapters": 13,
+      "total_questions_target": 50
+    },
+    "question_mode": "auto",
+    "resume_from_chapter": 14,
+    "total_chapters": 13,
+    "total_questions": 48
+  }
+}

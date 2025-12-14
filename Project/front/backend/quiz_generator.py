@@ -75,15 +75,18 @@ class SoloQuizGenerator:
             is_resuming = resume_from_chapter > 1 or existing_quiz is not None
             if is_resuming:
                 print(f"\n[RESUME] Continuing quiz from chapter {resume_from_chapter}")
+                # Reset API exhaustion flag when resuming to allow more generations
+                self.api_exhausted = False
+                self.current_key_index = 0
             else:
                 print(f"\n[START] Generating quiz from: {filename}")
             print(f"[PROVIDERS] Primary: OpenRouter (9 keys) | Fallback: GitHub Models gpt-4o")
             # Use smart chunking by default
             chapters = self._split_into_chapters_smart(content, config)
             
-            # Cap chapters to limit total questions to ~25 (API constraint: 50 prompts/day)
-            # With 2-3 questions per chapter, max chapters = 10
-            max_chapters = 10
+            # Cap chapters to limit total questions (API constraint)
+            # For 50 questions max, allow up to 25 chapters (2 questions per chapter)
+            max_chapters = 25
             if len(chapters) > max_chapters:
                 chapters = chapters[:max_chapters]
             
@@ -98,18 +101,18 @@ class SoloQuizGenerator:
                 content_length = len(content)
                 chapter_count = len(chapters)
                 
-                # Base calculation: roughly 1 question per 500 characters, min 2-3 per chapter
+                # Base calculation: roughly 1 question per 500 characters, min 2 per chapter
                 questions_by_length = max(3, content_length // 500)
                 questions_by_chapters = chapter_count * 2
                 
                 # Use the higher of the two to avoid too few questions for continuous text
                 total_questions = max(questions_by_length, questions_by_chapters)
-                # Cap at 25 questions (OpenRouter API limit: 50 prompts per day)
-                total_questions = min(total_questions, 25)
+                # Cap at 50 questions for comprehensive coverage of entire file
+                total_questions = min(total_questions, 50)
                 
                 question_mode = 'auto'
             else:
-                total_questions = min(config.get('total_questions', len(chapters) * 2), 25)
+                total_questions = min(config.get('total_questions', len(chapters) * 2), 50)
                 question_mode = 'manual'
             
             # Determine SOLO distribution
@@ -162,7 +165,11 @@ class SoloQuizGenerator:
             
             # Generate questions for each chapter (resume from specified chapter)
             for idx in range(resume_from_chapter - 1, len(chapters)):
-                if questions_generated >= total_questions or self.api_exhausted:
+                # Continue until we reach target or API is exhausted
+                if questions_generated >= total_questions:
+                    break
+                if self.api_exhausted and questions_generated == 0:
+                    # Only break on exhaustion if we haven't generated anything this session
                     break
                 
                 chapter_content = chapters[idx]
@@ -190,18 +197,38 @@ class SoloQuizGenerator:
                         if self.api_exhausted:
                             break
             
-            # If API was exhausted, add a note chapter
-            if self.api_exhausted or (questions_generated < total_questions and questions_generated > 0):
+            # If API was exhausted and we have more chapters to process, add a resume note
+            if self.api_exhausted and questions_generated > 0:
+                # Find next unprocessed chapter
+                next_chapter = quiz_data['metadata']['progress']['chapters_completed'] + 1
+                if next_chapter <= len(chapters):
+                    quiz_data['chapters'].append({
+                        'chapter_number': next_chapter,
+                        'title': '⚠️ API Limit Reached',
+                        'content_preview': 'Quiz generation was limited by API constraints.',
+                        'questions': [{
+                            'solo_level': 'info',
+                            'question_data': {
+                                'question': 'Quiz generation stopped due to API limits',
+                                'explanation': f'Generated {questions_generated}/{total_questions} questions. Click "Resume Quiz" to continue from chapter {next_chapter}.',
+                                'options': [f'Note: Resume from chapter {next_chapter}'],
+                                'correct_answer': f'Note: Resume from chapter {next_chapter}'
+                            }
+                        }]
+                    })
+                    quiz_data['metadata']['resume_from_chapter'] = next_chapter
+            elif questions_generated < total_questions and (resume_from_chapter - 1 + len([ch for ch in quiz_data['chapters'] if ch.get('title') != '⚠️ API Limit Reached'])) < len(chapters):
+                # We didn't reach target but have more chapters - offer resume
                 next_chapter = len(quiz_data['chapters']) + 1
                 quiz_data['chapters'].append({
                     'chapter_number': next_chapter,
-                    'title': '⚠️ API Limit Reached',
-                    'content_preview': 'Quiz generation was limited by API constraints.',
+                    'title': '⚠️ More Content Available',
+                    'content_preview': 'More content available to generate questions from.',
                     'questions': [{
                         'solo_level': 'info',
                         'question_data': {
-                            'question': 'Quiz generation stopped due to API limits',
-                            'explanation': f'Generated {questions_generated}/{total_questions} questions. Click "Resume Quiz" to continue from chapter {next_chapter}.',
+                            'question': 'More content is available',
+                            'explanation': f'Generated {questions_generated}/{total_questions} questions so far. Click "Resume Quiz" to continue from chapter {next_chapter}.',
                             'options': [f'Note: Resume from chapter {next_chapter}'],
                             'correct_answer': f'Note: Resume from chapter {next_chapter}'
                         }
@@ -218,6 +245,7 @@ class SoloQuizGenerator:
     def _split_into_chapters_smart(self, content: str, config: Dict[str, Any] = None) -> List[str]:
         """
         Intelligently split content into chapters using multiple strategies
+        Prioritizes page-based splitting for PDF content to ensure full coverage
         
         Args:
             content: Full text content
@@ -235,14 +263,25 @@ class SoloQuizGenerator:
             # Fall back to original method
             return self._split_into_chapters(content)
         
+        # Strategy 0: Check for page markers (--- Page X ---) - best for PDF content
+        # This ensures we cover the ENTIRE file from start to finish
+        page_pattern = r'--- Page (\d+) ---'
+        page_matches = list(re.finditer(page_pattern, content))
+        
+        if page_matches:
+            # Found page markers - use page-based splitting for complete coverage
+            chapters = self._split_by_page_ranges(content, page_matches)
+            if chapters:
+                return chapters
+        
         # Strategy 1: Try to find existing chapter markers
         chapter_pattern = r'CHAPTER\s+\d+:|={2,}.*?={2,}|\n[A-Z][A-Z\s]+\n(?=[A-Z])'
         parts = re.split(chapter_pattern, content)
         chapters = [part.strip() for part in parts if part.strip() and len(part.strip()) > 200]
         
-        # If found good chapters, use them
+        # If found good chapters, use them (allow up to 25 for comprehensive coverage)
         if len(chapters) >= 2:
-            return chapters[:15]
+            return chapters[:25]
         
         # Strategy 2: Split by paragraph breaks (multiple newlines)
         paragraphs = re.split(r'\n\s*\n+', content)
@@ -252,18 +291,146 @@ class SoloQuizGenerator:
         if len(paragraphs) > 5:
             chapters = self._group_by_semantic_similarity(paragraphs)
             if chapters:
-                return chapters[:15]
+                return chapters[:25]
         
         # Strategy 3: Split by word count (roughly equal chunks)
         if len(paragraphs) > 1:
-            return self._split_by_content_length(content, target_chunks=5)
+            return self._split_by_content_length(content, target_chunks=20)
         
         # Fallback: Return whole content as single chapter
         return [content]
     
+    def _analyze_page_density(self, content: str, page_matches) -> List[Dict[str, Any]]:
+        """
+        Analyze content density of each page
+        
+        Args:
+            content: Full text content
+            page_matches: List of page match objects
+            
+        Returns:
+            List of dicts with page info: {page_num, start_pos, end_pos, density, char_count}
+        """
+        page_list = list(page_matches)
+        page_info = []
+        
+        for i, match in enumerate(page_list):
+            page_num = int(match.group(1))
+            start_pos = match.end()
+            
+            # Find end position (start of next page or end of content)
+            if i < len(page_list) - 1:
+                end_pos = page_list[i + 1].start()
+            else:
+                end_pos = len(content)
+            
+            page_content = content[start_pos:end_pos]
+            
+            # Calculate density: ratio of non-whitespace to total characters
+            total_chars = len(page_content)
+            non_whitespace = len(page_content.strip())
+            density = non_whitespace / total_chars if total_chars > 0 else 0
+            
+            # Count actual text (ignore very short lines like just headers)
+            lines = [l.strip() for l in page_content.split('\n') if l.strip()]
+            avg_line_length = sum(len(l) for l in lines) / len(lines) if lines else 0
+            
+            page_info.append({
+                'page_num': page_num,
+                'start_pos': match.start(),
+                'end_pos': end_pos,
+                'content_length': non_whitespace,
+                'density': density,
+                'line_count': len(lines),
+                'avg_line_length': avg_line_length,
+                'is_light': non_whitespace < 500  # Light pages: < 500 chars of actual content
+            })
+        
+        return page_info
+    
+    def _split_by_page_ranges(self, content: str, page_matches) -> List[str]:
+        """
+        Split content by page markers and group into ranges based on content density
+        Heavy content pages get smaller groups, light pages are combined or skipped
+        
+        Args:
+            content: Full text content with "--- Page X ---" markers
+            page_matches: Iterator of page marker matches
+            
+        Returns:
+            List of page range chunks, optimized for content density
+        """
+        page_info = self._analyze_page_density(content, page_matches)
+        
+        if not page_info:
+            return []
+        
+        chapters = []
+        current_group = []
+        current_density_sum = 0
+        target_density = 2000  # Aim for ~2000 chars of content per chapter
+        
+        for page in page_info:
+            current_group.append(page)
+            current_density_sum += page['content_length']
+            
+            # Decide if we should finalize this group
+            should_finalize = False
+            
+            # Heavy content page: finalize sooner to give it more attention
+            if page['content_length'] > 1500:
+                should_finalize = len(current_group) >= 2
+            # Normal content: follow target density
+            elif current_density_sum >= target_density:
+                should_finalize = True
+            # Light page: combine with next unless it's the last page
+            elif page['is_light'] and page != page_info[-1]:
+                continue  # Don't finalize, keep combining
+            # Last page: always finalize
+            elif page == page_info[-1]:
+                should_finalize = True
+            
+            if should_finalize and current_group:
+                # Create chapter from grouped pages
+                start_page_num = current_group[0]['page_num']
+                end_page_num = current_group[-1]['page_num']
+                
+                start_pos = current_group[0]['start_pos']
+                end_pos = current_group[-1]['end_pos']
+                
+                chapter_content = content[start_pos:end_pos].strip()
+                
+                if len(chapter_content) > 100:
+                    chapters.append(chapter_content)
+                
+                current_group = []
+                current_density_sum = 0
+        
+        # Handle any remaining pages
+        if current_group:
+            start_page_num = current_group[0]['page_num']
+            end_page_num = current_group[-1]['page_num']
+            
+            start_pos = current_group[0]['start_pos']
+            end_pos = current_group[-1]['end_pos']
+            
+            chapter_content = content[start_pos:end_pos].strip()
+            if len(chapter_content) > 100:
+                chapters.append(chapter_content)
+        
+        total_pages = len(page_info)
+        heavy_pages = sum(1 for p in page_info if p['content_length'] > 1500)
+        light_pages = sum(1 for p in page_info if p['is_light'])
+        
+        print(f"[CHUNKING] Detected {total_pages} pages ({heavy_pages} heavy, {light_pages} light)")
+        print(f"[CHUNKING] Created {len(chapters)} content-aware chapters")
+        
+        return chapters
+    
     def _group_by_semantic_similarity(self, paragraphs: List[str]) -> List[str]:
         """
         Group paragraphs into semantic chunks based on content length and breaks
+        Distributes chunks more evenly across the entire content
         
         Args:
             paragraphs: List of paragraph strings
@@ -273,7 +440,7 @@ class SoloQuizGenerator:
         """
         chapters = []
         current_chunk = ""
-        target_length = 800  # characters per chunk
+        target_length = 600  # Reduced from 800 to create more chapters covering more content
         
         for para in paragraphs:
             if len(current_chunk) + len(para) < target_length:
@@ -286,15 +453,18 @@ class SoloQuizGenerator:
         if current_chunk:
             chapters.append(current_chunk)
         
-        return [ch for ch in chapters if len(ch) > 200]
+        result = [ch for ch in chapters if len(ch) > 200]
+        # Return more chapters to cover the entire content
+        return result[:25]
     
-    def _split_by_content_length(self, content: str, target_chunks: int = 5) -> List[str]:
+    def _split_by_content_length(self, content: str, target_chunks: int = 15) -> List[str]:
         """
         Split content into approximately equal-sized chunks
+        Increased target chunks to ensure coverage of entire file
         
         Args:
             content: Full text content
-            target_chunks: Target number of chunks
+            target_chunks: Target number of chunks (increased to 15 for better coverage)
             
         Returns:
             List of content chunks
@@ -308,7 +478,7 @@ class SoloQuizGenerator:
             if len(chunk) > 100:
                 chapters.append(chunk)
         
-        return chapters[:15]
+        return chapters[:20]
     
     def _process_chapter(self, chapter_content: str, chapter_num: int) -> Dict[str, Any]:
         """
@@ -328,6 +498,44 @@ class SoloQuizGenerator:
             'extended_abstract': 0.15
         })
     
+    def _extract_page_range(self, content: str) -> str:
+        """
+        Extract page range information from content
+        Looks for "--- Page X ---" markers
+        
+        Args:
+            content: Chapter content that may contain page markers
+            
+        Returns:
+            Page range string like "Page 3-8" or single page "Page 5"
+        """
+        page_pattern = r'--- Page (\d+) ---'
+        matches = re.findall(page_pattern, content)
+        
+        if not matches:
+            return ""
+        
+        pages = sorted([int(p) for p in matches])
+        if not pages:
+            return ""
+        
+        start_page = pages[0]
+        end_page = pages[-1]
+        
+        if start_page == end_page:
+            return f"Page {start_page}"
+        else:
+            return f"Page {start_page}-{end_page}"
+    
+    def _calculate_content_density(self, content: str) -> float:
+        """
+        Calculate content density of a chapter
+        Returns ratio of non-whitespace to total characters
+        """
+        total_chars = len(content)
+        non_whitespace = len(content.strip())
+        return non_whitespace / total_chars if total_chars > 0 else 0
+    
     def _process_chapter_smart(
         self, 
         chapter_content: str, 
@@ -337,6 +545,7 @@ class SoloQuizGenerator:
     ) -> Dict[str, Any]:
         """
         Process a single chapter and generate configurable number of questions
+        Adjusts question count based on content density
         
         Args:
             chapter_content: Text content of the chapter
@@ -356,17 +565,50 @@ class SoloQuizGenerator:
             }
         
         try:
-            # Extract chapter title (first line or first sentence max 80 chars)
-            lines = chapter_content.split('\n')
-            title = lines[0].strip() if lines else f"Chapter {chapter_num}"
+            # Extract page range information
+            page_range = self._extract_page_range(chapter_content)
             
-            # Limit title length to 80 characters
-            if len(title) > 80:
+            # Calculate content density and adjust questions accordingly
+            content_length = len(chapter_content.strip())
+            density = self._calculate_content_density(chapter_content)
+            
+            # Scale target_questions based on content density
+            # Light content (density < 0.4): reduce questions by 50%
+            # Normal content (0.4-0.6): keep as is
+            # Heavy content (> 0.6): increase questions by 25%
+            if density < 0.4:
+                adjusted_target = max(1, round(target_questions * 0.5))
+            elif density > 0.6:
+                adjusted_target = round(target_questions * 1.25)
+            else:
+                adjusted_target = target_questions
+            
+            # Extract chapter title (first non-empty, non-marker line)
+            lines = chapter_content.split('\n')
+            title = ""
+            for line in lines:
+                line = line.strip()
+                # Skip page markers and empty lines
+                if line and not line.startswith('---'):
+                    title = line
+                    break
+            
+            if not title:
+                title = f"Chapter {chapter_num}"
+            
+            # Limit title length to 60 characters (leave room for page range)
+            if len(title) > 60:
                 # Find first sentence boundary
                 sentences = title.split('. ')
                 title = sentences[0]
-                if len(title) > 80:
-                    title = title[:77] + '...'
+                if len(title) > 60:
+                    title = title[:57] + '...'
+            
+            # Add page range to title if available - this is CRITICAL for clarity
+            if page_range:
+                title = f"{page_range} - {title}"
+            else:
+                title = f"Chapter {chapter_num} - {title}"
             
             chapter_data = {
                 'chapter_number': chapter_num,
@@ -380,7 +622,7 @@ class SoloQuizGenerator:
             questions_per_level = {}
             
             for level in solo_levels:
-                count = max(1, round(target_questions * solo_distribution.get(level, 0.25)))
+                count = max(1, round(adjusted_target * solo_distribution.get(level, 0.25)))
                 questions_per_level[level] = count
             
             # Generate questions for each SOLO level
@@ -669,6 +911,38 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         except json.JSONDecodeError:
             return None
     
+    def _remove_page_references(self, text: str) -> str:
+        """
+        Remove page number references from questions and explanations
+        Handles both English and Serbian patterns
+        
+        Examples:
+        - "According to page 79, why doesn't..." → "Why doesn't..."
+        - "na strani 86" → removed
+        - "Page 5 states that" → "States that"
+        - "prema algoritmu ... na strani 86" → "prema algoritmu ..."
+        """
+        if not text:
+            return text
+        
+        # English patterns
+        text = re.sub(r'According to [Pp]age\s+\d+[,:]?\s*', '', text)
+        text = re.sub(r'[Pp]age\s+\d+\s+(?:states?|says?|defines?|explains?|shows?)\s+that\s+', '', text)
+        text = re.sub(r'\s*\([Pp]age\s+\d+\)\s*', ' ', text)
+        text = re.sub(r'\s*on\s+[Pp]age\s+\d+', '', text)
+        
+        # Serbian patterns
+        text = re.sub(r'\s*na\s+strani\s+\d+', '', text)
+        text = re.sub(r'\s*na\s+stranici\s+\d+', '', text)
+        text = re.sub(r'Šta\s+se\s+[^?]*?\s+prema\s+[^?]*?\s+na\s+strani\s+\d+\?', 
+                     lambda m: 'Šta se ' + m.group(0)[len('Šta se '):].split(' prema ')[0] + '?', text)
+        text = re.sub(r'prema\s+[^,]*\s+na\s+strani\s+\d+', '', text)
+        
+        # Clean up extra spaces
+        text = re.sub(r'\s+', ' ', text).strip()
+        
+        return text
+    
     def _validate_and_clean_question(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate and clean question data to enforce reasonable lengths"""
         try:
@@ -676,12 +950,16 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
             MAX_ANSWER_LEN = 150
             MAX_EXPLANATION_LEN = 300
             
-            # Clean question
+            # Clean question - REMOVE PAGE REFERENCES FIRST
             if 'question' in question_data:
                 q = question_data['question']
+                # Remove page references
+                q = self._remove_page_references(q)
+                # Then handle length
                 if len(q) > MAX_QUESTION_LEN:
                     sentences = q.split('?')
-                    question_data['question'] = sentences[0] + '?' if sentences else q[:MAX_QUESTION_LEN]
+                    q = sentences[0] + '?' if sentences else q[:MAX_QUESTION_LEN]
+                question_data['question'] = q
             
             # Clean options
             if 'options' in question_data and isinstance(question_data['options'], list):
@@ -707,15 +985,19 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                         truncated = truncated[:last_space] + '...'
                     question_data['correct_answer'] = truncated
             
-            # Clean explanation
+            # Clean explanation - REMOVE PAGE REFERENCES FIRST
             if 'explanation' in question_data:
                 exp = question_data['explanation']
+                # Remove page references
+                exp = self._remove_page_references(exp)
+                # Then handle length
                 if len(exp) > MAX_EXPLANATION_LEN:
                     sentences = exp.split('. ')
                     cleaned_exp = sentences[0]
                     if len(cleaned_exp) > MAX_EXPLANATION_LEN:
                         cleaned_exp = cleaned_exp[:MAX_EXPLANATION_LEN-3] + '...'
-                    question_data['explanation'] = cleaned_exp
+                    exp = cleaned_exp
+                question_data['explanation'] = exp
             
             return question_data
         except Exception as e:

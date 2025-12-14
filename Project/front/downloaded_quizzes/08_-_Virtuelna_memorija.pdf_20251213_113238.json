@@ -1,0 +1,711 @@
+{
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "content_preview": "--- Page 1 ---\nOPERATIVNI SISTEMI\nVirtuelna memorijaSlajdovi sukreirani naosnovu knjige \u201cOperativni sistemi , principi unutra \u0161nje organizacije i diza...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) William Stallings",
+            "explanation": "Page 1 explicitly states the slides are based on the book 'Operativni sistemi, principi unutra\u0161nje organizacije i dizajna, 7. izdanje' by William Stallings (CET, Belgrade, 2013). No other authors are mentioned.",
+            "options": [
+              "A) William Stallings",
+              "B) Linus Torvalds",
+              "C) Andrew Tanenbaum",
+              "D) Dennis Ritchie"
+            ],
+            "question": "Who is the author of the book referenced on Page 1?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Only retrieve books from archives when requested (demand paging)",
+            "explanation": "Demand paging mirrors virtual memory's core principle: loading resources only when needed (like fetching books from deep storage upon request), optimizing limited physical space while maintaining access to larger collections.",
+            "options": [
+              "A) Only retrieve books from archives when requested (demand paging)",
+              "B) Assign fixed shelf space per genre (fixed partition allocation)",
+              "C) Pre-load all popular books daily (anticipatory fetching)",
+              "D) Prioritize recent returns for immediate checkout (FIFO replacement)"
+            ],
+            "question": "How would virtual memory principles apply to managing limited storage in a library's book loan system?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 1 ---"
+    },
+    {
+      "chapter_number": 2,
+      "content_preview": "--- Page 3 ---\nKarakteristike upravljanja memorijom\n\uf0a8Memorijske reference su logi\u010dke adrese koje \nse dinami \u010dki prevode u fizi\u010dke adrese u toku \nizvr\u0161...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Logical addresses",
+            "explanation": "Page 3 explicitly states that memory references are logical addresses (logi\u010dke adrese) which are dynamically translated into physical addresses during execution. This is an isolated fact stated in the first bullet point.",
+            "options": [
+              "A) Logical addresses",
+              "B) Physical addresses",
+              "C) Virtual addresses",
+              "D) Static addresses"
+            ],
+            "question": "According to Page 3, what type of addresses are dynamically translated into physical addresses during execution?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Translation allows flexible placement, while non-contiguous allocation permits loading fragments as needed",
+            "explanation": "Dynamic address translation decouples logical-physical addressing, enabling flexible memory placement",
+            "options": [
+              "A) Translation allows flexible placement, while non-contiguous allocation permits loading fragments as needed",
+              "B) Non-contiguous allocation eliminates address translation needs, freeing memory space",
+              "C) Dynamic translation reduces fragmentation, allowing full process loading",
+              "D) Both features together prevent processes from being split into smaller parts"
+            ],
+            "question": "How do dynamic address translation and non-contiguous allocation enable only parts of a process to reside in memory?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Ingredients are stored in various locations and brought to kitchen only when needed",
+            "explanation": "This mirrors memory management's dynamic translation (ingredients fetched on demand) and non-contiguous storage (ingredients scattered in pantry/fridge). Like processes in memory, not all resources need to occupy limited workspace simultaneously, enabling efficient space utilization.",
+            "options": [
+              "A) Ingredients are stored in various locations and brought to kitchen only when needed",
+              "B) All ingredients remain permanently at cooking stations for immediate access",
+              "C) Ingredients must occupy contiguous shelf space for efficient retrieval",
+              "D) Recipes are modified to use only ingredients currently in the kitchen"
+            ],
+            "question": "How would memory management characteristics apply to a restaurant kitchen optimizing ingredient storage?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 3 ---"
+    },
+    {
+      "chapter_number": 3,
+      "content_preview": "--- Page 8 ---\nPrednosti nove strategije \nupravljanja memorijom\n\uf0a8Deo memorije mo\u017ee biti \ndeljen od strane vi\u0161e procesa\n\uf0a4Ista stranica se mapira u \nvir...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Part of memory",
+            "explanation": "Page 8 explicitly states: 'Deo memorije mo\u017ee biti deljen od strane vi\u0161e procesa' (Part of memory can be shared by multiple processes). Options B, C, and D either contradict the content or describe unrelated concepts not mentioned on Page 8.",
+            "options": [
+              "A) Part of memory",
+              "B) Entire memory",
+              "C) System libraries only",
+              "D) Processor time"
+            ],
+            "question": "According to Page 8, what can be shared by multiple processes under the new memory management strategy?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Shared system libraries, IPC via shared memory, shared code for process instances",
+            "explanation": "Page 8 explicitly lists three advantages: 1) Shared system libraries, 2) IPC via shared memory, and 3) Shared code for multiple process instances. Options B-D incorrectly include unrelated concepts from Page 9 (resident set, page indicators) that aren't advantages of the strategy.",
+            "options": [
+              "A) Shared system libraries, IPC via shared memory, shared code for process instances",
+              "B) Resident set tracking, IPC via shared memory, shared system libraries",
+              "C) Resident set identification, page-in-memory indicators, shared code",
+              "D) Shared system libraries, page-in-memory indicators, IPC via shared memory"
+            ],
+            "question": "Which options describe advantages of the new memory management strategy on Page 8?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) The same physical page is part of each process's resident set",
+            "explanation": "Shared memory (Page 8) maps the same physical page into multiple processes' virtual spaces. This means the page is included in the resident set (Page 9) of each sharing process, enabling efficient memory use without duplication, as all processes reference the same physical memory.",
+            "options": [
+              "A) The same physical page is part of each process's resident set",
+              "B) Each process maintains a separate copy in its resident set",
+              "C) Only the first process loads it into its resident set",
+              "D) Resident sets exclude shared pages to avoid duplication"
+            ],
+            "question": "How does a shared memory page (Page 8) affect the resident sets (Page 9) of multiple processes?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Sharing read-only code/resources across tabs to minimize duplication",
+            "explanation": "The shared memory strategy (from Page 8) allows identical resources (e.g., browser code) to be mapped into multiple tabs' virtual memory, reducing redundancy. This mirrors how system libraries are shared across processes. Other options address unrelated browser optimizations.",
+            "options": [
+              "A) Sharing read-only code/resources across tabs to minimize duplication",
+              "B) Increasing cache size for faster page loads",
+              "C) Isolating each tab's memory to prevent crashes",
+              "D) Implementing access control for security"
+            ],
+            "question": "How might memory management strategies for shared pages apply to a web browser with multiple tabs?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 8 ---"
+    },
+    {
+      "chapter_number": 4,
+      "content_preview": "--- Page 10 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako se pri izvr\u0161avanju procesa referencira \nstranica koja je u glavnoj memoriji, pristupa se \ntra\u017eenoj lokaciji i...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Access the requested location and continue execution",
+            "explanation": "Page 10 explicitly states that if a referenced page is in main memory, the system 'accesses the requested location and continues execution.' This is a direct retrieval of a single fact without requiring connections to other concepts like page faults (Page 11).",
+            "options": [
+              "A) Access the requested location and continue execution",
+              "B) Trigger a page fault and load the page from disk",
+              "C) Halt the process until the page is loaded",
+              "D) Redirect to the nearest available page"
+            ],
+            "question": "What happens when a process references a page already in main memory?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Page in main memory; Page not in main memory",
+            "explanation": "Page 10 describes access when a referenced page is in main memory, while Page 11 introduces the scenario where a referenced page isn't in main memory. These are presented as separate cases without deeper connection analysis.",
+            "options": [
+              "A) Page in main memory; Page not in main memory",
+              "B) Page in cache; Page swapped to disk",
+              "C) Page locked; Page unlocked",
+              "D) Page allocated; Page deallocated"
+            ],
+            "question": "According to pages 10-11, what are the TWO scenarios discussed regarding page references during process execution?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Absence triggers a page fault, disrupting execution flow unlike immediate access when present",
+            "explanation": "Page 10 shows seamless execution when a page is in memory, while Page 11's absence creates a page fault (interrupt). This contrast reveals how memory presence directly affects process continuity\u2014demonstrating cause (missing page) and effect (handling overhead) within memory management.",
+            "options": [
+              "A) Absence triggers a page fault, disrupting execution flow unlike immediate access when present",
+              "B) Both scenarios allow uninterrupted execution but use different memory layers",
+              "C) The OS terminates the process in both cases to preserve resources",
+              "D) Missing pages are automatically reloaded like present pages"
+            ],
+            "question": "How does referencing a page NOT in main memory (Page 11) relate to the scenario where it IS present (Page 10)?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Fetch from backend storage system",
+            "explanation": "This mirrors page fault handling: Just as missing pages trigger disk retrieval, uncached data blocks require fetching from persistent storage (conceptual transfer from memory management to distributed systems). Other options represent failure states or unrelated behaviors.",
+            "options": [
+              "A) Fetch from backend storage system",
+              "B) Return 'data unavailable' error",
+              "C) Wait indefinitely for cache population",
+              "D) Redirect request to another node"
+            ],
+            "question": "If caching in a distributed system mirrors page replacement, what occurs when a requested data block isn't cached locally?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 10 ---"
+    },
+    {
+      "chapter_number": 5,
+      "content_preview": "--- Page 12 ---\nIzvr\u0161avanje procesa\n\uf0a8Ako se referencira stranica koja nije u glavnoj \nmemoriji\n\uf0a4To je gre\u0161ka stranice (eng. page fault )\n\uf0a4Hardver utvr...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Referencing a page not in main memory",
+            "explanation": "Page 12 explicitly states: 'Ako se referencira stranica koja nije u glavnoj memoriji \u2192 To je gre\u0161ka stranice' (If a page not in main memory is referenced \u2192 This is a page fault). This matches option A directly, while other options describe consequences or unrelated steps.",
+            "options": [
+              "A) Referencing a page not in main memory",
+              "B) Setting the invalid bit for a page",
+              "C) The OS sending a disk request",
+              "D) Blocking a process during execution"
+            ],
+            "question": "What is a 'page fault' (gre\u0161ka stranice) as described on Page 12?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Invalid bit detected, OS request sent, process blocked, disk interrupt occurs",
+            "explanation": "Option A correctly lists four independent events from the content: hardware detects invalid bit (p12), OS request for page (p12), process blocked (p13), and disk interrupt after transfer (p13)",
+            "options": [
+              "A) Invalid bit detected, OS request sent, process blocked, disk interrupt occurs",
+              "B) TLB lookup fails, page swapped out, process terminated, cache refreshed",
+              "C) Page table updated, CPU halted, user notified, memory defragmented",
+              "D) Valid bit checked, scheduler invoked, network request sent, process resumed"
+            ],
+            "question": "Which option lists FOUR correct events during a page fault handling, as described on pages 12-13?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) A requested resource isn't cached and must be fetched from disk",
+            "explanation": "Like a page fault, this involves missing local data (cache/RAM) requiring retrieval from slower storage (disk/network), causing processing delays. Other options represent distinct failures unrelated to the memory hierarchy fetch mechanism.",
+            "options": [
+              "A) A requested resource isn't cached and must be fetched from disk",
+              "B) A client's HTTP request times out due to network latency",
+              "C) A corrupted CSS file causes rendering errors in the browser",
+              "D) A DNS lookup fails for an external API endpoint"
+            ],
+            "question": "In a web server handling multiple requests, which scenario is analogous to a 'page fault' in virtual memory systems?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 12 ---"
+    },
+    {
+      "chapter_number": 6,
+      "content_preview": "--- Page 21 ---\nPrincip lokalnosti\n\uf0a4Tokom du\u017eeg perioda menjaju se delovi procesa \nkoji se koriste\n\uf0a4U kratkom intervalu procesor uglavnom radi sa \nmal...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "B) Processor mostly works with a small, limited set of addresses",
+            "explanation": "Page 21 explicitly states: 'In a short interval, the processor mostly works with a small and limited set of addresses.' This directly matches option B. Other options either contradict the content (A, D) or describe long-term behavior (C) rather than short-interval focus.",
+            "options": [
+              "A) Processor uses a large and diverse set of addresses",
+              "B) Processor mostly works with a small, limited set of addresses",
+              "C) Processor frequently changes between all parts of the process",
+              "D) Processor requires access to most memory locations simultaneously"
+            ],
+            "question": "According to Page 21, what does the principle of locality state about processor behavior in a short interval?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Changes in process parts over long periods; Processor's limited address set in short intervals; Sequential execution with branch exceptions",
+            "explanation": "Option A correctly lists independent aspects from both pages: 1) Long-term process changes (Page 21), 2) Limited address usage in short intervals (Page 21), and 3) Sequential execution with exceptions (Page 22)",
+            "options": [
+              "A) Changes in process parts over long periods; Processor's limited address set in short intervals; Sequential execution with branch exceptions",
+              "B) Processor cycles vary hourly; Functions use unlimited parameters; Branches follow sequential flow",
+              "C) Cache size determines locality; All addresses are accessed equally; Programs lack function localization",
+              "D) Limited parameter access in functions; Identical process parts used always; No sequential execution patterns"
+            ],
+            "question": "Which options list MULTIPLE correct aspects of the Principle of Locality (Pages 21-22)?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Sequential execution enables spatial locality; function localization enables temporal locality",
+            "explanation": "Page 21 defines temporal (reusing data) and spatial (nearby addresses) locality. Page 22 explains sequential execution (accessing consecutive addresses \u2192 spatial) and function localization (reusing variables/parameters \u2192 temporal). This shows how program behavior causes specific locality types.",
+            "options": [
+              "A) Sequential execution enables spatial locality; function localization enables temporal locality",
+              "B) Sequential execution enables temporal locality; function localization enables spatial locality",
+              "C) Both reasons primarily contribute to spatial locality",
+              "D) Hardware design causes temporal locality; program structure causes spatial locality"
+            ],
+            "question": "How do the reasons for locality (page 22) relate to the types of locality described on page 21?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Students repeatedly borrow core textbooks (temporal locality)",
+            "explanation": "The principle of temporal locality (reusing same resources in short periods) explains repeated borrowing of key textbooks, similar to how processors frequently access limited memory addresses",
+            "options": [
+              "A) Students repeatedly borrow core textbooks (temporal locality)",
+              "B) Libraries physically cluster related books (spatial locality)",
+              "C) Random book selections create uniform borrowing patterns",
+              "D) Librarians redistribute books to balance demand"
+            ],
+            "question": "How might the principle of locality explain patterns in library book usage during exam seasons?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 21 ---"
+    },
+    {
+      "chapter_number": 7,
+      "content_preview": "--- Page 28 ---\nStruktura tabele stranica\n\uf0a8Pri izvr\u0161avanju procesa, naj\u010de\u0161\u0107e se po\u010detna \nadresa tabele stranica dr\u017ei u registru\n\uf0a4Ova adresa se \u010duva u ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) In the process control block",
+            "explanation": "The content explicitly states: 'Ova adresa se \u010duva u upravlja\u010dkom bloku procesa' (This address is stored in the process control block). This is a direct factual statement from Page 28 requiring no conceptual connections.",
+            "options": [
+              "A) In the process control block",
+              "B) In CPU registers only",
+              "C) In RAM memory",
+              "D) In processor cache"
+            ],
+            "question": "Where is the initial address of the page table stored during process execution?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Page table address stored in process control block; Virtual page number indexes table; Frame + offset = physical address",
+            "explanation": "Page 28 explicitly states: (1) Page table base address is stored in the process control block, (2) Virtual page number is used to index the table to retrieve frame number, and (3) Physical address is formed by combining frame number with offset",
+            "options": [
+              "A) Page table address stored in process control block; Virtual page number indexes table; Frame + offset = physical address",
+              "B) Page table address stored in ALU; Frame number indexes table; Page size determines offset",
+              "C) Page table stored in cache; Virtual address directly gives frame; Offset ignored in translation",
+              "D) Page table address loaded at compile time; Virtual memory handles indexing; Frame + offset = logical address"
+            ],
+            "question": "Based on Page 28, which statements are correct?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) It stores the page table's base address, enabling indexing to retrieve the frame number",
+            "explanation": "The CPU register holds the page table's base address (from the process control block), which allows the page number in the virtual address to index the table, retrieve the frame number, and combine it with the offset to form the physical address",
+            "options": [
+              "A) It stores the page table's base address, enabling indexing to retrieve the frame number",
+              "B) It directly holds the offset value used in the final physical address calculation",
+              "C) It contains the virtual address's page number for immediate lookup",
+              "D) It replaces the need for the process control block during translation"
+            ],
+            "question": "How does the CPU register's role relate to translating a virtual address into a physical address using the page table?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Use catalog number to index a section map, then combine with shelf number",
+            "explanation": "Like page tables, the catalog number (page number) indexes a mapping to a section (frame), which is combined with the shelf number (offset) to locate the physical book. This demonstrates hierarchical address translation beyond memory systems.",
+            "options": [
+              "A) Use catalog number to index a section map, then combine with shelf number",
+              "B) Search shelves directly using the full book ID",
+              "C) Use only the shelf number from the catalog entry",
+              "D) Randomly check sections until matching the book title"
+            ],
+            "question": "How is virtual memory's page table concept applied when finding a book in a library using a catalog system?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 28 ---"
+    },
+    {
+      "chapter_number": 8,
+      "content_preview": "--- Page 30 ---\nTLB Bafer\n\uf0a8Akose koristi virtuelna memorija , prisvakom\nreferenciranju podataka trebaju dvapristupa memoriji :\n\uf0a4Jedan da se preuzme st...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Recently used page table entries",
+            "explanation": "The text explicitly states: 'Sadr\u017ei stavke tabele stranica koje su najskorije kori\u0161\u0107ene' (English: 'Contains page table entries that have been recently used'). This matches option A directly, while other options refer to memory components not stored in TLB.",
+            "options": [
+              "A) Recently used page table entries",
+              "B) Virtual memory addresses",
+              "C) Physical memory content",
+              "D) Entire memory pages"
+            ],
+            "question": "What does the Translation Lookaside Buffer (TLB) store?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Caches recent page table entries, has multiple levels, often separate for instructions/data",
+            "explanation": "The content specifies TLB: 1) caches recently used page table entries, 2) has multiple hierarchical levels in modern processors, and 3) often has separate buffers for instructions/data",
+            "options": [
+              "A) Caches recent page table entries, has multiple levels, often separate for instructions/data",
+              "B) Replaces RAM entirely, single-level design, stores virtual addresses only",
+              "C) Slower than main memory, stores disk data, shared for all processes",
+              "D) Non-hierarchical structure, manages interrupts, caches CPU registers"
+            ],
+            "question": "Which features describe a Translation Lookaside Buffer (TLB)?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Smaller/faster upper levels cache frequent entries, reducing average lookup time",
+            "explanation": "Multi-level TLBs balance speed and capacity \u2013 smaller top-level TLBs (faster) cache high-frequency entries for quick access, while larger lower levels (slower) store more entries",
+            "options": [
+              "A) Smaller/faster upper levels cache frequent entries, reducing average lookup time",
+              "B) Larger lower levels store unused entries to free up upper TLB space",
+              "C) Hierarchy allows TLBs to replace page tables entirely",
+              "D) Each level operates independently to parallelize address translation"
+            ],
+            "question": "How does the hierarchical structure of multi-level TLBs relate to optimizing virtual memory access speed?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Multi-level TLB hierarchy",
+            "explanation": "The library's tiered storage system mirrors TLB hierarchy: frequently accessed items (books/page table entries) are kept in fast-access locations (quick-section/TLB cache), while less-used items are in slower storage (basement/DRAM)",
+            "options": [
+              "A) Multi-level TLB hierarchy",
+              "B) Paged memory segmentation",
+              "C) Virtual memory page swapping",
+              "D) RAID disk redundancy"
+            ],
+            "question": "A library keeps popular books in a quick-access section, and less popular ones in basement storage. Which computer concept does this system most resemble?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 30 ---"
+    },
+    {
+      "chapter_number": 9,
+      "content_preview": "--- Page 34 ---\nTLB \u2013asocijativno preslikavanje\n\uf0a8TLB sadr\u017ei samo neke od stavki tabele \nstranica\n\uf0a4ne mo\u017ee se stavka jednostavno prona\u0107i \nindeksiranjem...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Asocijativno preslikavanje",
+            "explanation": "The content explicitly defines 'asocijativno preslikavanje' (associative mapping) as the technique where the processor examines multiple TLB entries simultaneously to locate a matching page table entry, as stated on Page 34.",
+            "options": [
+              "A) Asocijativno preslikavanje",
+              "B) Direktno preslikavanje",
+              "C) TLB indeksiranje",
+              "D) Strana tabela preslikavanja"
+            ],
+            "question": "What is the technique called when a processor checks multiple TLB entries simultaneously to find a matching page?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Entries contain page numbers and full page table entries, C) CPU checks multiple entries simultaneously",
+            "explanation": "Page 34 states that TLB associative mapping entries include page numbers + full page table data (A) and allows parallel checking of multiple entries (C). B is false (TLB can't use simple indexing), and D is incorrect (TLB only stores partial entries).",
+            "options": [
+              "A) Entries contain page numbers and full page table entries",
+              "B) Requires indexing by page number for lookup",
+              "C) CPU checks multiple entries simultaneously",
+              "D) TLB always stores the entire page table"
+            ],
+            "question": "Which features describe TLB associative mapping? Select all that apply."
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) To enable parallel search of multiple entries for address translation",
+            "explanation": "Associative mapping requires simultaneous comparison of page numbers across all TLB entries (N-way search)",
+            "options": [
+              "A) To enable parallel search of multiple entries for address translation",
+              "B) To reduce physical memory access time during page table walks",
+              "C) To prevent hash collisions between different page numbers",
+              "D) To simplify hardware design of the memory management unit"
+            ],
+            "question": "Why must TLB entries in associative mapping contain both a page number and full page table data?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Simultaneously checking all rooms when searching for lost keys",
+            "explanation": "Associative mapping checks multiple locations in parallel (like TLB entries), analogous to searching all rooms at once. Other options use sequential (D), indexed (B), or coordinate-based (C) methods not reflecting associative search principles.",
+            "options": [
+              "A) Simultaneously checking all rooms when searching for lost keys",
+              "B) Alphabetically organizing a filing cabinet for document retrieval",
+              "C) Using GPS coordinates to locate a specific tree in a forest",
+              "D) Reading a book chapter-by-chapter to find a specific quote"
+            ],
+            "question": "How might associative mapping principles from TLB be applied to optimize a real-world search scenario?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 34 ---"
+    },
+    {
+      "chapter_number": 10,
+      "content_preview": "--- Page 43 ---\nHijerarhijska tabela stranica u 2 nivoa\n4 MB page table\n(220PTEs)4 KB page table\n(210PTEs)\n210stranica sa po 210stavki \n--- Page 44 --...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) One entry per frame",
+            "explanation": "Page 44 explicitly states that an inverted page table has 'one entry for each frame' (Jedna stavka za svaki okvir), contrasting it with classical page tables that scale with the virtual address space. This is the single defining feature highlighted for inverted tables.",
+            "options": [
+              "A) One entry per frame",
+              "B) One entry per page",
+              "C) Proportional to virtual address space",
+              "D) Stored in non-contiguous memory"
+            ],
+            "question": "What is a key characteristic of an inverted page table according to page 44?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) 2-level hierarchy, 4 MB table, 4 KB table, 2\u00b9\u2070 pages/entries",
+            "explanation": "Page 43 explicitly describes a two-level hierarchical page table with 4 MB/4 KB components and 2\u00b9\u2070 page entries. Options B/C/D reference inverted table concepts from pages 44-45.",
+            "options": [
+              "A) 2-level hierarchy, 4 MB table, 4 KB table, 2\u00b9\u2070 pages/entries",
+              "B) Inverted tables, process IDs, frame indices",
+              "C) Linear inverted tables, relative addresses, 2\u00b9\u2070 entries",
+              "D) Virtual address space, proportional table size, frame specifications"
+            ],
+            "question": "Which details are listed on page 43?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) They scale with physical memory, not virtual address space.",
+            "explanation": "Classical page tables grow with the virtual address space (Page 44). Inverted tables scale with physical memory frames (one entry per frame), which is typically smaller, drastically reducing table size (Page 44-45).",
+            "options": [
+              "A) They scale with physical memory, not virtual address space.",
+              "B) They use a multi-level hierarchy to reduce entries.",
+              "C) Each entry maps multiple pages, reducing total entries.",
+              "D) They eliminate the need for process IDs in entries."
+            ],
+            "question": "Why do inverted page tables address the size limitation of classical page tables?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Index storage blocks instead of individual records",
+            "explanation": "Inverted page tables reduce entries by tracking frames (storage blocks) rather than pages (records). Applying this to databases would reduce index size by mapping blocks to records, mirroring the efficiency gain of inverted page tables.",
+            "options": [
+              "A) Index storage blocks instead of individual records",
+              "B) Increase index entries for faster searches",
+              "C) Use a two-level hierarchical index structure",
+              "D) Dynamically allocate index size based on query frequency"
+            ],
+            "question": "How could inverted page table principles optimize a database index?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 43 ---"
+    },
+    {
+      "chapter_number": 11,
+      "content_preview": "--- Page 50 ---\nVeli\u010dina stranice za razli\u010dite familije \nprocesora\nArchitecture Page Size Huge Page Size Large Page Size\n32-bitx86 4KB 4MB\nx86-64 4KB ...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) 4KB",
+            "explanation": "The table on page 50 explicitly lists '4KB' under the 'Page Size' column for x86-64 architecture. This is a direct factual recall with no interpretation required.",
+            "options": [
+              "A) 4KB",
+              "B) 2MB",
+              "C) 1GB",
+              "D) 8KB"
+            ],
+            "question": "What is the standard page size for x86-64 architecture according to the table?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) 64-bit architectures require flexible page sizes to optimize memory management across diverse workloads",
+            "explanation": "64-bit architectures (x86-64/IA-64) support varied page sizes (e.g., 2MB/1GB) to balance TLB coverage and memory efficiency for different applications",
+            "options": [
+              "A) 64-bit architectures require flexible page sizes to optimize memory management across diverse workloads",
+              "B) Older architectures prioritize hardware cost reduction over performance",
+              "C) Operating systems exclusively control page size availability in newer CPUs",
+              "D) Manufacturing limitations restrict smaller architectures to fewer page sizes"
+            ],
+            "question": "Why do x86-64 and IA-64 architectures support multiple huge/large page sizes, while others like 32-bit x86 have fewer options?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Use largest supported huge pages for data tables",
+            "explanation": "Huge pages (e.g., 1GB in x86-64) minimize TLB misses for large contiguous data access, a critical factor in database workloads. This transfers architectural page-size logic (Page 50) to a new performance scenario not explicitly taught.",
+            "options": [
+              "A) Use largest supported huge pages for data tables",
+              "B) Prioritize standard 4KB pages for flexibility",
+              "C) Mix large/huge pages for indexes and small pages for logs",
+              "D) Let OS default page sizes handle all allocations"
+            ],
+            "question": "For a database server processing large datasets, which page size choice aligns with architectural principles to optimize performance?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 50 ---"
+    },
+    {
+      "chapter_number": 12,
+      "content_preview": "--- Page 57 ---\nPolitika zamene\n\uf0a8Cilj je da se minimizuje broj gre\u0161aka stranice \ntako \u0161to se zameni ona za koju je najmanje \nverovatno da \u0107e uskoro bi...",
+      "questions": [
+        {
+          "question_data": {
+            "correct_answer": "A) Minimize page faults by replacing the least likely referenced page",
+            "explanation": "The text explicitly states: 'Cilj je da se minimizuje broj gre\u0161aka stranice tako \u0161to se zameni ona za koju je najmanje verovatno da \u0107e uskoro biti referencirana' (The goal is to minimize page faults by replacing the least likely to be referenced page soon)",
+            "options": [
+              "A) Minimize page faults by replacing the least likely referenced page",
+              "B) Prioritize pages modified most recently",
+              "C) Randomly select pages for replacement",
+              "D) Maximize disk write efficiency"
+            ],
+            "question": "What is the main goal of the page replacement policy described on Page 57?"
+          },
+          "solo_level": "unistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Minimizing page faults, modified bit, locking pages",
+            "explanation": "Page 57 mentions minimizing page faults and predicting based on past behavior",
+            "options": [
+              "A) Minimizing page faults, modified bit, locking pages",
+              "B) Maximizing cache hits, encryption, random replacement",
+              "C) Two disk accesses, locality avoidance, no locking",
+              "D) Ignoring past behavior, frequent disk writes, prefetching"
+            ],
+            "question": "Which features/goals of page replacement are mentioned on Pages 57-59?"
+          },
+          "solo_level": "multistructural"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Reduces disk I/O by only writing modified pages during replacement",
+            "explanation": "The modified bit (page 58) minimizes disk writes by tracking page modifications",
+            "options": [
+              "A) Reduces disk I/O by only writing modified pages during replacement",
+              "B) Improves prediction accuracy for future page references",
+              "C) Directly increases the number of free frames available",
+              "D) Ensures all pages are updated before replacement"
+            ],
+            "question": "How does the modified bit (page 58) support the page replacement goal (page 57)?"
+          },
+          "solo_level": "relational"
+        },
+        {
+          "question_data": {
+            "correct_answer": "A) Use past access patterns to predict future cache hits",
+            "explanation": "Just as page replacement uses historical access patterns (locality) to minimize faults, effective web cache management predicts future hits using access frequency/recency (e.g., LRU algorithms). This transfers the core principle of behavior-based prediction to a new domain.",
+            "options": [
+              "A) Use past access patterns to predict future cache hits",
+              "B) Increase cache size to store more items indefinitely",
+              "C) Randomly replace items to ensure fairness",
+              "D) Prioritize items based on their size"
+            ],
+            "question": "How would the page replacement principle of predicting future needs based on past behavior apply to managing a web cache?"
+          },
+          "solo_level": "extended_abstract"
+        }
+      ],
+      "title": "--- Page 57 ---"
+    }
+  ],
+  "metadata": {
+    "config": {
+      "distribution_mode": "auto",
+      "question_mode": "auto",
+      "solo_distribution": null,
+      "total_questions": null,
+      "use_smart_chunking": true
+    },
+    "distribution_mode": "auto",
+    "filename": "08_-_Virtuelna_memorija.pdf",
+    "generated_at": "2025-12-13T11:07:58.488183",
+    "progress": {
+      "chapters_completed": 12,
+      "questions_generated": 43,
+      "total_chapters": 16,
+      "total_questions_target": 40
+    },
+    "question_mode": "auto",
+    "total_chapters": 16,
+    "total_questions": 43
+  }
+}
