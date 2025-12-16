@@ -51,6 +51,7 @@ class SoloQuizGenerator:
         self.current_key_index = 0
         self.provider = "openrouter"
         self.api_exhausted = False
+        self._content_summary_cache = {}  # Cache summaries to avoid regenerating
     
     def generate_quiz(self, content: str, filename: str, config: Dict[str, Any] = None, resume_from_chapter: int = 1, existing_quiz: Dict[str, Any] = None) -> Dict[str, Any]:
         """
@@ -299,6 +300,91 @@ class SoloQuizGenerator:
         
         # Fallback: Return whole content as single chapter
         return [content]
+    
+    def _split_into_chapters(self, content: str) -> List[str]:
+        """
+        Basic chapter splitting fallback method
+        Splits by common chapter markers or paragraph breaks
+        
+        Args:
+            content: Full text content
+            
+        Returns:
+            List of chapter contents
+        """
+        # Try common chapter markers
+        chapter_pattern = r'(?:CHAPTER|Chapter|PART|Part)\s+\d+'
+        parts = re.split(chapter_pattern, content)
+        chapters = [p.strip() for p in parts if p.strip() and len(p.strip()) > 200]
+        
+        if len(chapters) >= 2:
+            return chapters[:25]
+        
+        # Fallback to paragraph splitting
+        paragraphs = content.split('\n\n')
+        return [p.strip() for p in paragraphs if len(p.strip()) > 200][:25]
+    
+    def _generate_content_summary(self, content: str, chapter_context: str = "") -> str:
+        """
+        Generate a LOCAL summary from the content WITHOUT calling the API.
+        Extracts key sentences to help with higher-order questions.
+        This is a lightweight extraction, NOT an API call.
+        
+        Args:
+            content: The text content to summarize
+            chapter_context: Optional chapter title/context
+            
+        Returns:
+            A summary string extracted from the content
+        """
+        # Check cache first
+        cache_key = hash(content[:500])  # Use first 500 chars as key
+        if cache_key in self._content_summary_cache:
+            return self._content_summary_cache[cache_key]
+        
+        try:
+            # LOCAL extraction - NO API CALL
+            # Extract key sentences based on heuristics
+            lines = content.split('\n')
+            key_sentences = []
+            
+            for line in lines:
+                line = line.strip()
+                # Skip empty lines, page markers, and very short lines
+                if not line or line.startswith('---') or len(line) < 30:
+                    continue
+                # Prioritize sentences with key indicators
+                if any(keyword in line.lower() for keyword in [
+                    'important', 'key', 'main', 'significant', 'essential',
+                    'because', 'therefore', 'thus', 'result', 'cause',
+                    'relationship', 'connection', 'leads to', 'affects',
+                    'principle', 'concept', 'definition', 'means that'
+                ]):
+                    key_sentences.append(line)
+                # Also include first substantive sentences
+                elif len(key_sentences) < 3 and len(line) > 50:
+                    key_sentences.append(line)
+                
+                # Limit to 5 key sentences
+                if len(key_sentences) >= 5:
+                    break
+            
+            # Build summary from extracted sentences
+            summary = ' '.join(key_sentences[:5])
+            
+            # Limit summary length
+            if len(summary) > 400:
+                summary = summary[:400]
+            
+            # Cache it
+            self._content_summary_cache[cache_key] = summary
+            if summary:
+                print(f"[SUMMARY] Extracted key points (no API call): {summary[:60]}...")
+            return summary
+            
+        except Exception as e:
+            print(f"[SUMMARY] Error extracting summary: {str(e)}")
+            return ""
     
     def _analyze_page_density(self, content: str, page_matches) -> List[Dict[str, Any]]:
         """
@@ -625,10 +711,17 @@ class SoloQuizGenerator:
                 count = max(1, round(adjusted_target * solo_distribution.get(level, 0.25)))
                 questions_per_level[level] = count
             
+            # Generate content summary for higher-order questions (relational & extended_abstract)
+            # This helps the AI understand broader themes and relationships
+            content_summary = ""
+            has_higher_order = questions_per_level.get('relational', 0) > 0 or questions_per_level.get('extended_abstract', 0) > 0
+            if has_higher_order:
+                content_summary = self._generate_content_summary(chapter_content, title)
+            
             # Generate questions for each SOLO level
             for level in solo_levels:
                 for _ in range(questions_per_level[level]):
-                    question = self._generate_question(chapter_content, level, title)
+                    question = self._generate_question(chapter_content, level, title, content_summary)
                     if question:
                         chapter_data['questions'].append({
                             'solo_level': level,
@@ -641,7 +734,7 @@ class SoloQuizGenerator:
             print(f"Error processing chapter {chapter_num}: {str(e)}")
             return None
     
-    def _generate_question(self, content: str, level: str, context: str) -> Dict[str, Any]:
+    def _generate_question(self, content: str, level: str, context: str, content_summary: str = "") -> Dict[str, Any]:
         """
         Generate a single question at specified SOLO level
         
@@ -649,17 +742,22 @@ class SoloQuizGenerator:
             content: Chapter content
             level: SOLO taxonomy level
             context: Chapter context/title
+            content_summary: Summary of the content for higher-order questions
             
         Returns:
             Dictionary with question data, or None if API unavailable
         """
         try:
+            # Check if API is already exhausted - don't waste calls
+            if self.api_exhausted:
+                return None
+            
             if self.api_keys[0] == 'mock':
                 print(f"Using mock questions (no API keys configured)")
                 return None
             
             # Call API to generate question
-            prompt = self._build_prompt(content, level, context)
+            prompt = self._build_prompt(content, level, context, content_summary)
             response = self._call_api(prompt)
             
             if response:
@@ -677,11 +775,23 @@ class SoloQuizGenerator:
             print(f"Error generating {level} question: {str(e)}")
             return None
     
-    def _build_prompt(self, content: str, level: str, context: str) -> str:
-        """Build optimized prompt with detailed SOLO Taxonomy definitions"""
+    def _build_prompt(self, content: str, level: str, context: str, content_summary: str = "") -> str:
+        """Build optimized prompt with detailed SOLO Taxonomy definitions
+        
+        Args:
+            content: Chapter content
+            level: SOLO taxonomy level
+            context: Chapter context/title  
+            content_summary: Summary of content for higher-order questions (relational, extended_abstract)
+        """
         
         # Keep content preview SHORT (600 chars)
         content_preview = content[:600]
+        
+        # Build summary section for higher-order questions
+        summary_section = ""
+        if content_summary and level in ['relational', 'extended_abstract']:
+            summary_section = f"\n\nCONTENT SUMMARY (key themes and relationships):\n{content_summary}\n"
         
         prompts = {
             'unistructural': f"""Create a UNISTRUCTURAL level question about '{context}'.
@@ -696,7 +806,7 @@ TASK: Create a question that tests knowledge of ONE specific fact/concept. Stude
 Requirements:
 - Focus on ONE isolated aspect only
 - No connections to other concepts required
-- Question < 150 chars
+- Question < 250 chars
 - 4 MC options (A-D), one correct
 - Explanation < 250 chars
 
@@ -714,7 +824,7 @@ TASK: Create a question that tests knowledge of MULTIPLE separate facts/features
 Requirements:
 - Multiple items or aspects, but handled independently
 - Don't require showing relationships between items
-- Question < 150 chars
+- Question < 250 chars
 - 4 MC options (A-D), one correct
 - Explanation < 250 chars
 
@@ -722,18 +832,19 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
 
             'relational': f"""Create a RELATIONAL level question about '{context}'.
 
-Content: {content_preview}
+Content: {content_preview}{summary_section}
 
 RELATIONAL LEVEL DEFINITION:
 This stage relates to aspects of knowledge combining to form a structure. By this stage, the student is able to understand the importance of different parts in relation to the whole. They are able to connect concepts and ideas, so it provides a coherent knowledge of the whole thing. Moreover, the students' response indicates an understanding of the task by combining all the parts, and they can demonstrate how each part contributes to the whole.
 
-TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
+TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
 
 Requirements:
 - Ask about relationships, connections, or cause-effect WITHIN the content
+- Use the summary to understand the broader context and key themes
 - Require understanding of how parts fit together into a coherent whole
 - Student must show how different elements relate to each other
-- Question < 150 chars
+- Question < 250 chars
 - 4 MC options (A-D), one correct
 - Explanation < 250 chars
 
@@ -741,19 +852,20 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
 
             'extended_abstract': f"""Create an EXTENDED ABSTRACT level question about '{context}'.
 
-Content: {content_preview}
+Content: {content_preview}{summary_section}
 
 EXTENDED ABSTRACT LEVEL DEFINITION:
 By this level, students are able to make connections within the provided task, and they also create connections beyond that. They develop the ability to transfer and generalise the concepts and principles from one subject area into a particular domain. Therefore, the students' response indicates that they can conceptualise beyond the level of what has been taught. They are able to propose new concepts and ideas depending on their understanding of the task or subject taught.
 
-TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Student should predict, generalize, or solve scenarios beyond what was directly taught. Requires transfer of learning to new domains.
+TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Use the summary to understand the core principles, then create a scenario that requires applying those principles to a completely NEW situation. Student should predict, generalize, or solve scenarios beyond what was directly taught.
 
 Requirements:
-- Ask about applying/generalizing content to a NEW different situation
+- Use the summary to identify transferable concepts and principles
+- Ask about applying/generalizing these concepts to a NEW different situation
 - Scenario should NOT be directly mentioned in the content
 - Requires student to conceptualize beyond what was taught
 - Student must demonstrate ability to transfer knowledge to new contexts
-- Question < 150 chars
+- Question < 250 chars
 - 4 MC options (A-D), one correct
 - Explanation < 250 chars
 
@@ -762,12 +874,23 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         return prompts.get(level, prompts['unistructural'])
     
-    def _call_api(self, prompt: str) -> str:
+    def _call_api(self, prompt: str, retry_count: int = 0) -> str:
         """
         Call API for question generation
         Primary: OpenRouter API with key rotation (9 keys)
         Fallback: GitHub Models API
+        
+        Key rotation logic:
+        - 429 (rate limit): rotate to next key
+        - Connection error: retry same key up to 2 times, then try GitHub
+        - Other errors: try next key
         """
+        import time
+        
+        # Check if already exhausted - don't waste calls
+        if self.api_exhausted:
+            return None
+        
         try:
             api_key = self.api_keys[self.current_key_index]
             
@@ -802,14 +925,15 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 print(f"[OK] OpenRouter key {self.current_key_index + 1}/{len(self.api_keys)}")
                 return response.json()["choices"][0]["message"]["content"]
             elif response.status_code == 429:
-                # Rate limited - try next key
+                # Rate limited - rotate to next key (this is the ONLY case to rotate)
                 print(f"[429] Rate limited on key {self.current_key_index + 1}/{len(self.api_keys)}")
                 if self.current_key_index < len(self.api_keys) - 1:
                     self.current_key_index += 1
-                    return self._call_api(prompt)
+                    return self._call_api(prompt, 0)  # Reset retry count for new key
                 else:
                     # All OpenRouter keys exhausted - try GitHub
                     print("[FALLBACK] All OpenRouter keys rate-limited. Switching to GitHub Models...")
+                    self.current_key_index = 0  # Reset for next batch of calls
                     github_result = self._call_github_api(prompt)
                     if github_result:
                         return github_result
@@ -818,30 +942,34 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                         self.api_exhausted = True
                         return None
             else:
-                # Other error - try next key
-                print(f"[{response.status_code}] OpenRouter error. Trying next key...")
-                if self.current_key_index < len(self.api_keys) - 1:
-                    self.current_key_index += 1
-                    return self._call_api(prompt)
-                else:
-                    print("[FALLBACK] All OpenRouter keys failed. Switching to GitHub Models...")
-                    return self._call_github_api(prompt)
+                # Other HTTP error - log and try GitHub directly (don't burn through keys)
+                print(f"[{response.status_code}] OpenRouter error: {response.text[:100]}")
+                return self._call_github_api(prompt)
             
         except requests.Timeout:
-            print("[TIMEOUT] Request timeout - trying fallback")
-            if self.current_key_index < len(self.api_keys) - 1:
-                self.current_key_index += 1
-                return self._call_api(prompt)
+            # Timeout - retry same key once, then try GitHub
+            print(f"[TIMEOUT] Request timeout on key {self.current_key_index + 1}")
+            if retry_count < 1:
+                time.sleep(2)  # Wait 2 seconds before retry
+                return self._call_api(prompt, retry_count + 1)
             else:
+                print("[FALLBACK] Timeout persists. Trying GitHub Models...")
+                return self._call_github_api(prompt)
+        except requests.ConnectionError as e:
+            # Connection error (DNS, network) - DON'T burn through keys!
+            # This is a network issue, not an API issue
+            print(f"[NETWORK] Connection error: {str(e)[:80]}")
+            if retry_count < 2:
+                print(f"[RETRY] Waiting 3 seconds before retry {retry_count + 1}/2...")
+                time.sleep(3)  # Wait before retry
+                return self._call_api(prompt, retry_count + 1)
+            else:
+                print("[NETWORK] Network appears down. Trying GitHub as last resort...")
                 return self._call_github_api(prompt)
         except Exception as e:
             print(f"[ERROR] API call error: {type(e).__name__}: {str(e)}")
-            if self.current_key_index < len(self.api_keys) - 1:
-                self.current_key_index += 1
-                return self._call_api(prompt)
-            else:
-                print("[FALLBACK] All OpenRouter keys failed. Trying GitHub Models...")
-                return self._call_github_api(prompt)
+            # For unknown errors, try GitHub directly
+            return self._call_github_api(prompt)
     
     def _call_github_api(self, prompt: str) -> str:
         """Call GitHub Models API (gpt-4o) as fallback"""
@@ -880,23 +1008,24 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 return response.json()["choices"][0]["message"]["content"]
             elif response.status_code == 429:
                 print("[RATE_LIMIT] GitHub Models also rate-limited (quota exhausted)")
-                self.api_exhausted = True
+                self.api_exhausted = True  # True exhaustion - all APIs rate limited
                 return None
             else:
                 print(f"[GitHub API Error] Status {response.status_code}: {response.text[:300]}")
+                # Don't set exhausted - could be temporary server error
                 return None
                 
         except requests.Timeout:
             print("[GitHub API] Request timeout (30s)")
-            self.api_exhausted = True
+            # Don't set exhausted - network issue, not API issue
             return None
         except requests.ConnectionError as e:
-            print(f"[GitHub API] Connection error: {str(e)}")
-            self.api_exhausted = True
+            print(f"[GitHub API] Connection error (network issue): {str(e)[:80]}")
+            # Don't set exhausted - this is a network problem, not API exhaustion
             return None
         except Exception as e:
             print(f"[GitHub API Exception] {type(e).__name__}: {str(e)}")
-            self.api_exhausted = True
+            # Don't set exhausted for unknown errors
             return None
     
     def _parse_question_response(self, response: str) -> Dict[str, Any]:
