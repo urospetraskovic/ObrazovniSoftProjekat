@@ -1133,3 +1133,522 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
             print(f"Error validating question: {str(e)}")
             return question_data
 
+    # ==================== NEW SOLO-BASED GENERATION ====================
+    
+    def generate_solo_questions(
+        self,
+        lessons_data: List[Dict[str, Any]],
+        solo_levels: List[str],
+        questions_per_level: int = 3,
+        section_ids: List[int] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate questions based on SOLO taxonomy levels from parsed lessons.
+        
+        SOLO Level Requirements:
+        - unistructural: From LEARNING OBJECTS (single discrete knowledge unit)
+        - multistructural: From SECTIONS (multiple related facts within a section)
+        - relational: From SECTIONS + LEARNING OBJECTS (analyze relationships)
+        - extended_abstract: Requires 2 LESSONS to combine knowledge
+        
+        Args:
+            lessons_data: List of lesson dicts with sections and learning objects
+            solo_levels: List of SOLO levels to generate questions for
+            questions_per_level: Number of questions per SOLO level
+            section_ids: Optional list of specific section IDs to use
+            
+        Returns:
+            List of question dicts ready for database storage
+        """
+        print(f"\n[SOLO GENERATOR] Starting question generation")
+        print(f"[SOLO GENERATOR] Lessons: {len(lessons_data)}, Levels: {solo_levels}")
+        
+        generated_questions = []
+        
+        # Prepare content from lessons
+        primary_lesson = lessons_data[0] if lessons_data else None
+        secondary_lesson = lessons_data[1] if len(lessons_data) > 1 else None
+        
+        if not primary_lesson:
+            raise ValueError("At least one lesson is required")
+        
+        # Build content context for each level
+        for level in solo_levels:
+            print(f"\n[SOLO] Generating {questions_per_level} {level} questions...")
+            
+            if level == 'extended_abstract' and not secondary_lesson:
+                print(f"[SOLO] Skipping extended_abstract - requires 2 lessons")
+                continue
+            
+            for i in range(questions_per_level):
+                try:
+                    if level == 'extended_abstract':
+                        # Combine knowledge from two lessons
+                        question = self._generate_extended_abstract_question(
+                            primary_lesson, secondary_lesson
+                        )
+                    elif level == 'unistructural':
+                        # From learning objects only
+                        question = self._generate_unistructural_question(
+                            primary_lesson, section_ids
+                        )
+                    elif level == 'multistructural':
+                        # From sections
+                        question = self._generate_multistructural_question(
+                            primary_lesson, section_ids
+                        )
+                    elif level == 'relational':
+                        # From sections AND learning objects
+                        question = self._generate_relational_question(
+                            primary_lesson, section_ids
+                        )
+                    else:
+                        question = None
+                    
+                    if question:
+                        question['solo_level'] = level
+                        generated_questions.append(question)
+                        print(f"[SOLO] Generated {level} question {i+1}/{questions_per_level}")
+                    
+                except Exception as e:
+                    print(f"[SOLO] Error generating {level} question: {e}")
+                    if self.api_exhausted:
+                        print("[SOLO] API exhausted, stopping generation")
+                        break
+            
+            if self.api_exhausted:
+                break
+        
+        print(f"\n[SOLO GENERATOR] Total questions generated: {len(generated_questions)}")
+        return generated_questions
+    
+    def _generate_unistructural_question(
+        self,
+        lesson: Dict[str, Any],
+        section_ids: List[int] = None
+    ) -> Dict[str, Any]:
+        """Generate UNISTRUCTURAL question from LEARNING OBJECTS"""
+        
+        lesson_title = lesson.get('title', 'Lesson')
+        sections = lesson.get('sections', [])
+        
+        if section_ids:
+            sections = [s for s in sections if s.get('id') in section_ids]
+        
+        # Collect all learning objects
+        learning_objects = []
+        for section in sections:
+            for lo in section.get('learning_objects', []):
+                learning_objects.append({
+                    'title': lo.get('title', ''),
+                    'content': lo.get('content', ''),
+                    'type': lo.get('object_type', 'concept'),
+                    'keywords': lo.get('keywords', [])
+                })
+        
+        if not learning_objects:
+            # Fallback to raw content
+            return self._generate_fallback_question(lesson, 'unistructural')
+        
+        # Pick a random learning object for variety
+        import random
+        lo = random.choice(learning_objects)
+        
+        prompt = f"""Generate a UNISTRUCTURAL level multiple choice question in ENGLISH ONLY.
+
+LESSON: {lesson_title}
+
+LEARNING OBJECT:
+Title: {lo['title']}
+Type: {lo['type']}
+Content: {lo['content']}
+Keywords: {', '.join(lo.get('keywords', []))}
+
+UNISTRUCTURAL LEVEL DEFINITION (SOLO Taxonomy):
+At this level, students can identify, name, and recall ONE piece of information. They focus on a SINGLE relevant aspect. The response shows understanding of ONE element without seeing connections to others.
+
+TASK: Create a question that tests recall of ONE specific fact, term, definition, or concept from this learning object.
+
+Requirements:
+- **ALL TEXT MUST BE IN ENGLISH** - no Serbian, no other languages
+- Question must focus on a SINGLE piece of information
+- Tests basic recall/recognition/identification
+- Has ONE clear correct answer directly from the content
+- Question < 200 characters
+- 4 options (A-D), one correct, others plausible but wrong
+- Explanation < 200 chars, state the fact being tested
+
+Return ONLY valid JSON:
+{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+
+        response = self._call_api(prompt)
+        if not response:
+            return None
+        
+        question_data = self._parse_question_response(response)
+        if question_data:
+            question_data = self._validate_and_clean_question(question_data)
+            return {
+                'question_text': question_data.get('question', ''),
+                'question_type': 'multiple_choice',
+                'options': question_data.get('options', []),
+                'correct_answer': question_data.get('correct_answer', ''),
+                'correct_option_index': self._find_correct_index(
+                    question_data.get('options', []),
+                    question_data.get('correct_answer', '')
+                ),
+                'explanation': question_data.get('explanation', ''),
+                'bloom_level': 'remember'
+            }
+        return None
+    
+    def _generate_multistructural_question(
+        self,
+        lesson: Dict[str, Any],
+        section_ids: List[int] = None
+    ) -> Dict[str, Any]:
+        """Generate MULTISTRUCTURAL question from SECTIONS"""
+        
+        lesson_title = lesson.get('title', 'Lesson')
+        sections = lesson.get('sections', [])
+        
+        if section_ids:
+            sections = [s for s in sections if s.get('id') in section_ids]
+        
+        if not sections:
+            return self._generate_fallback_question(lesson, 'multistructural')
+        
+        # Pick a section
+        import random
+        section = random.choice(sections)
+        
+        # Get section content and its learning objects
+        section_title = section.get('title', '')
+        section_content = section.get('content', '')[:2500]
+        
+        los_text = ""
+        for lo in section.get('learning_objects', [])[:5]:
+            los_text += f"\n- {lo.get('title', '')}: {lo.get('content', '')[:200]}"
+        
+        prompt = f"""Generate a MULTISTRUCTURAL level multiple choice question in ENGLISH ONLY.
+
+LESSON: {lesson_title}
+
+SECTION: {section_title}
+Content: {section_content}
+
+Key concepts in this section:{los_text}
+
+MULTISTRUCTURAL LEVEL DEFINITION (SOLO Taxonomy):
+At this level, students can describe, list, enumerate, and combine MULTIPLE pieces of information. They understand SEVERAL independent aspects but don't yet see how they connect. The response involves quantitative increase in knowledge.
+
+TASK: Create a question that requires knowledge of MULTIPLE facts, steps, or elements from this section.
+
+Requirements:
+- **ALL TEXT MUST BE IN ENGLISH** - no Serbian, no other languages
+- Question must involve MULTIPLE pieces of information (not just one fact)
+- Tests ability to list, describe, enumerate, or sequence
+- May ask "which of the following are..." or "what are the steps..."
+- Question < 250 characters
+- 4 options (A-D), one correct
+- Explanation < 200 chars, reference the multiple elements
+
+Return ONLY valid JSON:
+{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+
+        response = self._call_api(prompt)
+        if not response:
+            return None
+        
+        question_data = self._parse_question_response(response)
+        if question_data:
+            question_data = self._validate_and_clean_question(question_data)
+            return {
+                'question_text': question_data.get('question', ''),
+                'question_type': 'multiple_choice',
+                'options': question_data.get('options', []),
+                'correct_answer': question_data.get('correct_answer', ''),
+                'correct_option_index': self._find_correct_index(
+                    question_data.get('options', []),
+                    question_data.get('correct_answer', '')
+                ),
+                'explanation': question_data.get('explanation', ''),
+                'bloom_level': 'understand'
+            }
+        return None
+    
+    def _generate_relational_question(
+        self,
+        lesson: Dict[str, Any],
+        section_ids: List[int] = None
+    ) -> Dict[str, Any]:
+        """Generate RELATIONAL question from SECTIONS + LEARNING OBJECTS"""
+        
+        lesson_title = lesson.get('title', 'Lesson')
+        sections = lesson.get('sections', [])
+        
+        if section_ids:
+            sections = [s for s in sections if s.get('id') in section_ids]
+        
+        if not sections:
+            return self._generate_fallback_question(lesson, 'relational')
+        
+        # Build comprehensive content from sections and their learning objects
+        content_parts = []
+        all_los = []
+        
+        for section in sections[:3]:
+            section_title = section.get('title', '')
+            content_parts.append(f"### {section_title}")
+            
+            for lo in section.get('learning_objects', []):
+                all_los.append({
+                    'title': lo.get('title', ''),
+                    'content': lo.get('content', ''),
+                    'type': lo.get('object_type', ''),
+                    'section': section_title
+                })
+                content_parts.append(f"- {lo.get('title', '')}: {lo.get('content', '')[:250]}")
+        
+        combined_content = "\n".join(content_parts)[:3000]
+        
+        prompt = f"""Generate a RELATIONAL level multiple choice question in ENGLISH ONLY.
+
+LESSON: {lesson_title}
+
+CONTENT (Sections with Learning Objects):
+{combined_content}
+
+RELATIONAL LEVEL DEFINITION (SOLO Taxonomy):
+At this level, students can compare, contrast, explain causes, analyze, relate, and apply. They see how parts fit together into a COHERENT WHOLE. They understand relationships between concepts and can explain WHY something happens.
+
+TASK: Create a question that requires ANALYZING RELATIONSHIPS between concepts, explaining cause-effect, or comparing/contrasting ideas.
+
+Requirements:
+- **ALL TEXT MUST BE IN ENGLISH** - no Serbian, no other languages
+- Question must require understanding how concepts RELATE to each other
+- Tests analysis, comparison, cause-effect reasoning, or application
+- May ask "why does X lead to Y" or "how does X relate to Y" or "compare X and Y"
+- Should NOT be answerable by memorizing isolated facts
+- Question < 280 characters
+- 4 options (A-D), one correct
+- Explanation < 250 chars, explain the relationship
+
+Return ONLY valid JSON:
+{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+
+        response = self._call_api(prompt)
+        if not response:
+            return None
+        
+        question_data = self._parse_question_response(response)
+        if question_data:
+            question_data = self._validate_and_clean_question(question_data)
+            return {
+                'question_text': question_data.get('question', ''),
+                'question_type': 'multiple_choice',
+                'options': question_data.get('options', []),
+                'correct_answer': question_data.get('correct_answer', ''),
+                'correct_option_index': self._find_correct_index(
+                    question_data.get('options', []),
+                    question_data.get('correct_answer', '')
+                ),
+                'explanation': question_data.get('explanation', ''),
+                'bloom_level': 'analyze'
+            }
+        return None
+    
+    def _generate_fallback_question(
+        self,
+        lesson: Dict[str, Any],
+        solo_level: str
+    ) -> Dict[str, Any]:
+        """Fallback when no sections/LOs available - use raw content"""
+        
+        lesson_title = lesson.get('title', 'Lesson')
+        content = lesson.get('raw_content', '')[:4000]
+        
+        prompt = self._build_solo_prompt(content, lesson_title, solo_level)
+        
+        response = self._call_api(prompt)
+        if not response:
+            return None
+        
+        question_data = self._parse_question_response(response)
+        if question_data:
+            question_data = self._validate_and_clean_question(question_data)
+            return {
+                'question_text': question_data.get('question', ''),
+                'question_type': 'multiple_choice',
+                'options': question_data.get('options', []),
+                'correct_answer': question_data.get('correct_answer', ''),
+                'correct_option_index': self._find_correct_index(
+                    question_data.get('options', []),
+                    question_data.get('correct_answer', '')
+                ),
+                'explanation': question_data.get('explanation', ''),
+                'bloom_level': self._solo_to_bloom(solo_level)
+            }
+        return None
+    
+    def _generate_extended_abstract_question(
+        self,
+        lesson1: Dict[str, Any],
+        lesson2: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Generate an extended abstract question combining two lessons"""
+        
+        # Build combined content from both lessons
+        title1 = lesson1.get('title', 'Lesson 1')
+        title2 = lesson2.get('title', 'Lesson 2')
+        
+        # Get summaries or key content from each lesson
+        content1 = self._extract_key_concepts(lesson1)
+        content2 = self._extract_key_concepts(lesson2)
+        
+        prompt = f"""Create an EXTENDED ABSTRACT level question that COMBINES knowledge from TWO different topics in ENGLISH ONLY.
+
+TOPIC 1: {title1}
+Key concepts:
+{content1}
+
+TOPIC 2: {title2}
+Key concepts:
+{content2}
+
+EXTENDED ABSTRACT LEVEL DEFINITION:
+Students must make connections BETWEEN different topics and apply combined knowledge to NEW situations not directly covered in either topic. They must demonstrate ability to transfer, generalize, and synthesize concepts across subject areas.
+
+TASK: Create a question that requires:
+1. Understanding concepts from BOTH topics
+2. Recognizing relationships BETWEEN the two topics  
+3. Applying combined knowledge to a NEW scenario
+4. Demonstrating higher-order thinking that goes beyond either topic alone
+
+Requirements:
+- **ALL TEXT MUST BE IN ENGLISH** - no Serbian, no other languages
+- Question must require knowledge from BOTH topics to answer correctly
+- Scenario should involve applying combined principles to a new context
+- Question < 300 chars
+- 4 MC options (A-D), one correct
+- Explanation should reference how both topics connect
+
+Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+
+        response = self._call_api(prompt)
+        if not response:
+            return None
+        
+        question_data = self._parse_question_response(response)
+        if question_data:
+            question_data = self._validate_and_clean_question(question_data)
+            return {
+                'question_text': question_data.get('question', ''),
+                'question_type': 'multiple_choice',
+                'options': question_data.get('options', []),
+                'correct_answer': question_data.get('correct_answer', ''),
+                'correct_option_index': self._find_correct_index(
+                    question_data.get('options', []),
+                    question_data.get('correct_answer', '')
+                ),
+                'explanation': question_data.get('explanation', ''),
+                'bloom_level': 'synthesis',
+                'tags': [title1, title2, 'cross-topic']
+            }
+        return None
+    
+    def _extract_key_concepts(self, lesson: Dict[str, Any]) -> str:
+        """Extract key concepts from a lesson for extended abstract questions"""
+        concepts = []
+        
+        # Use summary if available
+        if lesson.get('summary'):
+            concepts.append(lesson['summary'])
+        
+        # Add learning objects titles and types
+        for section in lesson.get('sections', [])[:3]:
+            for lo in section.get('learning_objects', [])[:4]:
+                lo_type = lo.get('object_type', 'concept')
+                concepts.append(f"- {lo.get('title', '')} ({lo_type})")
+        
+        # If no structured content, use raw content summary
+        if not concepts and lesson.get('raw_content'):
+            concepts.append(self._generate_content_summary(lesson['raw_content'][:3000]))
+        
+        return "\n".join(concepts)[:1500]
+    
+    def _build_solo_prompt(self, content: str, context: str, level: str) -> str:
+        """Build a prompt for generating questions at a specific SOLO level"""
+        
+        level_definitions = {
+            'unistructural': """UNISTRUCTURAL LEVEL:
+Students identify, do simple procedures, and deal with terminology. They focus on ONE relevant aspect.
+Create a question that tests recall of a SINGLE fact, term, or simple procedure from the content.
+- Should have ONE clear correct answer based on direct content
+- Tests basic recall/recognition
+- Simple and straightforward""",
+            
+            'multistructural': """MULTISTRUCTURAL LEVEL:
+Students describe, enumerate, combine, and do algorithms. They focus on SEVERAL independent aspects.
+Create a question that tests understanding of MULTIPLE related facts or steps from the content.
+- Should require knowledge of several related pieces of information
+- Tests ability to list, describe, or sequence multiple elements
+- More comprehensive than single-fact recall""",
+            
+            'relational': """RELATIONAL LEVEL:
+Students compare, contrast, explain causes, analyze, relate, and apply. They integrate aspects into a structure.
+Create a question that tests ability to RELATE concepts, explain cause-effect, or analyze relationships.
+- Should require understanding how concepts connect
+- Tests analysis, comparison, or explanation of relationships
+- Requires integrating multiple concepts into coherent understanding"""
+        }
+        
+        level_def = level_definitions.get(level, level_definitions['unistructural'])
+        
+        return f"""Generate a {level.upper()} level multiple choice question in ENGLISH ONLY based on this educational content.
+
+CONTEXT: {context}
+
+CONTENT:
+{content}
+
+{level_def}
+
+Requirements:
+- **ALL TEXT MUST BE IN ENGLISH** - no Serbian, no other languages
+- Question should be clear and unambiguous
+- Question length < 250 characters
+- Provide exactly 4 options (A, B, C, D)
+- One option must be clearly correct
+- Explanation should justify the correct answer (< 250 chars)
+
+Return ONLY valid JSON:
+{{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+    
+    def _find_correct_index(self, options: List[str], correct_answer: str) -> int:
+        """Find the index of the correct answer in options list"""
+        if not options or not correct_answer:
+            return 0
+        
+        # Try exact match first
+        for i, opt in enumerate(options):
+            if opt == correct_answer:
+                return i
+        
+        # Try matching by letter prefix
+        correct_letter = correct_answer[0].upper() if correct_answer else 'A'
+        for i, opt in enumerate(options):
+            if opt.startswith(correct_letter):
+                return i
+        
+        return 0
+    
+    def _solo_to_bloom(self, solo_level: str) -> str:
+        """Map SOLO level to approximate Bloom's taxonomy level"""
+        mapping = {
+            'unistructural': 'remember',
+            'multistructural': 'understand',
+            'relational': 'analyze',
+            'extended_abstract': 'create'
+        }
+        return mapping.get(solo_level, 'understand')

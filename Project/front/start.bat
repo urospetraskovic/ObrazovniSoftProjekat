@@ -24,7 +24,7 @@ if %errorlevel% neq 0 (
 )
 
 echo Starting backend server...
-start "SOLO Backend" cmd /k "cd backend && ..\\.venv\\Scripts\\python.exe app.py"
+start "SOLO Backend" cmd /k "cd backend && .\venv\Scripts\activate && python app.py"
 
 timeout /t 3 /nobreak
 

@@ -1,275 +1,320 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-import FileUpload from './components/FileUpload';
-import QuizLoader from './components/QuizLoader';
-import QuizDisplay from './components/QuizDisplay';
-import TextInput from './components/TextInput';
-import QuizConfig from './components/QuizConfig';
-import ProgressBar from './components/ProgressBar';
+
+// New components for course/lesson workflow
+import CourseManager from './components/CourseManager';
+import LessonManager from './components/LessonManager';
+import ContentViewer from './components/ContentViewer';
+import QuestionGenerator from './components/QuestionGenerator';
+import QuestionBank from './components/QuestionBank';
+import QuizBuilder from './components/QuizBuilder';
+
+const API_URL = 'http://localhost:5000/api';
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [quizData, setQuizData] = useState(null);
+  // Navigation state
+  const [activeTab, setActiveTab] = useState('courses');
+  
+  // Data state
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  
+  // UI state
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [showConfig, setShowConfig] = useState(false);
-  const [pendingConfig, setPendingConfig] = useState(null);
-  const [originalContent, setOriginalContent] = useState(null);
+  const [apiStatus, setApiStatus] = useState(null);
 
-  const API_URL = 'http://localhost:5000/api';
+  // Fetch courses on mount and check API status
+  useEffect(() => {
+    fetchCourses();
+    checkApiStatus();
+    // Check API status every 30 seconds
+    const interval = setInterval(checkApiStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleFileSelect = (selectedFile) => {
-    setFile(selectedFile);
-    setError(null);
-    setSuccess(null);
-  };
-
-  const handleGenerateQuiz = async () => {
-    if (!file) {
-      setError('Please select a file first');
-      return;
-    }
-
-    // Read file content for resuming later
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      setOriginalContent(e.target.result);
-      
-      // Show config dialog instead of generating directly
-      setPendingConfig({ type: 'file', file: file });
-      setShowConfig(true);
-    };
-    reader.readAsText(file);
-  };
-
-  const handleGenerateWithConfig = async (config) => {
-    if (!file) {
-      setError('Please select a file first');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('config', JSON.stringify(config));
-
-    setLoading(true);
-    setProgress(null);
-    setError(null);
-    setSuccess(null);
-    setShowConfig(false);
-
+  const checkApiStatus = async () => {
     try {
-      const response = await axios.post(`${API_URL}/generate-quiz`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Extract progress info if available
-      if (response.data.metadata && response.data.metadata.progress) {
-        setProgress(response.data.metadata.progress);
-      }
-
-      setQuizData(response.data);
-      setSuccess('Quiz generated successfully!');
-      setFile(null);
+      const response = await axios.get(`${API_URL}/health`);
+      setApiStatus(response.data);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate quiz';
-      setError(errorMessage);
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
-      setPendingConfig(null);
+      console.error('Failed to check API status:', err);
     }
   };
 
-  const handleResumeQuiz = async () => {
-    if (!quizData || !originalContent) {
-      setError('Cannot resume quiz - missing content');
-      return;
-    }
-
-    const resumeChapter = quizData.metadata?.resume_from_chapter || 3;
-    
-    setLoading(true);
-    setProgress(null);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await axios.post(`${API_URL}/resume-quiz`, {
-        existing_quiz: quizData,
-        original_file: quizData.metadata.filename,
-        content: originalContent,
-        resume_from_chapter: resumeChapter,
-      });
-
-      // Extract progress info if available
-      if (response.data.metadata && response.data.metadata.progress) {
-        setProgress(response.data.metadata.progress);
-      }
-
-      setQuizData(response.data);
-      setSuccess(`Quiz resumed! Now generating from chapter ${resumeChapter}...`);
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to resume quiz';
-      setError(errorMessage);
-      console.error('Error resuming:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClearQuiz = () => {
-    setQuizData(null);
-    setFile(null);
-    setError(null);
-    setSuccess(null);
-  };
-
-  const handleLoadQuiz = (loadedQuizData) => {
-    setQuizData(loadedQuizData);
-    setSuccess('Quiz loaded successfully!');
-    setFile(null);
-    setError(null);
-  };
-
-  const handleTextInput = async (textContent) => {
-    // Show config dialog for text input
-    setPendingConfig({ type: 'text', content: textContent });
-    setShowConfig(true);
-  };
-
-  const handleGenerateFromTextWithConfig = async (config) => {
-    if (!pendingConfig || pendingConfig.type !== 'text') {
-      setError('Invalid state for text generation');
-      return;
-    }
-
-    setLoading(true);
-    setProgress(null);
-    setError(null);
-    setSuccess(null);
-    setShowConfig(false);
-
-    try {
-      const response = await axios.post(`${API_URL}/generate-quiz-from-text`, {
-        content: pendingConfig.content,
-        config: config,
-      });
-
-      // Extract progress info if available
-      if (response.data.metadata && response.data.metadata.progress) {
-        setProgress(response.data.metadata.progress);
-      }
-
-      setQuizData(response.data);
-      setSuccess('Quiz generated successfully from text!');
-      setFile(null);
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate quiz';
-      setError(errorMessage);
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
-      setPendingConfig(null);
-    }
-  };
-
-  const handleConfigApply = (config) => {
-    if (pendingConfig?.type === 'file') {
-      handleGenerateWithConfig(config);
-    } else if (pendingConfig?.type === 'text') {
-      handleGenerateFromTextWithConfig(config);
-    }
-  };
-
-  const handleDownloadQuizWithModifications = async (modifiedQuizData) => {
+  const fetchCourses = async () => {
     try {
       setLoading(true);
-      // Send modified quiz to backend to save
-      const response = await axios.post(`${API_URL}/save-quiz`, modifiedQuizData);
-      
-      if (response.data.success) {
-        setSuccess(`Quiz saved! File: ${response.data.filename}`);
-        setQuizData(modifiedQuizData); // Update the local state with modifications
-      }
+      const response = await axios.get(`${API_URL}/courses`);
+      setCourses(response.data.courses || []);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to save quiz';
-      setError(errorMessage);
-      console.error('Error saving quiz:', err);
+      setError('Failed to fetch courses');
+      console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchQuestions = useCallback(async (courseId = null) => {
+    try {
+      setLoading(true);
+      const params = courseId ? `?course_id=${courseId}` : '';
+      const response = await axios.get(`${API_URL}/questions${params}`);
+      setQuestions(response.data.questions || []);
+    } catch (err) {
+      console.error('Failed to fetch questions:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // When a course is selected, fetch its details
+  const handleSelectCourse = async (course) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/courses/${course.id}`);
+      setSelectedCourse(response.data.course);
+      setSelectedLesson(null);
+      setActiveTab('lessons');
+      await fetchQuestions(course.id);
+    } catch (err) {
+      setError('Failed to fetch course details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // When a lesson is selected
+  const handleSelectLesson = async (lesson) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/lessons/${lesson.id}`);
+      setSelectedLesson(response.data.lesson);
+      setActiveTab('content');
+    } catch (err) {
+      setError('Failed to fetch lesson details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearMessages = () => {
+    setError(null);
+    setSuccess(null);
+  };
+
+  const showSuccess = (message) => {
+    setSuccess(message);
+    setTimeout(() => setSuccess(null), 5000);
+  };
+
+  const showError = (message) => {
+    setError(message);
+    setTimeout(() => setError(null), 8000);
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'courses':
+        return (
+          <CourseManager
+            courses={courses}
+            onSelectCourse={handleSelectCourse}
+            onCoursesChange={fetchCourses}
+            onSuccess={showSuccess}
+            onError={showError}
+            loading={loading}
+          />
+        );
+      
+      case 'lessons':
+        return selectedCourse ? (
+          <LessonManager
+            course={selectedCourse}
+            onSelectLesson={handleSelectLesson}
+            onLessonsChange={() => handleSelectCourse(selectedCourse)}
+            onSuccess={showSuccess}
+            onError={showError}
+            onBack={() => {
+              setSelectedCourse(null);
+              setActiveTab('courses');
+            }}
+            loading={loading}
+          />
+        ) : (
+          <div className="card">
+            <p>Please select a course first</p>
+            <button className="btn-primary" onClick={() => setActiveTab('courses')}>
+              Go to Courses
+            </button>
+          </div>
+        );
+      
+      case 'content':
+        return selectedLesson ? (
+          <ContentViewer
+            lesson={selectedLesson}
+            onBack={() => setActiveTab('lessons')}
+            onSuccess={showSuccess}
+            onError={showError}
+            onLessonUpdate={(updatedLesson) => setSelectedLesson(updatedLesson)}
+          />
+        ) : (
+          <div className="card">
+            <p>Please select a lesson first</p>
+            <button className="btn-primary" onClick={() => setActiveTab('lessons')}>
+              Go to Lessons
+            </button>
+          </div>
+        );
+      
+      case 'generate':
+        return selectedCourse ? (
+          <QuestionGenerator
+            course={selectedCourse}
+            onQuestionsGenerated={(newQuestions) => {
+              setQuestions([...questions, ...newQuestions]);
+              showSuccess(`Generated ${newQuestions.length} questions!`);
+            }}
+            onSuccess={showSuccess}
+            onError={showError}
+            loading={loading}
+          />
+        ) : (
+          <div className="card">
+            <p>Please select a course first to generate questions</p>
+            <button className="btn-primary" onClick={() => setActiveTab('courses')}>
+              Go to Courses
+            </button>
+          </div>
+        );
+      
+      case 'questions':
+        return (
+          <QuestionBank
+            questions={questions}
+            courseId={selectedCourse?.id}
+            onRefresh={() => fetchQuestions(selectedCourse?.id)}
+            onSuccess={showSuccess}
+            onError={showError}
+          />
+        );
+      
+      case 'quizzes':
+        return (
+          <QuizBuilder
+            questions={questions}
+            course={selectedCourse}
+            onSuccess={showSuccess}
+            onError={showError}
+          />
+        );
+      
+      default:
+        return null;
     }
   };
 
   return (
     <div className="app">
-      {showConfig && (
-        <QuizConfig
-          onApply={handleConfigApply}
-          onCancel={() => {
-            setShowConfig(false);
-            setPendingConfig(null);
-          }}
-          loading={loading}
-        />
-      )}
-
       <div className="container">
+        {/* Header */}
         <div className="header">
-          <h1>🎓 SOLO Taxonomy Quiz Generator</h1>
-          <p>Upload educational content and generate adaptive quizzes using SOLO taxonomy</p>
+          <h1>🎓 SOLO Quiz Generator</h1>
+          <p>Course → Lesson → Section → Learning Objects → Questions</p>
         </div>
 
+        {/* Navigation */}
+        <nav className="nav-tabs">
+          <button
+            className={`nav-tab ${activeTab === 'courses' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('courses'); clearMessages(); }}
+          >
+            📚 Courses
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'lessons' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('lessons'); clearMessages(); }}
+            disabled={!selectedCourse}
+          >
+            📖 Lessons {selectedCourse && `(${selectedCourse.name})`}
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'content' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('content'); clearMessages(); }}
+            disabled={!selectedLesson}
+          >
+            📄 Content
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'generate' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('generate'); clearMessages(); }}
+            disabled={!selectedCourse}
+          >
+            ⚡ Generate Questions
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'questions' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('questions'); clearMessages(); fetchQuestions(selectedCourse?.id); }}
+          >
+            ❓ Question Bank
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'quizzes' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('quizzes'); clearMessages(); }}
+          >
+            📝 Build Quiz
+          </button>
+        </nav>
+
+        {/* Breadcrumb */}
+        <div className="breadcrumb">
+          {selectedCourse && (
+            <span>
+              📚 {selectedCourse.name}
+              {selectedLesson && ` → 📖 ${selectedLesson.title}`}
+            </span>
+          )}
+        </div>
+
+        {/* Messages */}
+        {apiStatus?.api_exhausted && (
+          <div className="error">
+            ⚠️ <strong>API Keys Exhausted!</strong> All OpenRouter and GitHub Models keys have hit their daily limits. Please come back tomorrow or check your API quotas.
+          </div>
+        )}
         {error && <div className="error">{error}</div>}
         {success && <div className="success">{success}</div>}
-        {loading && <ProgressBar progress={progress} message="Generating quiz..." />}
 
-        {!quizData ? (
-          <div className="main-content">
-            <FileUpload
-              file={file}
-              onFileSelect={handleFileSelect}
-              onGenerate={handleGenerateQuiz}
-              loading={loading}
-            />
-            
-            <TextInput
-              onTextSubmit={handleTextInput}
-              loading={loading}
-            />
-            
-            <QuizLoader
-              onQuizLoad={handleLoadQuiz}
-              loading={loading}
-            />
-            
-            <div className="card">
-              <h2>ℹ️ How it works</h2>
-              <ul style={{ lineHeight: '1.8', color: '#555' }}>
-                <li>📄 Upload a text file or PDF with educational content</li>
-                <li>✍️ Or paste text directly for quick quiz generation</li>
-                <li>🧠 AI analyzes content and extracts key concepts</li>
-                <li>📝 Generates questions across SOLO levels:</li>
+        {/* Main Content */}
+        <main className="main-content">
+          {renderContent()}
+        </main>
 
-                <li>✅ Preview quiz before downloading</li>
-                <li>💾 Export as JSON for use anywhere</li>
-              </ul>
-            </div>
+        {/* Footer info */}
+        <div className="card info-card">
+          <h3>📋 Workflow Guide</h3>
+          <ol>
+            <li><strong>Create Course:</strong> Start by creating a course (e.g., "Operating Systems")</li>
+            <li><strong>Upload Lessons:</strong> Add PDF lessons to your course</li>
+            <li><strong>Parse Content:</strong> AI extracts sections and learning objects from lessons</li>
+            <li><strong>Generate Questions:</strong> Create SOLO-based questions from your content</li>
+            <li><strong>Build Quiz:</strong> Combine questions into quizzes</li>
+          </ol>
+          <div className="solo-levels">
+            <h4>SOLO Taxonomy Levels:</h4>
+            <ul>
+              <li><strong>Unistructural:</strong> Single fact recall (from lesson)</li>
+              <li><strong>Multistructural:</strong> Multiple related facts (from sections)</li>
+              <li><strong>Relational:</strong> Analyze relationships (from learning objects)</li>
+              <li><strong>Extended Abstract:</strong> Combine knowledge (from 2 lessons)</li>
+            </ul>
           </div>
-        ) : (
-          <QuizDisplay
-            quizData={quizData}
-            onDownload={handleDownloadQuizWithModifications}
-            onClear={handleClearQuiz}
-            onResume={handleResumeQuiz}
-            canResume={quizData?.metadata?.resume_from_chapter !== undefined}
-          />
-        )}
+        </div>
       </div>
     </div>
   );

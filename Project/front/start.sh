@@ -24,7 +24,8 @@ fi
 
 echo "Starting backend server..."
 cd backend
-python3 app.py &
+source venv/bin/activate
+python app.py &
 BACKEND_PID=$!
 
 sleep 3
