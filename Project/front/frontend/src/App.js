@@ -9,6 +9,7 @@ import ContentViewer from './components/ContentViewer';
 import QuestionGenerator from './components/QuestionGenerator';
 import QuestionBank from './components/QuestionBank';
 import QuizBuilder from './components/QuizBuilder';
+import QuizSolver from './components/QuizSolver';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -214,6 +215,23 @@ function App() {
           />
         );
       
+      case 'solve':
+        return selectedCourse ? (
+          <QuizSolver
+            courseId={selectedCourse.id}
+            onBack={() => setActiveTab('quizzes')}
+            onSuccess={showSuccess}
+            onError={showError}
+          />
+        ) : (
+          <div className="card">
+            <p>Please select a course first to take quizzes</p>
+            <button className="btn-primary" onClick={() => setActiveTab('courses')}>
+              Go to Courses
+            </button>
+          </div>
+        );
+      
       default:
         return null;
     }
@@ -221,100 +239,178 @@ function App() {
 
   return (
     <div className="app">
-      <div className="container">
-        {/* Header */}
-        <div className="header">
-          <h1>🎓 SOLO Quiz Generator</h1>
-          <p>Course → Lesson → Section → Learning Objects → Questions</p>
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h1>🎓 SOLO Quiz</h1>
+          <p>Question Generator</p>
         </div>
 
-        {/* Navigation */}
-        <nav className="nav-tabs">
-          <button
-            className={`nav-tab ${activeTab === 'courses' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('courses'); clearMessages(); }}
-          >
-            📚 Courses
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'lessons' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('lessons'); clearMessages(); }}
-            disabled={!selectedCourse}
-          >
-            📖 Lessons {selectedCourse && `(${selectedCourse.name})`}
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'content' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('content'); clearMessages(); }}
-            disabled={!selectedLesson}
-          >
-            📄 Content
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'generate' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('generate'); clearMessages(); }}
-            disabled={!selectedCourse}
-          >
-            ⚡ Generate Questions
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'questions' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('questions'); clearMessages(); fetchQuestions(selectedCourse?.id); }}
-          >
-            ❓ Question Bank
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'quizzes' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('quizzes'); clearMessages(); }}
-          >
-            📝 Build Quiz
-          </button>
+        <nav className="sidebar-nav">
+          {/* Main Workflow */}
+          <div className="nav-section">
+            <div className="nav-section-title">Workflow</div>
+            <button
+              className={`nav-link ${activeTab === 'courses' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('courses'); clearMessages(); }}
+            >
+              <span>📚</span>
+              Courses
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'lessons' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('lessons'); clearMessages(); }}
+              disabled={!selectedCourse}
+            >
+              <span>📖</span>
+              Lessons
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'content' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('content'); clearMessages(); }}
+              disabled={!selectedLesson}
+            >
+              <span>📄</span>
+              Content
+            </button>
+          </div>
+
+          {/* Question Management */}
+          <div className="nav-section">
+            <div className="nav-section-title">Questions</div>
+            <button
+              className={`nav-link ${activeTab === 'generate' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('generate'); clearMessages(); }}
+              disabled={!selectedCourse}
+            >
+              <span>⚡</span>
+              Generate
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'questions' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('questions'); clearMessages(); fetchQuestions(selectedCourse?.id); }}
+            >
+              <span>❓</span>
+              Bank
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'quizzes' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('quizzes'); clearMessages(); }}
+            >
+              <span>📝</span>
+              Build Quiz
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'solve' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('solve'); clearMessages(); }}
+              disabled={!selectedCourse}
+            >
+              <span>✅</span>
+              Take Quiz
+            </button>
+          </div>
         </nav>
 
-        {/* Breadcrumb */}
-        <div className="breadcrumb">
+        <div className="sidebar-footer">
           {selectedCourse && (
-            <span>
-              📚 {selectedCourse.name}
-              {selectedLesson && ` → 📖 ${selectedLesson.title}`}
-            </span>
+            <div style={{ fontSize: '0.9rem', color: 'var(--neutral-700)', lineHeight: '1.4' }}>
+              <strong style={{ display: 'block', color: 'var(--neutral-800)', marginBottom: '4px' }}>Selected</strong>
+              <span style={{ fontSize: '0.85rem' }}>📚 {selectedCourse.name}</span>
+              {selectedLesson && (
+                <span style={{ display: 'block', fontSize: '0.85rem', marginTop: '4px' }}>📖 {selectedLesson.title}</span>
+              )}
+            </div>
           )}
         </div>
+      </aside>
 
-        {/* Messages */}
-        {apiStatus?.api_exhausted && (
-          <div className="error">
-            ⚠️ <strong>API Keys Exhausted!</strong> All OpenRouter and GitHub Models keys have hit their daily limits. Please come back tomorrow or check your API quotas.
+      {/* Main Container */}
+      <div className="main-container">
+        {/* Top Bar */}
+        <div className="top-bar">
+          <div className="breadcrumb-container">
+            {selectedCourse ? (
+              <>
+                <strong>📚 {selectedCourse.name}</strong>
+                {selectedLesson && (
+                  <>
+                    <span>/</span>
+                    <strong>📖 {selectedLesson.title}</strong>
+                  </>
+                )}
+              </>
+            ) : (
+              <strong>Welcome to SOLO Quiz Generator</strong>
+            )}
           </div>
-        )}
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
-
-        {/* Main Content */}
-        <main className="main-content">
-          {renderContent()}
-        </main>
-
-        {/* Footer info */}
-        <div className="card info-card">
-          <h3>📋 Workflow Guide</h3>
-          <ol>
-            <li><strong>Create Course:</strong> Start by creating a course (e.g., "Operating Systems")</li>
-            <li><strong>Upload Lessons:</strong> Add PDF lessons to your course</li>
-            <li><strong>Parse Content:</strong> AI extracts sections and learning objects from lessons</li>
-            <li><strong>Generate Questions:</strong> Create SOLO-based questions from your content</li>
-            <li><strong>Build Quiz:</strong> Combine questions into quizzes</li>
-          </ol>
-          <div className="solo-levels">
-            <h4>SOLO Taxonomy Levels:</h4>
-            <ul>
-              <li><strong>Unistructural:</strong> Single fact recall (from lesson)</li>
-              <li><strong>Multistructural:</strong> Multiple related facts (from sections)</li>
-              <li><strong>Relational:</strong> Analyze relationships (from learning objects)</li>
-              <li><strong>Extended Abstract:</strong> Combine knowledge (from 2 lessons)</li>
-            </ul>
+          <div className="top-bar-actions">
+            {apiStatus?.api_exhausted && (
+              <div style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: '600' }}>
+                ⚠️ API Keys Exhausted
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Main Content Area */}
+        <main className="main-content">
+          <div className="container">
+            {/* Alert Messages */}
+            {apiStatus?.api_exhausted && (
+              <div className="alert alert-error">
+                <div className="alert-icon">⚠️</div>
+                <div className="alert-content">
+                  <strong>API Keys Exhausted!</strong>
+                  <p>All OpenRouter and GitHub Models keys have hit their daily limits. Please come back tomorrow or check your API quotas.</p>
+                </div>
+              </div>
+            )}
+            {error && (
+              <div className="alert alert-error">
+                <div className="alert-icon">❌</div>
+                <div className="alert-content">
+                  <strong>Error</strong>
+                  <p>{error}</p>
+                </div>
+              </div>
+            )}
+            {success && (
+              <div className="alert alert-success">
+                <div className="alert-icon">✅</div>
+                <div className="alert-content">
+                  <strong>Success</strong>
+                  <p>{success}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Page Content */}
+            {renderContent()}
+
+            {/* Info Section - only on courses page */}
+            {activeTab === 'courses' && (
+              <div className="info-card" style={{ marginTop: '40px' }}>
+                <h3>📋 How It Works</h3>
+                <ol>
+                  <li><strong>Create Course:</strong> Start by creating a course (e.g., "Operating Systems")</li>
+                  <li><strong>Upload Lessons:</strong> Add PDF lessons to your course</li>
+                  <li><strong>Parse Content:</strong> AI extracts sections and learning objects from lessons</li>
+                  <li><strong>Generate Questions:</strong> Create SOLO-based questions from your content</li>
+                  <li><strong>Build Quiz:</strong> Combine questions into quizzes and download as JSON</li>
+                </ol>
+                <div className="solo-levels">
+                  <h4>📚 SOLO Taxonomy Levels:</h4>
+                  <ul>
+                    <li><strong>Unistructural:</strong> Single fact recall (from lesson)</li>
+                    <li><strong>Multistructural:</strong> Multiple related facts (from sections)</li>
+                    <li><strong>Relational:</strong> Analyze relationships (from learning objects)</li>
+                    <li><strong>Extended Abstract:</strong> Combine knowledge (from 2+ lessons)</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );
