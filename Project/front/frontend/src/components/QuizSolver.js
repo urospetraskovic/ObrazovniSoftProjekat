@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { quizApi } from '../api';
 
 function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [quizzes, setQuizzes] = useState([]);
@@ -14,9 +12,21 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [revealedAnswers, setRevealedAnswers] = useState({});
 
+  const fetchQuizzes = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await quizApi.getForCourse(courseId);
+      setQuizzes(response.data.quizzes || []);
+    } catch (err) {
+      onError('Failed to fetch quizzes');
+    } finally {
+      setLoading(false);
+    }
+  }, [courseId, onError]);
+
   useEffect(() => {
     fetchQuizzes();
-  }, []);
+  }, [fetchQuizzes]);
 
   // Timer effect - starts when quiz is selected
   useEffect(() => {
@@ -29,23 +39,10 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
     return () => clearInterval(interval);
   }, [quizData, submitted]);
 
-  const fetchQuizzes = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}/courses/${courseId}/quizzes`);
-      setQuizzes(response.data.quizzes || []);
-    } catch (err) {
-      onError('Failed to fetch quizzes');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSelectQuiz = async (quiz) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/quizzes/${quiz.id}`);
+      const response = await quizApi.getById(quiz.id);
       setQuizData(response.data.quiz);
       setSelectedQuiz(quiz);
       setUserAnswers({});
@@ -238,7 +235,6 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
 
           <div className="questions-section">
             {quizData.questions?.map((question, index) => {
-              const isAnswered = userAnswers[question.id] !== undefined;
               const isCorrect =
                 submitted &&
                 ((question.correct_option_index !== undefined &&
@@ -265,6 +261,12 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                   </div>
 
                   <p className="question-text">{question.question_text}</p>
+
+                  {/* Lesson Source */}
+                  <div className={`lesson-source ${question.solo_level === 'extended_abstract' ? 'extended-source' : ''}`}>
+                    <span className="source-icon">📚</span>
+                    {getLessonSourceDisplay(question)}
+                  </div>
 
                   {question.question_type === 'multiple_choice' && question.options ? (
                     <div className="options-list">
@@ -394,6 +396,46 @@ function getSoloColor(level) {
     extended_abstract: '#06b6d4'
   };
   return colors[level] || '#6b7280';
+}
+
+function getLessonSourceDisplay(question) {
+  // Try to use lesson titles first
+  if (question.secondary_lesson_title && question.primary_lesson_title) {
+    return (
+      <span className="source-text">
+        From <strong>{question.primary_lesson_title}</strong> + <strong>{question.secondary_lesson_title}</strong>
+      </span>
+    );
+  }
+  
+  if (question.primary_lesson_title) {
+    return (
+      <span className="source-text">
+        From <strong>{question.primary_lesson_title}</strong>
+      </span>
+    );
+  }
+  
+  // Fallback: extract from tags if titles are missing (for cross-topic questions)
+  if (question.tags && question.tags.length > 0) {
+    const lessonTags = question.tags.filter(tag => tag !== 'cross-topic');
+    if (lessonTags.length > 1) {
+      return (
+        <span className="source-text">
+          From <strong>{lessonTags[0]}</strong> + <strong>{lessonTags[1]}</strong>
+        </span>
+      );
+    }
+    if (lessonTags.length === 1) {
+      return (
+        <span className="source-text">
+          From <strong>{lessonTags[0]}</strong>
+        </span>
+      );
+    }
+  }
+  
+  return null;
 }
 
 export default QuizSolver;

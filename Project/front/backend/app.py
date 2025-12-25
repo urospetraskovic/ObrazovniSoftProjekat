@@ -5,15 +5,17 @@ Refactored for Course -> Lesson -> Section -> Learning Object structure
 
 import os
 import json
+import traceback
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
 # Import our modules
-from database import db, init_database
+from database import db, init_database, LearningObject, Question, Lesson, Section, Course
 from content_parser import content_parser
 from quiz_generator import SoloQuizGenerator
+from services import LessonService, QuestionService, QuizService
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +36,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['LESSON_FOLDER'] = LESSON_FOLDER
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
+
+# Initialize database and quiz generator
+init_database()
+quiz_generator = SoloQuizGenerator()
+
+print("[STARTUP] Database initialized")
+print("[STARTUP] Starting SOLO Quiz Generator API...")
 
 
 def allowed_file(filename):
@@ -113,6 +122,8 @@ def delete_course(course_id):
             return jsonify({'message': 'Course deleted successfully'}), 200
         return jsonify({'error': 'Course not found'}), 404
     except Exception as e:
+        print(f'[ERROR] delete_course: {str(e)}')
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -193,6 +204,9 @@ def get_lesson(lesson_id):
             return jsonify({'error': 'Lesson not found'}), 404
         return jsonify({'lesson': lesson}), 200
     except Exception as e:
+        import traceback
+        print(f"[ERROR] get_lesson({lesson_id}): {str(e)}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -211,6 +225,8 @@ def delete_lesson(lesson_id):
             return jsonify({'message': 'Lesson deleted successfully'}), 200
         return jsonify({'error': 'Lesson not found'}), 404
     except Exception as e:
+        print(f'[ERROR] delete_lesson: {str(e)}')
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -243,14 +259,63 @@ def parse_lesson(lesson_id):
         # Save to database
         db.bulk_create_sections_and_learning_objects(lesson_id, parsed_sections)
         
+        # Extract and save domain ontology
+        all_sections = db.get_sections_for_lesson(lesson_id)
+        print(f"[API] Found {len(all_sections)} sections")
+        
+        all_los = []
+        lo_title_to_id = {}
+        for s in all_sections:
+            section_los = db.get_learning_objects_for_section(s['id'])
+            all_los.extend(section_los)
+            for lo in section_los:
+                lo_title_to_id[lo['title']] = lo['id']
+        
+        print(f"[API] Found {len(all_los)} learning objects")
+        print(f"[API] Learning object titles: {list(lo_title_to_id.keys())}")
+        
+        ontology_rels = content_parser.extract_ontology_relationships(
+            lesson['raw_content'],
+            all_los,
+            lesson['title']
+        )
+        
+        print(f"[API] AI returned {len(ontology_rels)} potential relationships")
+        
+        db_rels = []
+        for rel in ontology_rels:
+            source_id = lo_title_to_id.get(rel['source'])
+            target_id = lo_title_to_id.get(rel['target'])
+            print(f"[API] Checking rel: {rel['source']} -> {rel['target']} (source_id={source_id}, target_id={target_id})")
+            if source_id and target_id:
+                db_rels.append({
+                    'source_id': source_id,
+                    'target_id': target_id,
+                    'relationship_type': rel['type'],
+                    'description': rel.get('description')
+                })
+        
+        print(f"[API] Saving {len(db_rels)} relationships to database")
+        if db_rels:
+            db.bulk_create_relationships(db_rels)
+        else:
+            print(f"[API] WARNING: No relationships extracted (API providers may be rate-limited)")
+        
         # Generate and save lesson summary
         summary = content_parser.generate_lesson_summary(
             lesson['raw_content'],
             lesson['title']
         )
         if summary:
-            # Update lesson with summary (need to add this method or do directly)
-            pass
+            # Update lesson with summary
+            session = db.get_session()
+            try:
+                db_lesson = session.query(Lesson).filter(Lesson.id == lesson_id).first()
+                if db_lesson:
+                    db_lesson.summary = summary
+                    session.commit()
+            finally:
+                session.close()
         
         # Return the parsed structure
         sections = db.get_sections_for_lesson(lesson_id)
@@ -258,14 +323,50 @@ def parse_lesson(lesson_id):
             section['learning_objects'] = db.get_learning_objects_for_section(section['id'])
         
         return jsonify({
-            'message': 'Lesson parsed successfully',
+            'message': 'Lesson parsed successfully with domain ontology',
             'sections': sections,
+            'ontology_relationships': len(db_rels),
             'section_count': len(sections),
-            'learning_object_count': sum(len(s.get('learning_objects', [])) for s in sections)
+            'learning_object_count': len(all_los)
         }), 200
         
     except Exception as e:
         print(f"[API] Parse error: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/lessons/<int:lesson_id>/parse-refactored', methods=['POST'])
+def parse_lesson_refactored(lesson_id):
+    """Refactored parse endpoint using the service layer"""
+    try:
+        result = LessonService.parse_lesson(lesson_id)
+        status = result.pop('status', 200)
+        
+        if status != 200:
+            return jsonify(result), status
+        
+        # Add learning objects to sections for frontend
+        for section in result.get('sections', []):
+            section['learning_objects'] = db.get_learning_objects_for_section(section['id'])
+        
+        return jsonify(result), status
+    
+    except Exception as e:
+        print(f'[ERROR] parse_lesson_refactored: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== ONTOLOGY ENDPOINTS ====================
+
+@app.route('/api/lessons/<int:lesson_id>/ontology', methods=['GET'])
+def get_lesson_ontology(lesson_id):
+    """Get the domain ontology (relationships) for a lesson"""
+    try:
+        relationships = db.get_relationships_for_lesson(lesson_id)
+        return jsonify({'relationships': relationships}), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
@@ -305,12 +406,65 @@ def get_learning_objects(section_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/learning-objects/<int:lo_id>', methods=['GET'])
+def get_learning_object(lo_id):
+    """Get a specific learning object"""
+    try:
+        session = db.get_session()
+        try:
+            lo = session.query(LearningObject).filter(LearningObject.id == lo_id).first()
+            if not lo:
+                return jsonify({'error': 'Learning object not found'}), 404
+            return jsonify({'learning_object': lo.to_dict()}), 200
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/learning-objects/<int:lo_id>', methods=['PUT'])
+def update_learning_object(lo_id):
+    """Update a learning object"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        updated_lo = db.update_learning_object(
+            lo_id,
+            title=data.get('title'),
+            content=data.get('content'),
+            object_type=data.get('object_type'),
+            keywords=data.get('keywords'),
+            mark_as_human_modified=True  # Mark as human-edited when updating
+        )
+        
+        if not updated_lo:
+            return jsonify({'error': 'Learning object not found'}), 404
+        
+        return jsonify({'learning_object': updated_lo}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/learning-objects/<int:lo_id>', methods=['DELETE'])
+def delete_learning_object(lo_id):
+    """Delete a learning object"""
+    try:
+        success = db.delete_learning_object(lo_id)
+        if success:
+            return jsonify({'message': 'Learning object deleted'}), 200
+        return jsonify({'error': 'Learning object not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== QUESTION GENERATION ENDPOINTS ====================
 
 @app.route('/api/generate-questions', methods=['POST'])
 def generate_questions():
     """
-    Generate questions from lessons based on SOLO taxonomy levels
+    Generate questions from lessons based on SOLO taxonomy levels (refactored with service layer)
     
     Request body:
     {
@@ -327,60 +481,28 @@ def generate_questions():
             return jsonify({'error': 'No data provided'}), 400
         
         lesson_ids = data.get('lesson_ids', [])
-        if not lesson_ids:
-            return jsonify({'error': 'At least one lesson_id is required'}), 400
-        
         solo_levels = data.get('solo_levels', ['unistructural', 'multistructural', 'relational'])
         questions_per_level = data.get('questions_per_level', 3)
         section_ids = data.get('section_ids')
         save_to_db = data.get('save_to_db', True)
         
-        # Check for extended_abstract - requires 2 lessons
-        if 'extended_abstract' in solo_levels and len(lesson_ids) < 2:
-            return jsonify({
-                'error': 'Extended abstract questions require at least 2 lessons to combine knowledge'
-            }), 400
-        
-        # Get lesson content
-        lessons_data = []
-        for lid in lesson_ids:
-            lesson = db.get_lesson_with_sections(lid)
-            if not lesson:
-                return jsonify({'error': f'Lesson {lid} not found'}), 404
-            lessons_data.append(lesson)
-        
-        # Generate questions
-        generator = SoloQuizGenerator()
-        generated_questions = generator.generate_solo_questions(
-            lessons_data=lessons_data,
+        result = QuestionService.generate_questions(
+            lesson_ids=lesson_ids,
             solo_levels=solo_levels,
             questions_per_level=questions_per_level,
-            section_ids=section_ids
+            section_ids=section_ids,
+            save_to_db=save_to_db
         )
         
-        # Save to database if requested
-        if save_to_db and generated_questions:
-            # Add lesson IDs to questions
-            for q in generated_questions:
-                q['primary_lesson_id'] = lesson_ids[0]
-                if len(lesson_ids) > 1 and q.get('solo_level') == 'extended_abstract':
-                    q['secondary_lesson_id'] = lesson_ids[1]
-            
-            question_ids = db.bulk_create_questions(generated_questions)
-            for i, q in enumerate(generated_questions):
-                q['id'] = question_ids[i]
+        status = result.pop('status', 200)
+        if status != 200:
+            return jsonify(result), status
         
-        return jsonify({
-            'questions': generated_questions,
-            'count': len(generated_questions),
-            'solo_distribution': {
-                level: len([q for q in generated_questions if q.get('solo_level') == level])
-                for level in solo_levels
-            }
-        }), 200
-        
+        return jsonify(result), status
+    
     except Exception as e:
         print(f"[API] Question generation error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -402,6 +524,81 @@ def get_questions():
             questions = db.get_all_questions(course_id)
         
         return jsonify({'questions': questions, 'count': len(questions)}), 200
+    except Exception as e:
+        print(f'[ERROR] get_questions: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions', methods=['POST'])
+def create_manual_question():
+    """Create a manual question (human-generated, not AI)"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        if 'question_text' not in data or 'solo_level' not in data:
+            return jsonify({'error': 'question_text and solo_level are required'}), 400
+        
+        # Create question marked as human-generated
+        question = db.create_question(
+            solo_level=data['solo_level'],
+            question_text=data['question_text'],
+            question_type=data.get('question_type', 'multiple_choice'),
+            primary_lesson_id=data.get('primary_lesson_id'),
+            secondary_lesson_id=data.get('secondary_lesson_id'),
+            section_id=data.get('section_id'),
+            learning_object_id=data.get('learning_object_id'),
+            options=data.get('options'),
+            correct_answer=data.get('correct_answer'),
+            correct_option_index=data.get('correct_option_index'),
+            explanation=data.get('explanation'),
+            difficulty=data.get('difficulty'),
+            bloom_level=data.get('bloom_level'),
+            tags=data.get('tags'),
+            is_ai_generated=False  # Mark as human-generated
+        )
+        
+        return jsonify({'question': question}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/<int:question_id>', methods=['GET'])
+def get_question(question_id):
+    """Get a specific question"""
+    try:
+        session = db.get_session()
+        try:
+            q = session.query(Question).filter(Question.id == question_id).first()
+            if not q:
+                return jsonify({'error': 'Question not found'}), 404
+            return jsonify({'question': q.to_dict()}), 200
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/<int:question_id>', methods=['PUT'])
+def update_question(question_id):
+    """Update a question"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Update question and mark as human-modified
+        update_data = {k: v for k, v in data.items() if v is not None}
+        update_data['mark_human_modified'] = True  # Mark as human-edited
+        
+        updated_q = db.update_question(question_id, **update_data)
+        
+        if not updated_q:
+            return jsonify({'error': 'Question not found'}), 404
+        
+        return jsonify({'question': updated_q}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -1,7 +1,5 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
+import { lessonApi } from '../api';
 
 function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onError, onBack, loading }) {
   const [uploading, setUploading] = useState(false);
@@ -25,9 +23,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
       setUploading(true);
       setUploadProgress('Uploading PDF...');
       
-      await axios.post(`${API_URL}/courses/${course.id}/lessons`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await lessonApi.create(course.id, formData);
 
       onSuccess('Lesson uploaded! Click "Parse" to extract sections.');
       onLessonsChange();
@@ -45,7 +41,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
     
     try {
       setUploadProgress(`Parsing lesson... This may take a minute.`);
-      const response = await axios.post(`${API_URL}/lessons/${lessonId}/parse`);
+      const response = await lessonApi.parse(lessonId);
       
       const { section_count, learning_object_count } = response.data;
       onSuccess(`Parsed ${section_count} sections with ${learning_object_count} learning objects!`);
@@ -62,7 +58,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
     if (!window.confirm('Delete this lesson and all its content?')) return;
 
     try {
-      await axios.delete(`${API_URL}/lessons/${lessonId}`);
+      await lessonApi.delete(lessonId);
       onSuccess('Lesson deleted');
       onLessonsChange();
     } catch (err) {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import './App.css';
+
+// API Client
+import { courseApi, lessonApi, questionApi, healthApi } from './api';
 
 // New components for course/lesson workflow
 import CourseManager from './components/CourseManager';
@@ -8,10 +10,9 @@ import LessonManager from './components/LessonManager';
 import ContentViewer from './components/ContentViewer';
 import QuestionGenerator from './components/QuestionGenerator';
 import QuestionBank from './components/QuestionBank';
+import ManualQuestionAdder from './components/ManualQuestionAdder';
 import QuizBuilder from './components/QuizBuilder';
 import QuizSolver from './components/QuizSolver';
-
-const API_URL = 'http://localhost:5000/api';
 
 function App() {
   // Navigation state
@@ -40,21 +41,20 @@ function App() {
 
   const checkApiStatus = async () => {
     try {
-      const response = await axios.get(`${API_URL}/health`);
+      const response = await healthApi.check();
       setApiStatus(response.data);
     } catch (err) {
-      console.error('Failed to check API status:', err);
+      // Silent failure for API status check
     }
   };
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/courses`);
+      const response = await courseApi.getAll();
       setCourses(response.data.courses || []);
     } catch (err) {
       setError('Failed to fetch courses');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -63,11 +63,10 @@ function App() {
   const fetchQuestions = useCallback(async (courseId = null) => {
     try {
       setLoading(true);
-      const params = courseId ? `?course_id=${courseId}` : '';
-      const response = await axios.get(`${API_URL}/questions${params}`);
+      const response = await questionApi.getAll(courseId);
       setQuestions(response.data.questions || []);
     } catch (err) {
-      console.error('Failed to fetch questions:', err);
+      // Silent failure for questions fetch
     } finally {
       setLoading(false);
     }
@@ -77,7 +76,7 @@ function App() {
   const handleSelectCourse = async (course) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/courses/${course.id}`);
+      const response = await courseApi.getById(course.id);
       setSelectedCourse(response.data.course);
       setSelectedLesson(null);
       setActiveTab('lessons');
@@ -93,7 +92,7 @@ function App() {
   const handleSelectLesson = async (lesson) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/lessons/${lesson.id}`);
+      const response = await lessonApi.getById(lesson.id);
       setSelectedLesson(response.data.lesson);
       setActiveTab('content');
     } catch (err) {
@@ -196,13 +195,27 @@ function App() {
       
       case 'questions':
         return (
-          <QuestionBank
-            questions={questions}
-            courseId={selectedCourse?.id}
-            onRefresh={() => fetchQuestions(selectedCourse?.id)}
-            onSuccess={showSuccess}
-            onError={showError}
-          />
+          <div className="questions-section">
+            {/* Manual Question Adder */}
+            {selectedCourse && (
+              <ManualQuestionAdder
+                courseId={selectedCourse.id}
+                lessons={selectedCourse.lessons || []}
+                onSuccess={showSuccess}
+                onError={showError}
+                onRefresh={() => fetchQuestions(selectedCourse?.id)}
+              />
+            )}
+            
+            {/* Question Bank */}
+            <QuestionBank
+              questions={questions}
+              courseId={selectedCourse?.id}
+              onRefresh={() => fetchQuestions(selectedCourse?.id)}
+              onSuccess={showSuccess}
+              onError={showError}
+            />
+          </div>
         );
       
       case 'quizzes':

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { questionApi } from '../api';
 
-const API_URL = 'http://localhost:5000/api';
-
-function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError, loading: parentLoading }) {
+function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError }) {
   const [lessons, setLessons] = useState([]);
   const [selectedLessons, setSelectedLessons] = useState([]);
   const [soloLevels, setSoloLevels] = useState({
@@ -78,7 +76,7 @@ function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError, l
       setGenerating(true);
       setProgress('Generating questions...');
 
-      const response = await axios.post(`${API_URL}/generate-questions`, {
+      const response = await questionApi.generate({
         lesson_ids: selectedLessons,
         solo_levels: activeLevels,
         questions_per_level: questionsPerLevel,

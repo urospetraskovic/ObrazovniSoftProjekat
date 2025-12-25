@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
+import { courseApi } from '../api';
 
 function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, onError, loading }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -17,7 +15,7 @@ function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, on
 
     try {
       setCreating(true);
-      await axios.post(`${API_URL}/courses`, newCourse);
+      await courseApi.create(newCourse);
       setNewCourse({ name: '', code: '', description: '' });
       setShowCreateForm(false);
       onSuccess('Course created successfully!');
@@ -36,7 +34,7 @@ function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, on
     }
 
     try {
-      await axios.delete(`${API_URL}/courses/${courseId}`);
+      await courseApi.delete(courseId);
       onSuccess('Course deleted');
       onCoursesChange();
     } catch (err) {

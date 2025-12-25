@@ -566,24 +566,6 @@ class SoloQuizGenerator:
         
         return chapters[:20]
     
-    def _process_chapter(self, chapter_content: str, chapter_num: int) -> Dict[str, Any]:
-        """
-        Process a single chapter and generate questions (legacy method)
-        
-        Args:
-            chapter_content: Text content of the chapter
-            chapter_num: Chapter number
-            
-        Returns:
-            Dictionary containing chapter data with questions
-        """
-        return self._process_chapter_smart(chapter_content, chapter_num, 5, {
-            'unistructural': 0.25,
-            'multistructural': 0.30,
-            'relational': 0.30,
-            'extended_abstract': 0.15
-        })
-    
     def _extract_page_range(self, content: str) -> str:
         """
         Extract page range information from content
@@ -803,11 +785,23 @@ At this stage, the learner gets to know just a single relevant aspect of a task 
 
 TASK: Create a question that tests knowledge of ONE specific fact/concept. Student should identify or name a single element directly stated in the content.
 
+CRITICAL INSTRUCTIONS FOR DISTRACTORS:
+- **DO NOT** create obviously wrong options that can be eliminated by common sense
+- **DO** create plausible but INCORRECT options that:
+  * Are related to the topic but refer to WRONG specifics
+  * Sound similar to correct answer but are incorrect variants
+  * Common misconceptions that students might hold
+  * Related but different concepts from the content
+- Example BAD distractor: "The moon is made of cheese" 
+- Example GOOD distractor: "Neptune" (instead of "Uranus") - students who didn't read carefully pick this
+- Make students actually think about the specific detail, not guess
+
 Requirements:
 - Focus on ONE isolated aspect only
 - No connections to other concepts required
 - Question < 250 chars
 - 4 MC options (A-D), one correct
+- 3 distractors must be PLAUSIBLE and require reading comprehension to eliminate
 - Explanation < 250 chars
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
@@ -821,11 +815,24 @@ At this stage, students gain an understanding of numerous relevant independent a
 
 TASK: Create a question that tests knowledge of MULTIPLE separate facts/features. Student should list or identify several independent elements WITHOUT explaining how they connect.
 
+CRITICAL INSTRUCTIONS FOR DISTRACTORS:
+- **DO NOT** create obviously wrong options that can be eliminated by common sense
+- **DO** create plausible but INCORRECT combinations that:
+  * Mix some correct items with 1-2 WRONG items
+  * Include correct items in wrong contexts
+  * Reorder/rearrange items incorrectly
+  * Include related but not-mentioned aspects from content
+  * Common student misconceptions about the topic
+- Example BAD distractor: "Bananas, dinosaurs, computers" (obviously unrelated)
+- Example GOOD distractor: "DNA, RNA, proteins" (related to biology, but wrong combination for this specific question)
+- Make students verify EACH item, not just recognize keywords
+
 Requirements:
 - Multiple items or aspects, but handled independently
 - Don't require showing relationships between items
 - Question < 250 chars
 - 4 MC options (A-D), one correct
+- 3 distractors must combine PLAUSIBLE elements that seem correct at first glance
 - Explanation < 250 chars
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
@@ -839,6 +846,19 @@ This stage relates to aspects of knowledge combining to form a structure. By thi
 
 TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
 
+CRITICAL INSTRUCTIONS FOR DISTRACTORS:
+- **DO NOT** create obviously wrong options that can be eliminated without thinking
+- **DO** create CHALLENGING distractors that:
+  * Seem logical if you only understand PART of the relationship
+  * Require understanding the FULL integrated picture to reject
+  * Include partially correct connections (correct concepts, wrong relationship)
+  * Reverse causes and effects (plausible but backwards)
+  * Connect concepts that ARE related but in wrong ways
+  * Address a DIFFERENT relationship that also exists in the content
+- Example BAD distractor: "Because trees don't exist" (obviously wrong)
+- Example GOOD distractor: "Because temperature increases while gas pressure also increases" (confuses correlation with the actual causal mechanism)
+- Distractors should reflect REAL misconceptions about how things relate
+
 Requirements:
 - Ask about relationships, connections, or cause-effect WITHIN the content
 - Use the summary to understand the broader context and key themes
@@ -846,6 +866,7 @@ Requirements:
 - Student must show how different elements relate to each other
 - Question < 250 chars
 - 4 MC options (A-D), one correct
+- 3 distractors must be CHALLENGING and reflect real misconceptions
 - Explanation < 250 chars
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
@@ -859,6 +880,19 @@ By this level, students are able to make connections within the provided task, a
 
 TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Use the summary to understand the core principles, then create a scenario that requires applying those principles to a completely NEW situation. Student should predict, generalize, or solve scenarios beyond what was directly taught.
 
+CRITICAL INSTRUCTIONS FOR DISTRACTORS:
+- **DO NOT** create obviously wrong options
+- **DO** create TRICKY distractors that:
+  * Look correct if you misunderstand which principle applies
+  * Correctly apply a DIFFERENT but related principle
+  * Follow logically from the content but reach wrong conclusion
+  * Represent COMMON OVERGENERALIZATIONS of the principles
+  * Seem reasonable on surface but violate subtle constraints
+  * Apply the principle to SIMILAR but wrong context
+- Example BAD distractor: "Blue elephants" (nonsense)
+- Example GOOD distractor: "You should increase speed" (correct for acceleration problem, wrong for this momentum problem - different principle)
+- Distractors should be SOPHISTICATED errors that good test-takers might make
+
 Requirements:
 - Use the summary to identify transferable concepts and principles
 - Ask about applying/generalizing these concepts to a NEW different situation
@@ -867,6 +901,7 @@ Requirements:
 - Student must demonstrate ability to transfer knowledge to new contexts
 - Question < 250 chars
 - 4 MC options (A-D), one correct
+- 3 distractors must be CHALLENGING: plausible applications of WRONG principles or MISAPPLICATIONS
 - Explanation < 250 chars
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
@@ -1553,7 +1588,9 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 ),
                 'explanation': question_data.get('explanation', ''),
                 'bloom_level': 'synthesis',
-                'tags': [title1, title2, 'cross-topic']
+                'tags': [title1, title2, 'cross-topic'],
+                'primary_lesson_id': lesson1.get('id'),
+                'secondary_lesson_id': lesson2.get('id')
             }
         return None
     

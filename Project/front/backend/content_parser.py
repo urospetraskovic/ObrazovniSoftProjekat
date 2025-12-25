@@ -36,6 +36,9 @@ class ContentParser:
             os.getenv('OPENROUTER_API_KEY_7'),
             os.getenv('OPENROUTER_API_KEY_8'),
             os.getenv('OPENROUTER_API_KEY_9'),
+            os.getenv('OPENROUTER_API_KEY_11'),
+            os.getenv('OPENROUTER_API_KEY_12'),
+            os.getenv('OPENROUTER_API_KEY_13'),
         ]
         self.api_keys = [key for key in self.api_keys if key]
         
@@ -50,6 +53,7 @@ class ContentParser:
         
         self.current_key_index = 0
         self.provider = "openrouter"
+        self.exhausted_keys = set()  # Track which keys are exhausted
     
     def extract_pdf_text(self, filepath: str) -> Dict[str, Any]:
         """
@@ -100,6 +104,11 @@ class ContentParser:
         if not api_key:
             return None
         
+        # Skip if this key is already known to be exhausted
+        if api_key in self.exhausted_keys:
+            self._rotate_api_key()
+            return None
+        
         try:
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
@@ -118,8 +127,9 @@ class ContentParser:
                 timeout=120
             )
             
-            if response.status_code == 429:
-                print("[ContentParser] Rate limited, rotating key...")
+            if response.status_code == 429 or response.status_code == 403:
+                print(f"[ContentParser] Key exhausted ({response.status_code}), marking as unavailable")
+                self.exhausted_keys.add(api_key)
                 self._rotate_api_key()
                 return None
             
@@ -129,6 +139,7 @@ class ContentParser:
             
         except Exception as e:
             print(f"[ContentParser] OpenRouter error: {e}")
+            self.exhausted_keys.add(api_key)
             self._rotate_api_key()
             return None
     
@@ -163,13 +174,13 @@ class ContentParser:
     
     def _call_ai(self, messages: List[Dict], max_tokens: int = 4000) -> str:
         """Call AI API with fallback"""
-        # Try OpenRouter first
-        for _ in range(len(self.api_keys)):
-            result = self._call_openrouter_api(messages, max_tokens)
-            if result:
-                return result
+        # Try current OpenRouter key (only once - if exhausted, skip)
+        result = self._call_openrouter_api(messages, max_tokens)
+        if result:
+            return result
         
-        # Fallback to GitHub Models
+        # If OpenRouter key fails, try GitHub Models as fallback
+        print("[ContentParser] OpenRouter key exhausted, trying GitHub Models...")
         result = self._call_github_api(messages, max_tokens)
         if result:
             return result
@@ -387,6 +398,58 @@ RESPOND WITH JSON ONLY:
             return learning_objects
         except Exception as e:
             print(f"[ContentParser] Error extracting learning objects: {e}")
+            return []
+
+    def extract_ontology_relationships(self, content: str, learning_objects: List[Dict], lesson_title: str) -> List[Dict]:
+        """
+        Identify relationships between learning objects to form a domain ontology
+        """
+        lo_titles = [lo['title'] for lo in learning_objects]
+        print(f"[ContentParser] Extracting ontology from {len(learning_objects)} LOs: {lo_titles}")
+        
+        prompt = f"""Analyze the relationships between these LEARNING OBJECTS from the lesson '{lesson_title}'.
+        
+LEARNING OBJECTS:
+{json.dumps(lo_titles, indent=2)}
+
+CONTENT SNIPPET:
+{content[:10000]}
+
+YOUR TASK:
+Identify logical relationships between these concepts to form a DOMAIN ONTOLOGY.
+Possible relationship types:
+- prerequisite: Concept A must be understood before Concept B
+- part_of: Concept A is a component or sub-topic of Concept B
+- related_to: Concept A and Concept B are conceptually linked
+- instance_of: Concept A is a specific example of Concept B
+
+RESPOND WITH JSON ONLY:
+```json
+[
+    {{
+        "source": "Concept A Title",
+        "target": "Concept B Title",
+        "type": "prerequisite|part_of|related_to|instance_of",
+        "description": "Brief explanation of why this relationship exists"
+    }}
+]
+```"""
+
+        messages = [
+            {"role": "system", "content": "You are an expert in knowledge representation and ontology engineering. Identify meaningful relationships between educational concepts. Always respond with valid JSON."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        try:
+            response = self._call_ai(messages, max_tokens=2000)
+            print(f"[ContentParser] Ontology API response received: {response[:200]}...")
+            relationships = self._extract_json_from_response(response)
+            print(f"[ContentParser] Identified {len(relationships)} ontology relationships: {relationships}")
+            return relationships
+        except Exception as e:
+            print(f"[ContentParser] Error extracting ontology relationships: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return []
     
     def generate_lesson_summary(self, content: str, lesson_title: str) -> str:

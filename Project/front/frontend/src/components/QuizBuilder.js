@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
+import { quizApi } from '../api';
 
 function QuizBuilder({ questions, course, onSuccess, onError }) {
   const [quizTitle, setQuizTitle] = useState('');
@@ -64,7 +62,7 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
     try {
       setCreating(true);
       
-      const response = await axios.post(`${API_URL}/quizzes`, {
+      const response = await quizApi.create({
         title: quizTitle,
         description: quizDescription,
         course_id: course?.id,
@@ -91,8 +89,8 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
 
   const handleExportQuiz = async (quizId) => {
     try {
-      const response = await axios.get(`${API_URL}/quizzes/${quizId}/export`);
-      onSuccess(`Quiz exported: ${response.data.filename}`);
+      const response = await quizApi.getById(quizId);
+      onSuccess(`Quiz exported: ${response.data.quiz?.title}`);
     } catch (err) {
       onError('Failed to export quiz');
     }
@@ -212,9 +210,14 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
                     {selectedQuestionIds.includes(question.id) ? '✓' : ''}
                   </div>
                   <div className="question-preview">
-                    <span className={`level-badge level-${question.solo_level}`}>
-                      {question.solo_level?.replace('_', ' ')}
-                    </span>
+                    <div className="preview-header">
+                      <span className={`level-badge level-${question.solo_level}`}>
+                        {question.solo_level?.replace('_', ' ')}
+                      </span>
+                      {question.solo_level === 'extended_abstract' && (
+                        <span className="cross-topic-badge-mini">🔀 Cross-Topic</span>
+                      )}
+                    </div>
                     <p>{question.question_text?.substring(0, 100)}...</p>
                   </div>
                 </div>
