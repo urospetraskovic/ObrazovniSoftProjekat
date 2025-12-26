@@ -39,3 +39,6 @@ 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
 
 Github token
 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
+
+Gemini api Key
+AIzaSyDiBmhk7mk3if_mzAeURWWXoZ-uf5C4H_U

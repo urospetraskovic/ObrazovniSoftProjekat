@@ -5,10 +5,16 @@ from datetime import datetime
 from dotenv import load_dotenv
 import requests
 from typing import Dict, List, Any
+import google.generativeai as genai
 
 # Load environment variables
 env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(env_path)
+
+# Initialize Gemini API
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 class SoloQuizGenerator:
     """
@@ -19,7 +25,24 @@ class SoloQuizGenerator:
     
     def __init__(self):
         """Initialize the quiz generator with API configuration"""
-        # OpenRouter API keys
+        # Gemini API (Primary)
+        self.gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if self.gemini_api_key:
+            genai.configure(api_key=self.gemini_api_key)
+            self.gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+            print("[INIT] Gemini API: Primary provider loaded")
+        else:
+            self.gemini_model = None
+            print("[INIT] Warning: Gemini API key not configured")
+        
+        # Groq API (Secondary fallback)
+        self.groq_api_key = os.getenv("GROQ_API_KEY")
+        if self.groq_api_key:
+            print(f"[INIT] Groq API: Configured (key loaded)")
+        else:
+            print("[INIT] Warning: Groq API key not configured")
+        
+        # OpenRouter API keys (Fallback)
         self.api_keys = [
             os.getenv('OPENROUTER_API_KEY'),
             os.getenv('OPENROUTER_API_KEY_2'),
@@ -38,10 +61,10 @@ class SoloQuizGenerator:
         self.github_token = os.getenv('GITHUB_TOKEN')
         
         if not self.api_keys:
-            print("Warning: No OpenRouter API keys configured.")
+            print("[INIT] Warning: No OpenRouter API keys configured (fallback).")
             self.api_keys = ['mock']
         else:
-            print(f"[INIT] OpenRouter: {len(self.api_keys)} API keys loaded")
+            print(f"[INIT] OpenRouter: {len(self.api_keys)} API keys loaded (fallback)")
         
         if not self.github_token:
             print("[INIT] Warning: No GitHub token configured for fallback model.")
@@ -49,7 +72,7 @@ class SoloQuizGenerator:
             print(f"[INIT] GitHub Models: Token loaded ({self.github_token[:30]}...)")
         
         self.current_key_index = 0
-        self.provider = "openrouter"
+        self.provider = "gemini"  # Primary provider
         self.api_exhausted = False
         self._content_summary_cache = {}  # Cache summaries to avoid regenerating
     
@@ -912,8 +935,9 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
     def _call_api(self, prompt: str, retry_count: int = 0) -> str:
         """
         Call API for question generation
-        Primary: OpenRouter API with key rotation (9 keys)
-        Fallback: GitHub Models API
+        Primary: Gemini API
+        Fallback: OpenRouter API with key rotation (9 keys)
+        Final Fallback: GitHub Models API
         
         Key rotation logic:
         - 429 (rate limit): rotate to next key
@@ -926,6 +950,25 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         if self.api_exhausted:
             return None
         
+        # Try Gemini API first (Primary)
+        try:
+            if self.gemini_model:
+                print("[Gemini] Calling Gemini API (primary)...")
+                response = self.gemini_model.generate_content(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        max_output_tokens=800,
+                        temperature=0.7
+                    )
+                )
+                if response and response.text:
+                    print("[OK] Gemini API succeeded")
+                    return response.text
+        except Exception as e:
+            print(f"[Gemini Error] {str(e)[:100]}")
+            print("[FALLBACK] Gemini quota exhausted. Switching to OpenRouter...")
+        
+        # Fallback to OpenRouter API with key rotation
         try:
             api_key = self.api_keys[self.current_key_index]
             
@@ -953,7 +996,7 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
                 json=data,
-                timeout=30
+                timeout=1
             )
             
             if response.status_code == 200:
@@ -966,16 +1009,21 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                     self.current_key_index += 1
                     return self._call_api(prompt, 0)  # Reset retry count for new key
                 else:
-                    # All OpenRouter keys exhausted - try GitHub
-                    print("[FALLBACK] All OpenRouter keys rate-limited. Switching to GitHub Models...")
+                    # All OpenRouter keys exhausted - try Groq
+                    print("[FALLBACK] All OpenRouter keys rate-limited. Switching to Groq API...")
                     self.current_key_index = 0  # Reset for next batch of calls
-                    github_result = self._call_github_api(prompt)
-                    if github_result:
-                        return github_result
+                    groq_result = self._call_groq_api(prompt)
+                    if groq_result:
+                        return groq_result
                     else:
-                        print("[CRITICAL] Both OpenRouter AND GitHub Models APIs are exhausted!")
-                        self.api_exhausted = True
-                        return None
+                        # Then try GitHub
+                        github_result = self._call_github_api(prompt)
+                        if github_result:
+                            return github_result
+                        else:
+                            print("[CRITICAL] All API providers are exhausted!")
+                            self.api_exhausted = True
+                            return None
             else:
                 # Other HTTP error - log and try GitHub directly (don't burn through keys)
                 print(f"[{response.status_code}] OpenRouter error: {response.text[:100]}")
@@ -985,26 +1033,76 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
             # Timeout - retry same key once, then try GitHub
             print(f"[TIMEOUT] Request timeout on key {self.current_key_index + 1}")
             if retry_count < 1:
-                time.sleep(2)  # Wait 2 seconds before retry
+                time.sleep(1)  # Wait 1 second before retry
                 return self._call_api(prompt, retry_count + 1)
             else:
-                print("[FALLBACK] Timeout persists. Trying GitHub Models...")
-                return self._call_github_api(prompt)
+                print("[FALLBACK] Timeout persists. Trying Groq API...")
+                return self._call_groq_api(prompt)
         except requests.ConnectionError as e:
             # Connection error (DNS, network) - DON'T burn through keys!
             # This is a network issue, not an API issue
             print(f"[NETWORK] Connection error: {str(e)[:80]}")
             if retry_count < 2:
-                print(f"[RETRY] Waiting 3 seconds before retry {retry_count + 1}/2...")
-                time.sleep(3)  # Wait before retry
+                print(f"[RETRY] Waiting 1 second before retry {retry_count + 1}/2...")
+                time.sleep(1)  # Wait before retry
                 return self._call_api(prompt, retry_count + 1)
             else:
-                print("[NETWORK] Network appears down. Trying GitHub as last resort...")
-                return self._call_github_api(prompt)
+                print("[NETWORK] Network appears down. Trying Groq as last resort...")
+                return self._call_groq_api(prompt)
         except Exception as e:
             print(f"[ERROR] API call error: {type(e).__name__}: {str(e)}")
-            # For unknown errors, try GitHub directly
-            return self._call_github_api(prompt)
+            # For unknown errors, try Groq first
+            return self._call_groq_api(prompt)
+    
+    def _call_groq_api(self, prompt: str) -> str:
+        """Call Groq API (mixtral-8x7b-32768) as fallback"""
+        try:
+            if not self.groq_api_key:
+                print("[ERROR] Groq API key not configured - cannot use fallback")
+                return None
+            
+            print("[Groq API] Calling Mixtral 8x7b model...")
+            headers = {
+                "Authorization": f"Bearer {self.groq_api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": "mixtral-8x7b-32768",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful educational assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 800
+            }
+            
+            response = requests.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=1
+            )
+            
+            if response.status_code == 200:
+                print("[SUCCESS] Groq API working (Mixtral 8x7b)")
+                return response.json()["choices"][0]["message"]["content"]
+            elif response.status_code == 429:
+                print("[RATE_LIMIT] Groq API rate-limited")
+                return None
+            else:
+                print(f"[Groq API Error] Status {response.status_code}: {response.text[:300]}")
+                return None
+                
+        except requests.Timeout:
+            print("[Groq API] Request timeout")
+            return None
+        except requests.ConnectionError as e:
+            print(f"[Groq API] Connection error: {str(e)[:80]}")
+            return None
+        except Exception as e:
+            print(f"[Groq API Exception] {type(e).__name__}: {str(e)}")
+            return None
     
     def _call_github_api(self, prompt: str) -> str:
         """Call GitHub Models API (gpt-4o) as fallback"""
@@ -1035,7 +1133,7 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 "https://models.github.ai/inference/chat/completions",
                 headers=headers,
                 json=data,
-                timeout=30
+                timeout=1
             )
             
             if response.status_code == 200:
