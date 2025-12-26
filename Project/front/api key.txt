@@ -42,3 +42,6 @@ github_pat_11A7UGIQY0LuT7UhPBzEBu_2OlXQpXs7zTPqsD20A1XZVOWTXgmtEk4UciFhw7oeff3DS
 
 Gemini api Key
 AIzaSyDiBmhk7mk3if_mzAeURWWXoZ-uf5C4H_U
+
+Groq api Key
+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
