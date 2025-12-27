@@ -180,11 +180,7 @@ class ContentParser:
         """
         Parse lesson content into sections with learning objects.
         
-        MAXIMUM QUALITY APPROACH:
-        - Pass 1: Get high-level structure of entire document
-        - Pass 2: Split content into chunks and extract detailed sections
-        - Pass 3: Merge and deduplicate sections
-        - Pass 4: Extract learning objects for each section
+        OPTIMIZED FOR MEMORY: Single-pass analysis to reduce RAM usage.
         
         Args:
             content: Full lesson content
@@ -193,16 +189,16 @@ class ContentParser:
         Returns:
             List of section dictionaries with learning objects
         """
-        print(f"\n[ContentParser] === MAXIMUM QUALITY PARSING ===")
+        print(f"\n[ContentParser] === MEMORY-OPTIMIZED PARSING ===")
         print(f"[ContentParser] Content length: {len(content)} characters")
         
-        # Split content into chunks for thorough analysis
-        chunks = self._split_content_into_chunks(content)
-        print(f"[ContentParser] Split into {len(chunks)} chunks for analysis")
+        # Split content into smaller chunks (reduced from 3000 to 2000 chars per chunk)
+        chunks = self._split_content_into_chunks(content, chunk_size=2000, overlap=200)
+        print(f"[ContentParser] Split into {len(chunks)} chunks (smaller chunks for memory efficiency)")
         
         all_sections = []
         
-        # PASS 1: Analyze each chunk for sections
+        # Single pass: Analyze each chunk for sections
         for i, chunk in enumerate(chunks):
             print(f"\n[ContentParser] --- Analyzing chunk {i+1}/{len(chunks)} ---")
             chunk_sections = self._extract_sections_from_chunk(chunk, lesson_title, i+1, len(chunks))
@@ -210,22 +206,27 @@ class ContentParser:
                 all_sections.extend(chunk_sections)
                 print(f"[ContentParser] Chunk {i+1}: Found {len(chunk_sections)} sections")
         
-        # PASS 2: Merge and deduplicate sections
-        print(f"\n[ContentParser] Merging {len(all_sections)} raw sections...")
+        # Merge and deduplicate sections
+        print(f"\n[ContentParser] Merging {len(all_sections)} sections...")
         merged_sections = self._merge_similar_sections(all_sections)
         print(f"[ContentParser] After merge: {len(merged_sections)} unique sections")
         
-        # If we still have too few sections, try a fallback approach
-        if len(merged_sections) < 3:
-            print(f"[ContentParser] Too few sections, trying comprehensive analysis...")
-            merged_sections = self._extract_comprehensive_sections(content, lesson_title)
+        # Limit sections to reasonable amount (allow natural number, max 15 to prevent excessive sections)
+        if len(merged_sections) > 15:
+            print(f"[ContentParser] Limiting to 15 sections (was {len(merged_sections)}) - too many redundant sections")
+            merged_sections = merged_sections[:15]
+        
+        # If too few sections, extract from full content once
+        if len(merged_sections) < 2:
+            print(f"[ContentParser] Too few sections, extracting from full content...")
+            merged_sections = self._extract_comprehensive_sections(content[:5000], lesson_title)
         
         # Assign section numbers
         for i, section in enumerate(merged_sections):
             section['section_number'] = i + 1
             section['id'] = i + 1
         
-        # PASS 3: Extract learning objects for each section
+        # Extract learning objects for each section
         print(f"\n[ContentParser] Extracting learning objects for {len(merged_sections)} sections...")
         for section in merged_sections:
             section_title = section.get('title', f"Section {section.get('section_number', 1)}")
@@ -234,7 +235,7 @@ class ContentParser:
             # Get content relevant to this section
             section_content = self._extract_section_content(content, " ".join(key_topics), section_title)
             
-            # Extract learning objects
+            # Extract learning objects (reduced from 5-12 to 3-6)
             learning_objects = self._extract_learning_objects(
                 section_content,
                 section_title,
@@ -251,10 +252,10 @@ class ContentParser:
         
         return merged_sections
     
-    def _split_content_into_chunks(self, content: str, chunk_size: int = 3000, overlap: int = 500) -> List[str]:
+    def _split_content_into_chunks(self, content: str, chunk_size: int = 3000, overlap: int = 400) -> List[str]:
         """
-        Split content into overlapping chunks for thorough analysis.
-        Each chunk is analyzed separately to catch all sections.
+        Split content into overlapping chunks for analysis.
+        BALANCED: Larger chunks (3000 chars) for better extraction while avoiding huge frontload.
         """
         chunks = []
         content_len = len(content)
@@ -262,8 +263,12 @@ class ContentParser:
         if content_len <= chunk_size:
             return [content]
         
+        # Allow more chunks for better extraction
+        max_chunks = 10
+        
         start = 0
-        while start < content_len:
+        chunk_count = 0
+        while start < content_len and chunk_count < max_chunks:
             end = min(start + chunk_size, content_len)
             chunk = content[start:end]
             
@@ -275,7 +280,8 @@ class ContentParser:
                     end = start + last_break
             
             chunks.append(chunk)
-            start = end - overlap  # Overlap to catch sections at boundaries
+            start = end - overlap
+            chunk_count += 1
             
             if start >= content_len:
                 break
@@ -283,48 +289,41 @@ class ContentParser:
         return chunks
     
     def _extract_sections_from_chunk(self, chunk: str, lesson_title: str, chunk_num: int, total_chunks: int) -> List[Dict]:
-        """Extract sections from a single chunk of content"""
+        """Extract sections from a single chunk of content with better prompts"""
         
         prompt = f"""You are an expert educational content analyst. Analyze this PART of a lesson and identify all distinct topics and sections.
 
-LESSON TITLE: {lesson_title}
-THIS IS PART {chunk_num} OF {total_chunks}
+LESSON: {lesson_title}
+PART {chunk_num} OF {total_chunks}
 
 CONTENT:
 {chunk}
 
-INSTRUCTIONS:
+CRITICAL INSTRUCTIONS:
 1. Identify ALL distinct topics, subtopics, and themes in this content
-2. Each section should represent a specific concept or subtopic
-3. Be GRANULAR - prefer more smaller sections over fewer large ones
-4. Look for: definitions, processes, components, techniques, examples, comparisons
-5. ALL output must be in ENGLISH (translate if source is not English)
-
-For example, if content discusses "Threads" and "Processes", create SEPARATE sections for:
-- What are Threads
-- Types of Threads
-- Thread States
-- Thread Synchronization
-- What are Processes
-- Process States
-- Process vs Thread Comparison
+2. Each section should represent a specific concept or topic area
+3. Be granular - prefer multiple focused sections over few large ones
+4. Look for: definitions, processes, components, techniques, concepts
+5. **ALL TITLES MUST BE IN ENGLISH** - translate from any other language
+6. Do NOT use Serbian, Croatian, or any other language for section titles
+7. Examples: "Definition of Process" NOT "Pojam Procesa", "Process States" NOT "Stanja Procesa"
 
 OUTPUT FORMAT (JSON array):
 [
-  {{"title": "Specific Topic Title", "key_topics": ["keyword1", "keyword2", "keyword3"]}},
-  {{"title": "Another Specific Topic", "key_topics": ["keywordA", "keywordB"]}}
+  {{"title": "Specific Topic Name (IN ENGLISH)", "key_topics": ["keyword1", "keyword2", "keyword3"]}},
+  {{"title": "Another Topic (IN ENGLISH)", "key_topics": ["keywordA", "keywordB"]}}
 ]
 
-Return ONLY the JSON array. Find as many distinct sections as exist in the content."""
+Return ONLY the JSON array. Find all distinct sections in this content. REMEMBER: ALL TITLES IN ENGLISH."""
         
-        response = self._call_ollama(prompt, timeout=300)
+        response = self._call_ollama(prompt, timeout=120)
         
         if not response:
             return []
         
         sections = self._extract_json_from_response(response)
         if isinstance(sections, list):
-            return sections
+            return sections[:8]  # Allow up to 8 sections per chunk naturally
         return []
     
     def _merge_similar_sections(self, sections: List[Dict]) -> List[Dict]:
@@ -352,17 +351,31 @@ Return ONLY the JSON array. Find as many distinct sections as exist in the conte
                 other_title = other.get('title', '').lower()
                 other_topics = set(t.lower() for t in other.get('key_topics', []))
                 
-                # Check if titles are very similar
+                # Check multiple similarity metrics
+                # 1. Title word overlap
                 title_words = set(title.split())
                 other_title_words = set(other_title.split())
                 
+                title_similarity = 0.0
                 if len(title_words) > 0 and len(other_title_words) > 0:
-                    word_overlap = len(title_words.intersection(other_title_words)) / max(len(title_words), len(other_title_words))
-                    
-                    # If very similar, merge
-                    if word_overlap > 0.7:
-                        used.add(j)
-                        similar_topics.extend(other.get('key_topics', []))
+                    title_similarity = len(title_words.intersection(other_title_words)) / max(len(title_words), len(other_title_words))
+                
+                # 2. Topic overlap (if any topics are the same, likely duplicates)
+                topic_similarity = 0.0
+                if len(topics) > 0 and len(other_topics) > 0:
+                    topic_similarity = len(topics.intersection(other_topics)) / min(len(topics), len(other_topics))
+                
+                # 3. Combined score (title similarity matters more)
+                combined_score = (title_similarity * 0.7) + (topic_similarity * 0.3)
+                
+                # More aggressive merging: 50% combined similarity OR >70% title similarity
+                should_merge = (combined_score > 0.5) or (title_similarity > 0.7) or (topic_similarity > 0.6)
+                
+                if should_merge:
+                    used.add(j)
+                    similar_topics.extend(other.get('key_topics', []))
+                    print(f"[ContentParser] Merging similar sections (score={combined_score:.2f}):")
+                    print(f"  - '{section.get('title')}' + '{other.get('title')}'")
             
             # Remove duplicate topics
             unique_topics = list(dict.fromkeys(similar_topics))
@@ -372,52 +385,47 @@ Return ONLY the JSON array. Find as many distinct sections as exist in the conte
                 'key_topics': unique_topics[:10]  # Limit topics
             })
         
+        print(f"[ContentParser] After merging: {len(merged)} sections (was {len(sections)})")
         return merged
     
     def _extract_comprehensive_sections(self, content: str, lesson_title: str) -> List[Dict]:
-        """Fallback: Extract sections with a single comprehensive prompt"""
+        """Fallback: Extract sections with comprehensive prompt"""
         
-        prompt = f"""You are an expert educational content analyst. Analyze this ENTIRE lesson and extract ALL sections and subtopics.
+        prompt = f"""You are an expert educational content analyst. Extract ALL main topics and sections from this content.
 
-LESSON TITLE: {lesson_title}
+LESSON: {lesson_title}
 
 CONTENT:
 {content[:6000]}
 
-CRITICAL INSTRUCTIONS:
-1. Find AT LEAST 5-10 distinct sections/topics
-2. Be VERY GRANULAR - split large topics into smaller subtopics
-3. Each concept, definition, process should be its own section
-4. ALL output in ENGLISH
+FIND AND LIST all distinct topics and sections. Include:
+1. Major topic areas
+2. Important subtopics
+3. Key concepts and definitions
+4. Processes and procedures
+5. Components and elements
 
-For a lesson about Operating Systems concepts, you might find:
-- Process Definition
-- Process States and Lifecycle
-- Process Control Block (PCB)
-- Context Switching
-- Thread Definition
-- User-level vs Kernel-level Threads
-- Thread Synchronization Mechanisms
-- Mutexes and Semaphores
-- Deadlock Prevention
-etc.
+CRITICAL: **ALL SECTION TITLES MUST BE IN ENGLISH**
+- Translate from Serbian, Croatian, or any other language
+- Use clear English titles for all sections
+- Examples: "Definition of Processes" NOT "Pojam Procesa", "Process Elements" NOT "Elementi Procesa"
 
-OUTPUT FORMAT (JSON array):
+JSON array format:
 [
-  {{"title": "Specific Topic Name", "key_topics": ["keyword1", "keyword2"]}},
-  ...
+  {{"title": "Specific Topic Name (IN ENGLISH)", "key_topics": ["keyword1", "keyword2", "keyword3"]}},
+  {{"title": "Another Topic (IN ENGLISH)", "key_topics": ["keywordA", "keywordB"]}}
 ]
 
-Return ONLY the JSON array with at least 5 sections."""
+Return ONLY the JSON array with 5-15 natural sections (only include if meaningful). ALL TITLES IN ENGLISH."""
         
-        response = self._call_ollama(prompt, timeout=300)
+        response = self._call_ollama(prompt, timeout=120)
         
         if not response:
             return [{"title": lesson_title, "key_topics": []}]
         
         sections = self._extract_json_from_response(response)
         if isinstance(sections, list) and len(sections) > 0:
-            return sections
+            return sections[:15]  # Allow up to 15 sections naturally
         
         return [{"title": lesson_title, "key_topics": []}]
     
@@ -469,69 +477,44 @@ Return ONLY the JSON array with at least 5 sections."""
     
     def _extract_learning_objects(self, section_content: str, section_title: str, lesson_title: str) -> List[Dict]:
         """
-        Extract educational learning objects with rich, useful content.
-        Uses expert knowledge to enhance explanations beyond just the source material.
+        Extract educational learning objects with balanced quality and memory.
         
-        MAXIMUM QUALITY: Extracts 5-12 learning objects per section.
+        BALANCED: Extracts 5-8 learning objects per section.
         """
-        content_preview = section_content[:2500].strip()
+        # Use larger content preview for better context
+        content_preview = section_content[:2000].strip()
         
-        # Enhanced prompt for maximum quality extraction
-        prompt = f"""You are an expert educator creating comprehensive study materials. Extract ALL key learning objects from this content.
+        # Balanced prompt with better English instructions and focus on quality
+        prompt = f"""You are an educational content expert. Extract 5-8 key learning objects from this educational content.
 
 LESSON: {lesson_title}
 SECTION: {section_title}
 
-SOURCE MATERIAL:
+CONTENT:
 {content_preview}
 
 ---
 
-CRITICAL INSTRUCTIONS:
-1. Identify 5-12 distinct, important concepts that students must understand
-2. EVERY definition, term, process, component mentioned should become a learning object
-3. Each concept should be UNIQUE - no overlapping or repetitive entries
-4. Write clear, educational descriptions that EXPLAIN the concept (not just define it)
-5. You MAY use your expert knowledge to enhance explanations - don't limit yourself to only the source text
-6. Include practical context: why is this important? how is it used?
-7. ALL OUTPUT MUST BE IN ENGLISH (translate if source is in another language)
+For each concept, provide (JSON array format):
+- title: Clear concept name (3-8 words, MUST BE IN ENGLISH)
+- type: One of [concept, definition, process, principle, component, technique]
+- description: 2-3 sentence clear explanation (MUST BE IN ENGLISH)
+- key_points: 1-3 important facts or details
+- keywords: 2-5 related search terms (MUST BE IN ENGLISH)
 
-TYPES OF LEARNING OBJECTS TO EXTRACT:
-- concept: Abstract ideas or theories (e.g., "Virtual Memory")
-- definition: Precise meanings of terms (e.g., "What is a Process?")
-- process: Step-by-step procedures (e.g., "Context Switching Steps")
-- principle: Rules or laws (e.g., "Locality of Reference")
-- component: Parts of a system (e.g., "Page Table Entry")
-- technique: Methods or approaches (e.g., "Demand Paging")
-- comparison: Differences between concepts (e.g., "Process vs Thread")
+IMPORTANT REQUIREMENTS:
+1. Extract 4-8 distinct, important concepts
+2. ALL OUTPUT MUST BE IN ENGLISH (translate if source is not English)
+3. Each object must be unique and valuable for learning
+4. Include all key concepts mentioned in the content
+5. Return ONLY a valid JSON array, no other text
 
-For each learning object provide:
-- title: Clear, specific name (3-8 words)
-- type: One of [concept, definition, process, principle, component, technique, comparison]
-- description: 2-4 sentences explaining what it is, why it matters, and how it works
-- key_points: 3-5 bullet points with specific, useful facts (not generic statements)
-- keywords: 4-6 searchable terms
-
-EXAMPLE OF GOOD OUTPUT:
-{{
-  "title": "Context Switching Mechanism",
-  "type": "process",
-  "description": "Context switching is the mechanism by which an OS saves the state of a running process and loads the state of another, enabling multitasking. This involves saving register values, program counter, and memory maps to the Process Control Block before switching to another process.",
-  "key_points": ["Takes 1-1000 microseconds depending on hardware", "Triggered by interrupts, system calls, or time slice expiration", "Overhead increases with more processes", "Pure overhead - no useful work is done during switch"],
-  "keywords": ["context switch", "process scheduling", "CPU state", "multitasking", "PCB"]
-}}
-
-EXAMPLE OF BAD OUTPUT (avoid this):
-{{
-  "title": "Process Management",
-  "description": "Process management is important for the OS.",
-  "key_points": ["Processes are managed", "The OS handles processes"]
-}}
-
-Return a JSON array with 5-12 learning objects. Be specific, comprehensive, and educational."""
+Example format:
+[{{"title": "Concept Name", "type": "concept", "description": "Description here. More details about it.", "key_points": ["Point 1", "Point 2"], "keywords": ["key1", "key2", "key3"]}}]
+"""
         
         print(f"[ContentParser] Extracting learning objects from: {section_title}")
-        response = self._call_ollama(prompt, timeout=300)
+        response = self._call_ollama(prompt, timeout=150)
         
         if not response:
             print("[ContentParser] No response from Ollama")
@@ -539,22 +522,21 @@ Return a JSON array with 5-12 learning objects. Be specific, comprehensive, and 
         
         objects = self._extract_json_from_response(response)
         if not isinstance(objects, list) or len(objects) == 0:
-            print("[ContentParser] No objects extracted, trying simpler prompt...")
-            # Try a simpler fallback prompt
+            print("[ContentParser] No objects extracted, trying simple extraction...")
             return self._extract_learning_objects_simple(section_content, section_title, lesson_title)
         
-        # Validate and clean the objects
+        # Validate and clean the objects (limit to 8 max)
         validated_objects = []
-        for obj in objects:
+        for obj in objects[:8]:  # Hard limit to 8 objects
             if not obj.get('title'):
                 continue
                 
             validated = {
-                'title': obj.get('title', 'Unknown'),
+                'title': obj.get('title', 'Unknown')[:150],
                 'type': obj.get('type', 'concept'),
-                'description': obj.get('description', ''),
+                'description': obj.get('description', '')[:600],
                 'key_points': obj.get('key_points', []) if isinstance(obj.get('key_points'), list) else [],
-                'keywords': obj.get('keywords', []) if isinstance(obj.get('keywords'), list) else []
+                'keywords': obj.get('keywords', [])[:6] if isinstance(obj.get('keywords'), list) else []
             }
             validated_objects.append(validated)
         
@@ -563,23 +545,23 @@ Return a JSON array with 5-12 learning objects. Be specific, comprehensive, and 
     
     def _extract_learning_objects_simple(self, section_content: str, section_title: str, lesson_title: str) -> List[Dict]:
         """Simpler fallback for learning object extraction"""
-        content_preview = section_content[:2000].strip()
+        content_preview = section_content[:1500].strip()
         
-        prompt = f"""Extract 3-5 key concepts from this educational content.
+        prompt = f"""Extract 5-8 key concepts from this educational content.
 
-TOPIC: {section_title}
+LESSON: {lesson_title}
+SECTION: {section_title}
 
 CONTENT:
 {content_preview}
 
-For each concept, provide:
-- title: Name of the concept
-- type: concept, definition, process, or component
-- description: 1-2 sentence explanation
-- keywords: 2-3 related terms
+For each concept provide (JSON array):
+- title: Concept name (MUST BE IN ENGLISH)
+- type: One of [concept, definition, process, component]
+- description: 2-3 sentence explanation (MUST BE IN ENGLISH)
+- keywords: 3-4 related terms (MUST BE IN ENGLISH)
 
-Return JSON array:
-[{{"title": "...", "type": "...", "description": "...", "keywords": ["...", "..."]}}]"""
+Extract 5-8 distinct concepts. Return ONLY JSON array."""
         
         response = self._call_ollama(prompt, timeout=120)
         if not response:
@@ -588,122 +570,142 @@ Return JSON array:
         objects = self._extract_json_from_response(response)
         if isinstance(objects, list):
             return [{'title': o.get('title', ''), 'type': o.get('type', 'concept'), 
-                     'description': o.get('description', ''), 'key_points': [], 
-                     'keywords': o.get('keywords', [])} for o in objects if o.get('title')]
+                     'description': o.get('description', ''), 'key_points': o.get('key_points', []), 
+                     'keywords': o.get('keywords', [])} for o in objects if o.get('title')][:8]
         return []
     
     def extract_ontology_relationships(self, content: str, learning_objects: List[Dict], lesson_title: str) -> List[Dict]:
         """
         Extract meaningful relationships between learning objects.
-        Focus on quality over quantity - only truly meaningful connections.
+        Focus on quality educational connections WITH PROPER TAXONOMIC HIERARCHY.
+        
+        NOTE: This is computationally intensive. Timeout is set to 900 seconds (15 minutes)
+        for local Ollama models. Increase if needed for slower hardware.
         """
         if not learning_objects:
             print("[ContentParser] No learning objects to relate")
             return []
         
-        # Build a rich description of each learning object for context
+        # Build descriptions for ALL learning objects (not just first 15)
         lo_descriptions = []
-        for lo in learning_objects[:12]:  # Limit to avoid token overflow
+        all_lo_titles = []
+        
+        for lo in learning_objects:  # Use ALL learning objects
             title = lo.get("title", lo.get("name", ""))
-            desc = lo.get("description", "")[:100]
-            lo_descriptions.append(f"- {title}: {desc}")
+            desc = lo.get("description", "")[:80]  # Shorter desc to fit more LOs
+            type_str = lo.get("type", lo.get("object_type", "concept"))
+            lo_descriptions.append(f"- {title} ({type_str}): {desc}")
+            all_lo_titles.append(title)
         
-        lo_context = "\n".join(lo_descriptions)
-        lo_titles = [lo.get("title", lo.get("name", "")) for lo in learning_objects[:12]]
+        lo_context = "\n".join(lo_descriptions[:50])  # Show first 50 in prompt
         
-        # Single comprehensive prompt for better relationships
-        prompt = f"""You are an expert in knowledge representation. Analyze these learning objects and find meaningful relationships between them.
+        # Enhanced prompt for TAXONOMIC HIERARCHY and rich ontology structure
+        prompt = f"""You are an expert in educational ONTOLOGY and KNOWLEDGE REPRESENTATION. Your task is to create a RICH TAXONOMIC STRUCTURE from these learning objects.
 
 LESSON: {lesson_title}
 
-LEARNING OBJECTS:
+LEARNING OBJECTS ({len(all_lo_titles)} total, showing first 50):
 {lo_context}
 
 ---
 
-INSTRUCTIONS:
-1. Find 8-15 meaningful relationships between these concepts
-2. Each relationship should be SPECIFIC and EDUCATIONAL
-3. The description should explain WHY this relationship exists
-4. Use ONLY the exact titles from the list above
-5. ALL OUTPUT IN ENGLISH
+YOUR TASK: Create a COMPREHENSIVE ONTOLOGY with THREE types of relationships:
 
-RELATIONSHIP TYPES TO USE:
-- prerequisite: A must be understood before B
-- builds_upon: A extends or elaborates on B  
-- part_of: A is a component or aspect of B
-- related: A and B are connected concepts
-- contrasts_with: A is different from B in important ways
-- implements: A is a concrete implementation of B
-- enables: A makes B possible
+## 1. HIERARCHICAL/TAXONOMIC RELATIONSHIPS (MOST IMPORTANT!)
+These create a proper class hierarchy (SubClassOf in OWL):
+- part_of: "A is a component/part of B" (e.g., "CPU part_of Computer")
+- is_type_of: "A is a specific type/kind of B" (e.g., "Virtual Memory is_type_of Memory Management")
+- is_subclass_of: "A is a subcategory of B" (e.g., "Process Scheduling is_subclass_of Operating System Functions")
 
-GOOD EXAMPLE:
-{{"source": "Process Control Block", "target": "Context Switching", "type": "enables", "description": "The PCB stores process state information that makes context switching possible by preserving and restoring CPU registers"}}
+## 2. PREREQUISITE/LEARNING ORDER RELATIONSHIPS
+These show learning dependencies:
+- prerequisite: "A must be learned before B" 
+- builds_upon: "A extends or elaborates on B"
+- enables: "A makes B possible or meaningful"
 
-BAD EXAMPLE (too vague):
-{{"source": "Process", "target": "OS", "type": "related", "description": "They are related"}}
+## 3. SEMANTIC RELATIONSHIPS
+These show meaningful connections:
+- related_to: "A and B are connected concepts"
+- contrasts_with: "A differs from B in important ways"
+- implements: "A is a concrete implementation of B"
+- uses: "A uses or applies B"
+- defines: "A provides the definition for B"
+- is_example_of: "A is an example of B"
 
-Return a JSON array of relationships. Focus on relationships that help students understand how concepts connect."""
+---
+
+CRITICAL INSTRUCTIONS:
+1. CREATE AT LEAST 3-5 HIERARCHICAL (part_of, is_type_of, is_subclass_of) relationships - these are ESSENTIAL for ontology structure!
+2. Find general/abstract concepts that can be PARENTS of more specific concepts
+3. Use EXACT titles from the learning objects list
+4. Each relationship needs source, target, type, and a clear description
+5. Return as many relationships as you can find (15-40+ is typical for good coverage)
+
+EXAMPLE OUTPUT:
+[
+  {{"source": "Process State", "target": "Process Management", "type": "part_of", "description": "Process state tracking is a component of overall process management"}},
+  {{"source": "Ready State", "target": "Process State", "type": "is_type_of", "description": "Ready state is a specific type of process state"}},
+  {{"source": "Context Switch", "target": "Process Scheduling", "type": "implements", "description": "Context switching implements the mechanism for process scheduling"}},
+  {{"source": "Process Definition", "target": "Process State", "type": "prerequisite", "description": "Understanding what a process is must come before understanding its states"}}
+]
+
+Return ONLY a JSON array with relationships. Be comprehensive!"""
         
-        print("[ContentParser] Extracting ontology relationships...")
-        response = self._call_ollama(prompt, timeout=300)
+        print("[ContentParser] Extracting ontology relationships with TAXONOMIC HIERARCHY (this may take 5-15 minutes)...")
+        print(f"[ContentParser] Analyzing {len(all_lo_titles)} learning objects for hierarchical connections...")
+        response = self._call_ollama(prompt, timeout=900)  # 900 seconds = 15 minutes
         
         if not response:
-            print("[ContentParser] No response for relationships")
+            print("[ContentParser] WARNING: Ontology extraction timed out or failed")
+            print("[ContentParser] This is normal for complex lessons - try re-parsing with more timeout if needed")
             return []
         
         relationships = self._extract_json_from_response(response)
         if not isinstance(relationships, list):
             return []
         
-        # Validate relationships - ensure source and target exist
+        # Validate relationships - ensure source and target exist in ANY learning object
         valid_relationships = []
-        title_set = set(lo_titles)
+        title_set = set(all_lo_titles)  # Use ALL titles, not just first 15
+        
+        # Create a mapping for fuzzy matching (normalized titles to original titles)
+        normalized_to_original = {}
+        for title in all_lo_titles:
+            normalized = title.strip().lower()
+            normalized_to_original[normalized] = title
+        
+        def clean_title(title):
+            """Remove type metadata like (concept), (definition), etc"""
+            # Remove anything in parentheses
+            cleaned = re.sub(r'\s*\([^)]*\)\s*$', '', title).strip()
+            return cleaned
         
         for rel in relationships:
-            source = rel.get("source", "")
-            target = rel.get("target", "")
+            source = rel.get("source", "").strip()
+            target = rel.get("target", "").strip()
             
-            # Check if both source and target are valid learning objects
-            if source in title_set and target in title_set and source != target:
+            # Remove type metadata (concept), (definition), etc
+            source_clean = clean_title(source)
+            target_clean = clean_title(target)
+            
+            # Try exact match first
+            if source_clean in title_set and target_clean in title_set and source_clean != target_clean:
+                rel["source"] = source_clean
+                rel["target"] = target_clean
                 valid_relationships.append(rel)
+            else:
+                # Try fuzzy matching (normalized comparison)
+                source_normalized = source_clean.lower()
+                target_normalized = target_clean.lower()
+                
+                if source_normalized in normalized_to_original and target_normalized in normalized_to_original:
+                    # Update relationship with exact titles
+                    rel["source"] = normalized_to_original[source_normalized]
+                    rel["target"] = normalized_to_original[target_normalized]
+                    if rel["source"] != rel["target"]:
+                        valid_relationships.append(rel)
         
-        print(f"[ContentParser] Found {len(valid_relationships)} valid relationships")
+        print(f"[ContentParser] Found {len(valid_relationships)} valid relationships out of {len(relationships)} extracted")
         return valid_relationships
-    
-    def generate_lesson_summary(self, content: str, lesson_title: str) -> str:
-        """
-        Generate a comprehensive summary of the lesson
-        
-        Args:
-            content: Full lesson content
-            lesson_title: Title of the lesson
-            
-        Returns:
-            Summary text
-        """
-        prompt = f"""TASK: Write a comprehensive summary of this lesson.
-
-LESSON TITLE: {lesson_title}
-
-CONTENT:
-{content[:2500]}
-
-INSTRUCTIONS:
-Write a detailed 3-5 paragraph summary that covers:
-1. Main topic and purpose of the lesson
-2. Key concepts and important ideas
-3. How these concepts relate to each other
-4. Practical implications or applications
-5. Main takeaways for students
-
-Make it educational, clear, and informative."""
-        
-        print("[ContentParser] Generating summary...")
-        summary = self._call_ollama(prompt, timeout=300)
-        
-        return summary or f"Summary of {lesson_title}"
-
-
 # Create global instance
 content_parser = ContentParser()

@@ -156,10 +156,15 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
           <h4>📋 Lesson Workflow</h4>
           <ol>
             <li><strong>Upload:</strong> Add a PDF lesson file</li>
-            <li><strong>Parse:</strong> AI extracts sections and learning objects</li>
+            <li><strong>Parse:</strong> AI extracts sections and learning objects (Step 1)</li>
             <li><strong>Review:</strong> View the extracted content structure</li>
-            <li><strong>Generate:</strong> Create questions from parsed content</li>
+            <li><strong>Generate Ontology:</strong> Create domain ontology from sections/learning objects (Step 2)</li>
+            <li><strong>Generate Questions:</strong> Create questions from parsed content</li>
           </ol>
+          <p style={{ fontSize: '0.9rem', color: 'var(--neutral-600)', marginTop: '10px' }}>
+            <strong>Note:</strong> Steps 1 and 2 are now separate. After parsing (Step 1), you can view the extracted content, 
+            and then generate or regenerate the ontology (Step 2) anytime from the Content Viewer.
+          </p>
         </div>
       </div>
     </div>

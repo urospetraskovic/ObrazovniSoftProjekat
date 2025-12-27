@@ -163,19 +163,22 @@ class SoloQuizGeneratorLocal:
         """
         Generate questions based on SOLO taxonomy levels from parsed lessons.
         
-        MAXIMUM QUALITY: Uses multiple attempts per question to ensure uniqueness.
+        MEMORY-OPTIMIZED: Reduced question generation with simplified prompts.
         
         Args:
             lessons_data: List of lesson dicts with sections and learning objects
             solo_levels: List of SOLO levels to generate questions for
-            questions_per_level: Number of questions per SOLO level
+            questions_per_level: Number of questions per SOLO level (max 2 for memory)
             section_ids: Optional list of specific section IDs to use
             
         Returns:
             List of question dicts ready for database storage
         """
-        print(f"\n[SOLO-Local] Starting MAXIMUM QUALITY question generation")
+        print(f"\n[SOLO-Local] Starting MEMORY-OPTIMIZED question generation")
         print(f"[SOLO-Local] Lessons: {len(lessons_data)}, Levels: {solo_levels}")
+        
+        # Limit questions per level to reduce memory usage - now 3 per level
+        questions_per_level = min(questions_per_level, 3)  # Max 3 per level (was 2)
         print(f"[SOLO-Local] Questions per level: {questions_per_level}")
         
         # Reset question tracking for this generation session
@@ -188,14 +191,14 @@ class SoloQuizGeneratorLocal:
         if not primary_lesson:
             raise ValueError("At least one lesson is required")
         
-        # Generate a content summary for higher-order questions
-        content_summary = self._generate_content_summary(primary_lesson)
+        # Skip content summary generation to save memory
+        content_summary = ""
         
         for level in solo_levels:
             print(f"\n[SOLO-Local] Generating {questions_per_level} {level} questions...")
             
             level_questions = 0
-            max_attempts = questions_per_level * 3  # Allow up to 3x attempts for uniqueness
+            max_attempts = questions_per_level * 2  # Allow up to 2x attempts for uniqueness
             attempts = 0
             
             while level_questions < questions_per_level and attempts < max_attempts:
@@ -231,15 +234,15 @@ class SoloQuizGeneratorLocal:
                         level_questions += 1
                         print(f"[SOLO-Local] ✓ Generated {level} question {level_questions}/{questions_per_level}")
                     elif question:
-                        print(f"[SOLO-Local] ✗ Question rejected (not unique enough), retrying...")
+                        print(f"[SOLO-Local] ✗ Question rejected (not unique), retrying...")
                     
                 except Exception as e:
                     print(f"[SOLO-Local] Error generating {level} question: {e}")
             
             if level_questions < questions_per_level:
-                print(f"[SOLO-Local] Warning: Only generated {level_questions}/{questions_per_level} unique {level} questions")
+                print(f"[SOLO-Local] Generated {level_questions}/{questions_per_level} {level} questions")
         
-        print(f"\n[SOLO-Local] Total unique questions generated: {len(generated_questions)}")
+        print(f"\n[SOLO-Local] Total questions generated: {len(generated_questions)}")
         return generated_questions
     
     def _generate_content_summary(self, lesson: Dict[str, Any]) -> str:

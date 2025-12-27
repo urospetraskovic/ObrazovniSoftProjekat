@@ -137,6 +137,32 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
     }
   };
 
+  const handleDownloadOWL = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/lessons/${lesson.id}/ontology/export/owl`);
+      const blob = await response.blob();
+      
+      // Extract filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `ontology_${lesson.title.replace(/[^a-zA-Z0-9]/g, '_')}.owl`;
+      
+      if (contentDisposition && contentDisposition.includes('filename=')) {
+        filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+      }
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      onError('Failed to download ontology file');
+    }
+  };
+
   const handleDeleteRelationship = async (relId) => {
     if (!window.confirm('Are you sure you want to delete this relationship?')) {
       return;
@@ -152,6 +178,41 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
       onSuccess('Relationship deleted successfully');
     } catch (err) {
       onError('Failed to delete relationship');
+    }
+  };
+
+  const handleClearOntology = async () => {
+    if (!window.confirm('Are you sure you want to clear ALL ontology relationships? This cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await lessonApi.clearOntology(lesson.id);
+      setOntology([]);
+      onSuccess(`Cleared ${response.data.cleared_count} relationships successfully`);
+    } catch (err) {
+      onError(err.response?.data?.error || 'Failed to clear ontology');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegenerateOntology = async () => {
+    if (!window.confirm('Generate ontology relationships? This will create relationships based on your sections and learning objects.')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await lessonApi.generateOntology(lesson.id);
+      onSuccess(`Generated ${response.data.generated_count} ontology relationships`);
+      // Refresh ontology
+      fetchOntology();
+    } catch (err) {
+      onError(err.response?.data?.error || 'Failed to generate ontology');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -221,15 +282,94 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
         {sections.length > 0 && (
           <div className="ontology-section" style={{ padding: '20px', borderTop: '1px solid var(--neutral-200)', background: 'var(--neutral-50)' }}>
             <div 
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-              onClick={() => setShowOntology(!showOntology)}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
             >
-              <h4 style={{ margin: 0 }}>Domain Ontology</h4>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div 
+                style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', flex: 1 }}
+                onClick={() => setShowOntology(!showOntology)}
+              >
+                <h4 style={{ margin: 0 }}>Domain Ontology</h4>
                 <span className="badge" style={{ background: 'var(--primary-100)', color: 'var(--primary-700)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.8rem' }}>
                   {ontology.length} Relationships
                 </span>
-                <span style={{ fontSize: '0.8rem' }}>{showOntology ? 'Hide' : 'Show'}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button 
+                  onClick={handleRegenerateOntology}
+                  disabled={loading}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 16px',
+                    background: 'var(--info)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s',
+                    border: 'none',
+                    opacity: loading ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => !loading && (e.target.style.background = '#2563eb')}
+                  onMouseLeave={(e) => !loading && (e.target.style.background = 'var(--info)')}
+                  title="Generate ontology relationships based on current sections and learning objects"
+                >
+                  Generate Ontology
+                </button>
+                <button 
+                  onClick={handleClearOntology}
+                  disabled={loading || ontology.length === 0}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 16px',
+                    background: 'var(--warning)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    cursor: (loading || ontology.length === 0) ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s',
+                    border: 'none',
+                    opacity: (loading || ontology.length === 0) ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => !(loading || ontology.length === 0) && (e.target.style.background = '#d97706')}
+                  onMouseLeave={(e) => !(loading || ontology.length === 0) && (e.target.style.background = 'var(--warning)')}
+                  title="Delete all ontology relationships"
+                >
+                  Delete All
+                </button>
+                {ontology.length > 0 && (
+                  <button 
+                    onClick={handleDownloadOWL}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 18px',
+                      background: 'var(--primary-light)',
+                      color: 'white',
+                      borderRadius: '6px',
+                      textDecoration: 'none',
+                      fontSize: '0.95rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      border: 'none'
+                    }}
+                    onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
+                    onMouseLeave={(e) => e.target.style.background = 'var(--primary-light)'}
+                    title="Download ontology as OWL file for Protégé"
+                  >
+                    Download OWL
+                  </button>
+                )}
+                <span style={{ fontSize: '0.8rem', color: 'var(--neutral-600)' }}>{showOntology ? 'Hide' : 'Show'}</span>
               </div>
             </div>
 

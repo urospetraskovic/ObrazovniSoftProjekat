@@ -37,6 +37,8 @@ export const lessonApi = {
   parse: (lessonId) => apiClient.post(`/lessons/${lessonId}/parse`),
   getSections: (lessonId) => apiClient.get(`/lessons/${lessonId}/sections`),
   getOntology: (lessonId) => apiClient.get(`/lessons/${lessonId}/ontology`),
+  clearOntology: (lessonId) => apiClient.post(`/lessons/${lessonId}/ontology/clear`),
+  generateOntology: (lessonId) => apiClient.post(`/lessons/${lessonId}/ontology/generate`),
 };
 
 // ==================== SECTION ENDPOINTS ====================

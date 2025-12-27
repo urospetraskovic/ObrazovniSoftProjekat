@@ -6,7 +6,7 @@ Refactored for Course -> Lesson -> Section -> Learning Object structure
 import os
 import json
 import traceback
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -21,6 +21,582 @@ app = Flask(__name__)
 CORS(app)
 
 print("[STARTUP] Flask app initialized")
+
+# ==================== ONTOLOGY EXPORT HELPERS ====================
+
+def generate_owl_from_relationships(lesson, relationships):
+    """
+    Generate a rich, properly structured OWL/RDF-XML ontology from lesson relationships.
+    
+    Creates a proper ontology with:
+    - Class hierarchy with SubClassOf relationships
+    - Proper NamedIndividual declarations
+    - Object property declarations with domain/range
+    - Data property declarations (hasDescription, hasKeywords, hasType)
+    - Annotation properties with rdfs:label and rdfs:comment
+    """
+    import html
+    
+    def escape_xml(text):
+        """Escape special characters for XML"""
+        if not text:
+            return ""
+        return html.escape(str(text), quote=True)
+    
+    def make_id(text):
+        """Convert text to valid OWL IRI identifier"""
+        if not text:
+            return "Unknown"
+        # Replace spaces and special chars with underscores
+        import re
+        cleaned = re.sub(r'[^a-zA-Z0-9_-]', '_', str(text))
+        # Ensure it starts with a letter
+        if cleaned and cleaned[0].isdigit():
+            cleaned = 'C_' + cleaned
+        return cleaned or "Unknown"
+    
+    lesson_title = make_id(lesson.get('title', f"Lesson_{lesson.get('id')}"))
+    lesson_id = lesson.get('id', 'unknown')
+    
+    # Collect all concepts and categorize them
+    concepts = {}  # title -> {type, description}
+    
+    # Gather learning object info from the database if available
+    try:
+        from database import db
+        sections = db.get_sections_for_lesson(lesson_id) or []
+        for section in sections:
+            section_los = db.get_learning_objects_for_section(section['id']) or []
+            for lo in section_los:
+                concepts[lo['title']] = {
+                    'type': lo.get('object_type', 'concept'),
+                    'description': lo.get('description', ''),
+                    'keywords': lo.get('keywords', []),
+                    'section': section.get('title', '')
+                }
+    except:
+        pass
+    
+    # Also gather from relationships
+    for rel in relationships:
+        if not rel:  # Skip None relationships
+            continue
+        source_title = rel.get('source_title') or rel.get('source', '')
+        target_title = rel.get('target_title') or rel.get('target', '')
+        if source_title and source_title not in concepts:
+            concepts[source_title] = {'type': 'concept', 'description': '', 'keywords': [], 'section': ''}
+        if target_title and target_title not in concepts:
+            concepts[target_title] = {'type': 'concept', 'description': '', 'keywords': [], 'section': ''}
+    
+    # Categorize concepts by their object_type for class hierarchy
+    type_categories = {}  # type -> list of concept titles
+    for title, info in concepts.items():
+        if not info:  # Skip if info is None
+            continue
+        obj_type = info.get('type') or 'concept'
+        if obj_type:  # Only process if obj_type is not None
+            obj_type = obj_type.lower() if isinstance(obj_type, str) else 'concept'
+        else:
+            obj_type = 'concept'
+        if obj_type not in type_categories:
+            type_categories[obj_type] = []
+        type_categories[obj_type].append(title)
+    
+    # Group concepts by section for additional hierarchy
+    section_categories = {}
+    for title, info in concepts.items():
+        if not info:  # Skip if info is None
+            continue
+        section = info.get('section', '')
+        if section:
+            if section not in section_categories:
+                section_categories[section] = []
+            section_categories[section].append(title)
+    
+    # Start building OWL - NO DOCTYPE (Protégé doesn't handle entity references properly)
+    owl_xml = """<?xml version="1.0"?>
+"""
+    
+    # Ontology header
+    owl_xml += f"""<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://example.org/educational-ontology/{lesson_title}"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://example.org/educational-ontology/{lesson_title}">
+    <Prefix name="" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="edu" IRI="http://example.org/educational-ontology/{lesson_title}#"/>
+    
+    <!-- ==================== ONTOLOGY METADATA ==================== -->
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <Literal>Educational Ontology: {escape_xml(lesson.get('title', 'Lesson'))}</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal>Domain ontology for educational content. Contains {len(concepts)} learning objects and {len(relationships)} relationships.</Literal>
+    </Annotation>
+
+"""
+
+    # ==================== CLASS DECLARATIONS ====================
+    owl_xml += "    <!-- ==================== BASE CLASS HIERARCHY ==================== -->\n"
+    
+    # Declare root educational classes
+    owl_xml += """    <!-- Root class for all learning objects -->
+    <Declaration>
+        <Class IRI="#LearningObject"/>
+    </Declaration>
+    
+    <!-- Learning object type classes -->
+    <Declaration>
+        <Class IRI="#Concept"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Definition"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Procedure"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Example"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Principle"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Fact"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Theory"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Process"/>
+    </Declaration>
+    
+    <!-- Section classes (for grouping) -->
+    <Declaration>
+        <Class IRI="#Section"/>
+    </Declaration>
+    
+"""
+    
+    # Declare section classes
+    for section_name in sorted(section_categories.keys()):
+        section_id = make_id(section_name)
+        owl_xml += f"""    <Declaration>
+        <Class IRI="#{section_id}_Section"/>
+    </Declaration>
+"""
+    
+    # Declare concept classes
+    owl_xml += "\n    <!-- ==================== CONCEPT CLASS DECLARATIONS ==================== -->\n"
+    for concept_title in sorted(concepts.keys()):
+        if concept_title:
+            concept_id = make_id(concept_title)
+            owl_xml += f"""    <Declaration>
+        <Class IRI="#{concept_id}"/>
+    </Declaration>
+"""
+    
+    # ==================== OBJECT PROPERTY DECLARATIONS ====================
+    owl_xml += "\n    <!-- ==================== OBJECT PROPERTY DECLARATIONS ==================== -->\n"
+    
+    # Standard educational relationships
+    standard_props = [
+        ('prerequisite', 'Indicates that source concept must be learned before target'),
+        ('builds_upon', 'Indicates that source concept extends or elaborates on target'),
+        ('part_of', 'Indicates that source is a component or aspect of target'),
+        ('related_to', 'Indicates concepts are connected'),
+        ('contrasts_with', 'Indicates concepts differ in important ways'),
+        ('implements', 'Indicates source is a concrete implementation of target'),
+        ('enables', 'Indicates source makes target possible'),
+        ('is_example_of', 'Indicates source is an example of target concept'),
+        ('defines', 'Indicates source defines target'),
+        ('uses', 'Indicates source uses target'),
+        ('hasPart', 'Inverse of part_of'),
+        ('belongsToSection', 'Links concept to its section'),
+    ]
+    
+    for prop_name, prop_desc in standard_props:
+        owl_xml += f"""    <Declaration>
+        <ObjectProperty IRI="#{prop_name}"/>
+    </Declaration>
+"""
+    
+    # Collect relationship types from data
+    rel_types_from_data = set()
+    for rel in relationships:
+        rel_type = rel.get('relationship_type', 'related')
+        if rel_type and rel_type not in [p[0] for p in standard_props]:
+            rel_types_from_data.add(rel_type)
+    
+    for rel_type in sorted(rel_types_from_data):
+        rel_type_id = make_id(rel_type)
+        owl_xml += f"""    <Declaration>
+        <ObjectProperty IRI="#{rel_type_id}"/>
+    </Declaration>
+"""
+    
+    # ==================== DATA PROPERTY DECLARATIONS ====================
+    owl_xml += "\n    <!-- ==================== DATA PROPERTY DECLARATIONS ==================== -->\n"
+    owl_xml += """    <Declaration>
+        <DataProperty IRI="#hasDescription"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasKeywords"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasObjectType"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasOrderIndex"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasContent"/>
+    </Declaration>
+
+"""
+    
+    # ==================== NAMED INDIVIDUAL DECLARATIONS ====================
+    owl_xml += "    <!-- ==================== INDIVIDUAL DECLARATIONS ==================== -->\n"
+    for concept_title in sorted(concepts.keys()):
+        if concept_title:
+            concept_id = make_id(concept_title)
+            owl_xml += f"""    <Declaration>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+    </Declaration>
+"""
+    
+    # ==================== SUBCLASS RELATIONSHIPS ====================
+    owl_xml += "\n    <!-- ==================== SUBCLASS HIERARCHY (TAXONOMY) ==================== -->\n"
+    
+    # Type classes are subclasses of LearningObject
+    owl_xml += """    <!-- Learning object types inherit from LearningObject -->
+    <SubClassOf>
+        <Class IRI="#Concept"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Definition"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Procedure"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Example"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Principle"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Fact"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Theory"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Process"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    
+"""
+    
+    # Section classes are subclasses of Section
+    for section_name in sorted(section_categories.keys()):
+        section_id = make_id(section_name)
+        owl_xml += f"""    <SubClassOf>
+        <Class IRI="#{section_id}_Section"/>
+        <Class IRI="#Section"/>
+    </SubClassOf>
+"""
+    
+    # Concept classes inherit from their type class
+    owl_xml += "\n    <!-- Concept classes inherit from their type -->\n"
+    for concept_title, info in sorted(concepts.items()):
+        if concept_title and info:
+            concept_id = make_id(concept_title)
+            obj_type = info.get('type') or 'concept'
+            if obj_type and isinstance(obj_type, str):
+                obj_type = obj_type.lower()
+            else:
+                obj_type = 'concept'
+            
+            # Map object type to parent class
+            type_mapping = {
+                'concept': 'Concept',
+                'definition': 'Definition',
+                'procedure': 'Procedure',
+                'example': 'Example',
+                'principle': 'Principle',
+                'fact': 'Fact',
+                'theory': 'Theory',
+                'process': 'Process',
+            }
+            parent_class = type_mapping.get(obj_type, 'Concept')
+            
+            owl_xml += f"""    <SubClassOf>
+        <Class IRI="#{concept_id}"/>
+        <Class IRI="#{parent_class}"/>
+    </SubClassOf>
+"""
+    
+    # Add SubClassOf from "part_of" relationships (component -> parent)
+    owl_xml += "\n    <!-- Subclass relationships from part_of/is_a relationships -->\n"
+    for rel in relationships:
+        if not rel:  # Skip None relationships
+            continue
+        rel_type = rel.get('relationship_type')
+        if rel_type and isinstance(rel_type, str):
+            rel_type = rel_type.lower()
+        else:
+            rel_type = ''
+        
+        if rel_type in ['part_of', 'is_a', 'is_type_of', 'subclass', 'is_subclass_of', 'type_of']:
+            source_title = rel.get('source_title') or rel.get('source', '')
+            target_title = rel.get('target_title') or rel.get('target', '')
+            if source_title and target_title:
+                source_id = make_id(source_title)
+                target_id = make_id(target_title)
+                owl_xml += f"""    <SubClassOf>
+        <Class IRI="#{source_id}"/>
+        <Class IRI="#{target_id}"/>
+    </SubClassOf>
+"""
+    
+    # ==================== CLASS ASSERTIONS (Individual -> Class) ====================
+    owl_xml += "\n    <!-- ==================== CLASS ASSERTIONS ==================== -->\n"
+    for concept_title, info in sorted(concepts.items()):
+        if concept_title:
+            concept_id = make_id(concept_title)
+            owl_xml += f"""    <ClassAssertion>
+        <Class IRI="#{concept_id}"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+    </ClassAssertion>
+"""
+    
+    # ==================== OBJECT PROPERTY ASSERTIONS ====================
+    owl_xml += "\n    <!-- ==================== OBJECT PROPERTY ASSERTIONS ==================== -->\n"
+    
+    # Section memberships
+    for section_name, concept_list in section_categories.items():
+        section_id = make_id(section_name)
+        for concept_title in concept_list:
+            concept_id = make_id(concept_title)
+            owl_xml += f"""    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#belongsToSection"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+        <NamedIndividual IRI="#{section_id}_Section_inst"/>
+    </ObjectPropertyAssertion>
+"""
+    
+    # Relationships from the data
+    for rel in relationships:
+        if not rel:  # Skip None relationships
+            continue
+        source_title = rel.get('source_title') or rel.get('source', '')
+        target_title = rel.get('target_title') or rel.get('target', '')
+        rel_type = rel.get('relationship_type') or 'related_to'
+        
+        if not isinstance(rel_type, str):
+            rel_type = 'related_to'
+        
+        if source_title and target_title and rel_type:
+            source_id = make_id(source_title)
+            target_id = make_id(target_title)
+            rel_type_id = make_id(rel_type)
+            
+            owl_xml += f"""    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#{rel_type_id}"/>
+        <NamedIndividual IRI="#{source_id}_inst"/>
+        <NamedIndividual IRI="#{target_id}_inst"/>
+    </ObjectPropertyAssertion>
+"""
+    
+    # ==================== DATA PROPERTY ASSERTIONS ====================
+    owl_xml += "\n    <!-- ==================== DATA PROPERTY ASSERTIONS ==================== -->\n"
+    for concept_title, info in sorted(concepts.items()):
+        if concept_title and info:
+            concept_id = make_id(concept_title)
+            description = info.get('description') or ''
+            description = escape_xml(description) if description else ''
+            obj_type = info.get('type') or 'concept'
+            obj_type = escape_xml(obj_type) if obj_type else 'concept'
+            keywords = info.get('keywords') or []
+            
+            # hasObjectType - use plain Literal (no datatypeIRI, like example.owl)
+            owl_xml += f"""    <DataPropertyAssertion>
+        <DataProperty IRI="#hasObjectType"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+        <Literal>{obj_type}</Literal>
+    </DataPropertyAssertion>
+"""
+            
+            # hasDescription (if exists)
+            if description:
+                owl_xml += f"""    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+        <Literal>{description}</Literal>
+    </DataPropertyAssertion>
+"""
+            
+            # hasKeywords (if exists)
+            if keywords:
+                keywords_str = escape_xml(', '.join(keywords) if isinstance(keywords, list) else str(keywords))
+                owl_xml += f"""    <DataPropertyAssertion>
+        <DataProperty IRI="#hasKeywords"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+        <Literal>{keywords_str}</Literal>
+    </DataPropertyAssertion>
+"""
+    
+    # ==================== ANNOTATION ASSERTIONS ====================
+    owl_xml += "\n    <!-- ==================== ANNOTATION ASSERTIONS ==================== -->\n"
+    
+    # Labels for all concepts
+    for concept_title in sorted(concepts.keys()):
+        if concept_title:
+            concept_id = make_id(concept_title)
+            owl_xml += f"""    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#{concept_id}</IRI>
+        <Literal>{escape_xml(concept_title)}</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <NamedIndividual IRI="#{concept_id}_inst"/>
+        <Literal>{escape_xml(concept_title)}</Literal>
+    </AnnotationAssertion>
+"""
+    
+    # Comments for relationships
+    for rel in relationships:
+        if not rel:  # Skip None relationships
+            continue
+        description = rel.get('description') or ''
+        if description and isinstance(description, str):
+            source_title = rel.get('source_title') or rel.get('source', '')
+            if source_title:
+                source_id = make_id(source_title)
+                owl_xml += f"""    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <NamedIndividual IRI="#{source_id}_inst"/>
+        <Literal>{escape_xml(description)}</Literal>
+    </AnnotationAssertion>
+"""
+    
+    # Labels for object properties
+    for prop_name, prop_desc in standard_props:
+        owl_xml += f"""    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#{prop_name}</IRI>
+        <Literal>{prop_name.replace('_', ' ').title()}</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#{prop_name}</IRI>
+        <Literal>{escape_xml(prop_desc)}</Literal>
+    </AnnotationAssertion>
+"""
+    
+    # Labels for data properties
+    data_props = [
+        ('hasDescription', 'Description of the learning object'),
+        ('hasKeywords', 'Keywords associated with the learning object'),
+        ('hasObjectType', 'Type of learning object (concept, definition, etc.)'),
+        ('hasOrderIndex', 'Order index within section'),
+        ('hasContent', 'Full content of the learning object'),
+    ]
+    for prop_name, prop_desc in data_props:
+        owl_xml += f"""    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#{prop_name}</IRI>
+        <Literal>{prop_name.replace('has', '').replace('_', ' ').strip()}</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#{prop_name}</IRI>
+        <Literal>{escape_xml(prop_desc)}</Literal>
+    </AnnotationAssertion>
+"""
+    
+    # ==================== INVERSE PROPERTIES ====================
+    owl_xml += "\n    <!-- ==================== INVERSE PROPERTIES ==================== -->\n"
+    owl_xml += """    <InverseObjectProperties>
+        <ObjectProperty IRI="#part_of"/>
+        <ObjectProperty IRI="#hasPart"/>
+    </InverseObjectProperties>
+    
+"""
+    
+    # Close ontology
+    owl_xml += """</Ontology>
+
+<!-- Generated by Educational Ontology Generator -->
+"""
+    return owl_xml
+
+
+def generate_turtle_from_relationships(lesson, relationships):
+    """Generate Turtle format from relationships"""
+    lesson_title = lesson.get('title', f"Lesson_{lesson.get('id')}").replace(' ', '_')
+    
+    turtle = f"""# Turtle format ontology for {lesson.get('title', 'Lesson')}
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://example.org/educational-ontology/{lesson_title}#> .
+@base <http://example.org/educational-ontology/{lesson_title}/> .
+
+# Ontology metadata
+<> a owl:Ontology ;
+    rdfs:label "Educational Ontology for {lesson.get('title', 'Lesson')}" ;
+    rdfs:comment "Domain ontology extracted from lesson content" .
+
+"""
+    
+    # Track unique concepts
+    concepts = set()
+    for rel in relationships:
+        concepts.add(rel.get('source', ''))
+        concepts.add(rel.get('target', ''))
+    
+    # Add class definitions
+    for concept in sorted(concepts):
+        if concept:
+            turtle += f"""# Learning object/concept
+ex:Concept_{concept.replace(' ', '_')} a owl:Class ;
+    rdfs:label "{concept}" .
+
+"""
+    
+    # Add relationships
+    for rel in relationships:
+        source = rel.get('source', '').replace(' ', '_')
+        target = rel.get('target', '').replace(' ', '_')
+        rel_type = rel.get('type', 'related')
+        description = rel.get('description', '')
+        
+        turtle += f"""# Relationship
+ex:Concept_{source} ex:{rel_type} ex:Concept_{target} ;
+    rdfs:comment "{description}" .
+
+"""
+    
+    return turtle
+
 
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
@@ -247,59 +823,16 @@ def parse_lesson(lesson_id):
         # Save to database
         db.bulk_create_sections_and_learning_objects(lesson_id, parsed_sections)
         
-        # Extract and save domain ontology
-        all_sections = db.get_sections_for_lesson(lesson_id)
-        print(f"[API] Found {len(all_sections)} sections")
-        
-        all_los = []
-        lo_title_to_id = {}
-        for s in all_sections:
-            section_los = db.get_learning_objects_for_section(s['id'])
-            all_los.extend(section_los)
-            for lo in section_los:
-                lo_title_to_id[lo['title']] = lo['id']
-        
-        print(f"[API] Found {len(all_los)} learning objects")
-        print(f"[API] Learning object titles: {list(lo_title_to_id.keys())}")
-        
-        ontology_rels = content_parser.extract_ontology_relationships(
-            lesson['raw_content'],
-            all_los,
-            lesson['title']
-        )
-        
-        print(f"[API] AI returned {len(ontology_rels)} potential relationships")
-        
-        db_rels = []
-        for rel in ontology_rels:
-            source_id = lo_title_to_id.get(rel['source'])
-            target_id = lo_title_to_id.get(rel['target'])
-            print(f"[API] Checking rel: {rel['source']} -> {rel['target']} (source_id={source_id}, target_id={target_id})")
-            if source_id and target_id:
-                db_rels.append({
-                    'source_id': source_id,
-                    'target_id': target_id,
-                    'relationship_type': rel['type'],
-                    'description': rel.get('description')
-                })
-        
-        print(f"[API] Saving {len(db_rels)} relationships to database")
-        if db_rels:
-            db.bulk_create_relationships(db_rels)
-        else:
-            print(f"[API] WARNING: No relationships extracted (API providers may be rate-limited)")
-        
-        # Return the parsed structure
+        # Return the parsed structure (WITHOUT ontology extraction - that's now Step 2)
         sections = db.get_sections_for_lesson(lesson_id)
         for section in sections:
             section['learning_objects'] = db.get_learning_objects_for_section(section['id'])
         
         return jsonify({
-            'message': 'Lesson parsed successfully with domain ontology',
+            'message': 'Lesson parsed successfully. Sections and learning objects extracted. Use ontology/generate endpoint to create ontologies.',
             'sections': sections,
-            'ontology_relationships': len(db_rels),
             'section_count': len(sections),
-            'learning_object_count': len(all_los)
+            'learning_object_count': sum(len(s.get('learning_objects', [])) for s in sections)
         }), 200
         
     except Exception as e:
@@ -342,12 +875,178 @@ def get_lesson_ontology(lesson_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/lessons/<int:lesson_id>/ontology/clear', methods=['POST'])
+def clear_ontology(lesson_id):
+    """Clear all ontology relationships for a lesson"""
+    try:
+        lesson = db.get_lesson(lesson_id)
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+        
+        # Get all relationships and delete them
+        relationships = db.get_relationships_for_lesson(lesson_id)
+        cleared_count = 0
+        
+        for rel in relationships:
+            try:
+                db.delete_relationship(rel['id'])
+                cleared_count += 1
+            except:
+                pass
+        
+        print(f"[API] Cleared {cleared_count} ontology relationships for lesson {lesson_id}")
+        
+        return jsonify({
+            'message': 'Ontology cleared successfully',
+            'cleared_count': cleared_count
+        }), 200
+    except Exception as e:
+        print(f"[API] Error clearing ontology: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/lessons/<int:lesson_id>/ontology/generate', methods=['POST'])
+def generate_ontology(lesson_id):
+    """Generate ontology relationships based on current sections and learning objects"""
+    try:
+        lesson = db.get_lesson(lesson_id, include_content=True)
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+        
+        if not lesson.get('raw_content'):
+            return jsonify({'error': 'Lesson has no content to extract relationships from'}), 400
+        
+        # Get all learning objects for this lesson
+        all_sections = db.get_sections_for_lesson(lesson_id)
+        all_los = []
+        lo_title_to_id = {}
+        
+        for s in all_sections:
+            section_los = db.get_learning_objects_for_section(s['id'])
+            all_los.extend(section_los)
+            for lo in section_los:
+                lo_title_to_id[lo['title']] = lo['id']
+        
+        if not all_los:
+            return jsonify({
+                'message': 'No learning objects to create ontology from. Parse the lesson first.',
+                'regenerated_count': 0
+            }), 400
+        
+        print(f"[API] Regenerating ontology for lesson: {lesson['title']}")
+        print(f"[API] Found {len(all_los)} learning objects")
+        
+        # Extract ontology relationships from content
+        ontology_rels = content_parser.extract_ontology_relationships(
+            lesson['raw_content'],
+            all_los,
+            lesson['title']
+        )
+        
+        print(f"[API] AI returned {len(ontology_rels)} potential relationships")
+        
+        # Clear existing relationships first
+        existing_rels = db.get_relationships_for_lesson(lesson_id)
+        for rel in existing_rels:
+            try:
+                db.delete_relationship(rel['id'])
+            except:
+                pass
+        
+        # Save new relationships
+        db_rels = []
+        for rel in ontology_rels:
+            source_id = lo_title_to_id.get(rel['source'])
+            target_id = lo_title_to_id.get(rel['target'])
+            print(f"[API] Checking rel: {rel['source']} -> {rel['target']} (source_id={source_id}, target_id={target_id})")
+            if source_id and target_id:
+                db_rels.append({
+                    'source_id': source_id,
+                    'target_id': target_id,
+                    'relationship_type': rel['type'],
+                    'description': rel.get('description')
+                })
+        
+        print(f"[API] Saving {len(db_rels)} relationships to database")
+        if db_rels:
+            db.bulk_create_relationships(db_rels)
+        
+        return jsonify({
+            'message': 'Ontology generated successfully',
+            'generated_count': len(db_rels)
+        }), 200
+    except Exception as e:
+        print(f"[API] Error generating ontology: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/relationships/<int:rel_id>', methods=['DELETE'])
 def delete_relationship(rel_id):
     """Delete a specific relationship"""
     try:
         db.delete_relationship(rel_id)
         return jsonify({'message': 'Relationship deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/lessons/<int:lesson_id>/ontology/export/owl', methods=['GET'])
+def export_ontology_owl(lesson_id):
+    """Export lesson ontology as OWL (RDF/XML format)"""
+    try:
+        lesson = db.get_lesson(lesson_id)
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+        
+        relationships = db.get_relationships_for_lesson(lesson_id)
+        
+        # Generate OWL/RDF XML
+        owl_content = generate_owl_from_relationships(lesson, relationships)
+        
+        # Use filename if available, otherwise use title
+        file_name = lesson.get('filename', lesson.get('title', f'Lesson_{lesson_id}'))
+        # Remove extension if present and ensure .owl
+        if file_name.endswith('.pdf'):
+            file_name = file_name[:-4]
+        file_name = f'ontology_{file_name}.owl'
+        
+        # Return as file download
+        from flask import make_response
+        response = make_response(owl_content)
+        response.headers['Content-Type'] = 'application/rdf+xml'
+        response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response, 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/lessons/<int:lesson_id>/ontology/export/turtle', methods=['GET'])
+def export_ontology_turtle(lesson_id):
+    """Export lesson ontology as Turtle format"""
+    try:
+        lesson = db.get_lesson(lesson_id)
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+        
+        relationships = db.get_relationships_for_lesson(lesson_id)
+        
+        # Generate Turtle format
+        turtle_content = generate_turtle_from_relationships(lesson, relationships)
+        
+        # Use filename if available, otherwise use title
+        file_name = lesson.get('filename', lesson.get('title', f'Lesson_{lesson_id}'))
+        # Remove extension if present and ensure .ttl
+        if file_name.endswith('.pdf'):
+            file_name = file_name[:-4]
+        file_name = f'ontology_{file_name}.ttl'
+        
+        # Return as file download
+        from flask import make_response
+        response = make_response(turtle_content)
+        response.headers['Content-Type'] = 'text/turtle'
+        response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response, 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
