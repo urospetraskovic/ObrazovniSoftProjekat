@@ -14,7 +14,7 @@ from datetime import datetime
 # Import our modules
 from database import db, init_database, LearningObject, Question, Lesson, Section, Course
 from content_parser import content_parser
-from quiz_generator import SoloQuizGenerator
+from ai_providers.quiz_generator_local import SoloQuizGeneratorLocal as SoloQuizGenerator
 from services import LessonService, QuestionService, QuizService, gemini_service
 
 app = Flask(__name__)
@@ -54,17 +54,12 @@ def allowed_file(filename):
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    api_exhausted = quiz_generator.api_exhausted
-    openrouter_keys = len(quiz_generator.api_keys)
-    github_token = bool(quiz_generator.github_token)
-    
+    # Local version doesn't have API keys, just return basic status
     return jsonify({
         'status': 'ok', 
         'message': 'API is running',
-        'api_exhausted': api_exhausted,
-        'openrouter_keys': openrouter_keys,
-        'current_key_index': quiz_generator.current_key_index + 1,
-        'github_token': github_token
+        'provider': 'ollama_local',
+        'ai_mode': 'Local Ollama (no API keys needed)'
     }), 200
 
 
@@ -161,28 +156,21 @@ def upload_lesson(course_id):
         
         # Get optional title (default to filename without extension)
         title = request.form.get('title') or file.filename.rsplit('.', 1)[0]
-        
-        # Save the file permanently
         filename = secure_filename(file.filename)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        unique_filename = f"{timestamp}_{filename}"
-        filepath = os.path.join(app.config['LESSON_FOLDER'], unique_filename)
-        file.save(filepath)
         
-        # Extract text from PDF
+        # Extract text from PDF directly (without saving to disk)
         try:
-            pdf_data = content_parser.extract_pdf_text(filepath)
+            pdf_data = content_parser.extract_pdf_text_from_stream(file.stream)
             raw_content = pdf_data['full_text']
         except Exception as e:
-            os.remove(filepath)
             return jsonify({'error': f'Failed to extract PDF text: {str(e)}'}), 500
         
-        # Create lesson in database
+        # Create lesson in database (no file_path since we don't save PDFs)
         lesson = db.create_lesson(
             course_id=course_id,
             title=title,
             filename=filename,
-            file_path=filepath,
+            file_path=None,
             raw_content=raw_content
         )
         

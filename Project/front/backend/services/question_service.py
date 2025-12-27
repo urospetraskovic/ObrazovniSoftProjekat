@@ -4,7 +4,7 @@ Handles question generation and management logic
 """
 
 from database import db
-from quiz_generator import SoloQuizGenerator
+from ai_providers.quiz_generator_local import SoloQuizGeneratorLocal as SoloQuizGenerator
 
 
 class QuestionService:
