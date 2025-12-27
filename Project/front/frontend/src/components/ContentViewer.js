@@ -137,6 +137,24 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
     }
   };
 
+  const handleDeleteRelationship = async (relId) => {
+    if (!window.confirm('Are you sure you want to delete this relationship?')) {
+      return;
+    }
+    
+    try {
+      await fetch(`http://localhost:5000/api/relationships/${relId}`, {
+        method: 'DELETE'
+      });
+      
+      // Remove from ontology
+      setOntology(ontology.filter(r => r.id !== relId));
+      onSuccess('Relationship deleted successfully');
+    } catch (err) {
+      onError('Failed to delete relationship');
+    }
+  };
+
   const handleParseLesson = async () => {
     try {
       setLoading(true);
@@ -162,14 +180,14 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
 
   const getLearningObjectTypeIcon = (type) => {
     const icons = {
-      concept: '💡',
-      definition: '📖',
-      procedure: '📋',
-      principle: '⚖️',
-      example: '📝',
-      fact: '✓'
+      concept: '[C]',
+      definition: '[D]',
+      procedure: '[P]',
+      principle: '[PR]',
+      example: '[E]',
+      fact: '[F]'
     };
-    return icons[type] || '📌';
+    return icons[type] || '[O]';
   };
 
   return (
@@ -177,8 +195,8 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
       <div className="card">
         <div className="card-header">
           <div>
-            <button className="btn-back" onClick={onBack}>← Back to Lessons</button>
-            <h2>📄 {lesson.title}</h2>
+            <button className="btn-back" onClick={onBack}>Back to Lessons</button>
+            <h2>{lesson.title}</h2>
             {lesson.filename && <span className="filename">{lesson.filename}</span>}
           </div>
           {sections.length === 0 && (
@@ -187,14 +205,14 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
               onClick={handleParseLesson}
               disabled={loading}
             >
-              {loading ? 'Parsing...' : '🔍 Parse Content'}
+              {loading ? 'Parsing...' : 'Parse Content'}
             </button>
           )}
         </div>
 
         {lesson.summary && (
           <div className="lesson-summary">
-            <h4>📋 Summary</h4>
+            <h4>Summary</h4>
             <p>{lesson.summary}</p>
           </div>
         )}
@@ -206,12 +224,12 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
               style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
               onClick={() => setShowOntology(!showOntology)}
             >
-              <h4 style={{ margin: 0 }}>🕸️ Domain Ontology</h4>
+              <h4 style={{ margin: 0 }}>Domain Ontology</h4>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span className="badge" style={{ background: 'var(--primary-100)', color: 'var(--primary-700)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.8rem' }}>
                   {ontology.length} Relationships
                 </span>
-                <span>{showOntology ? '▼' : '▶'}</span>
+                <span style={{ fontSize: '0.8rem' }}>{showOntology ? 'Hide' : 'Show'}</span>
               </div>
             </div>
 
@@ -231,6 +249,7 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                           <th style={{ padding: '12px 20px', fontSize: '0.85rem', color: 'var(--neutral-600)', fontWeight: '600' }}>Source Concept</th>
                           <th style={{ padding: '12px 20px', fontSize: '0.85rem', color: 'var(--neutral-600)', fontWeight: '600', textAlign: 'center' }}>Relationship</th>
                           <th style={{ padding: '12px 20px', fontSize: '0.85rem', color: 'var(--neutral-600)', fontWeight: '600' }}>Target Concept</th>
+                          <th style={{ padding: '12px 20px', fontSize: '0.85rem', color: 'var(--neutral-600)', fontWeight: '600', textAlign: 'center' }}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -265,6 +284,16 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                             <td style={{ padding: '15px 20px', fontWeight: '600', color: 'var(--neutral-800)' }}>
                               {rel.target_title}
                             </td>
+                            <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                              <button 
+                                className="btn-icon btn-delete"
+                                onClick={() => handleDeleteRelationship(rel.id)}
+                                title="Delete relationship"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d32f2f', fontWeight: 'bold', fontSize: '0.85rem', padding: '4px 8px' }}
+                              >
+                                Delete
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -291,7 +320,7 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
           </div>
         ) : (
           <div className="sections-list">
-            <h3>📑 Sections ({sections.length})</h3>
+            <h3>Sections ({sections.length})</h3>
             
             {sections.map((section, idx) => (
               <div key={section.id} className="section-card">
@@ -319,8 +348,8 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                     }}>
                       {section.learning_object_count || 0} Learning Objects
                     </span>
-                    <span className="expand-icon">
-                      {expandedSection === section.id ? '▼' : '▶'}
+                    <span className="expand-icon" style={{ fontSize: '0.8rem' }}>
+                      {expandedSection === section.id ? 'Hide' : 'Show'}
                     </span>
                   </div>
                 </div>
@@ -346,27 +375,48 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                               <span className="lo-type">{lo.object_type}</span>
                               {/* AI Generation Status Badge */}
                               <span className={`lo-status-badge ${lo.human_modified ? 'human-modified' : lo.is_ai_generated ? 'ai-generated' : 'human-created'}`}>
-                                {lo.human_modified ? '⚠️ Human Modified' : lo.is_ai_generated ? '🤖 AI Generated' : '👤 Human Created'}
+                                {lo.human_modified ? 'Human Modified' : lo.is_ai_generated ? 'AI Generated' : 'Human Created'}
                               </span>
                               {/* Action Buttons */}
                               <button 
                                 className="btn-icon btn-edit"
                                 onClick={() => handleEditLO(lo)}
                                 title="Edit"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1976d2', fontSize: '0.85rem', fontWeight: 'bold', padding: '4px 8px' }}
                               >
-                                ✏️
+                                Edit
                               </button>
                               <button 
                                 className="btn-icon btn-delete"
                                 onClick={() => handleDeleteLO(lo.id, lo.title)}
                                 title="Delete"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d32f2f', fontSize: '0.85rem', fontWeight: 'bold', padding: '4px 8px' }}
                               >
-                                🗑️
+                                Delete
                               </button>
                             </div>
-                            {lo.content && (
+                            {/* Rich Description */}
+                            {lo.description && (
+                              <p className="lo-content" style={{ color: 'var(--neutral-700)', lineHeight: '1.6', marginTop: '8px' }}>
+                                {lo.description}
+                              </p>
+                            )}
+                            {/* Content Fallback */}
+                            {!lo.description && lo.content && (
                               <p className="lo-content">{lo.content}</p>
                             )}
+                            {/* Key Points */}
+                            {lo.key_points && lo.key_points.length > 0 && (
+                              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                                <strong style={{ fontSize: '0.85rem', color: 'var(--neutral-600)' }}>Key Points:</strong>
+                                <ul style={{ margin: '4px 0 0 20px', fontSize: '0.85rem', color: 'var(--neutral-700)' }}>
+                                  {lo.key_points.map((point, i) => (
+                                    <li key={i}>{point}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {/* Keywords */}
                             {lo.keywords && lo.keywords.length > 0 && (
                               <div className="lo-keywords">
                                 {lo.keywords.map((kw, i) => (
@@ -417,8 +467,9 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
               <button 
                 className="btn-close" 
                 onClick={() => setShowEditModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#666', padding: '0', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                ✕
+                ×
               </button>
             </div>
             <div className="modal-body">

@@ -146,7 +146,9 @@ class LearningObject(Base):
     id = Column(Integer, primary_key=True)
     section_id = Column(Integer, ForeignKey('sections.id'), nullable=False)
     title = Column(String(255), nullable=False)
-    content = Column(Text, nullable=True)  # The actual learning content
+    content = Column(Text, nullable=True)  # The actual learning content (legacy, can be used for detailed description)
+    description = Column(Text, nullable=True)  # Rich 4-6 sentence comprehensive description
+    key_points = Column(JSON, nullable=True)  # List of detailed key points
     object_type = Column(String(50), nullable=True)  # concept, definition, procedure, example, etc.
     keywords = Column(JSON, nullable=True)  # List of keywords for this learning object
     order_index = Column(Integer, default=0)
@@ -164,6 +166,8 @@ class LearningObject(Base):
             'section_id': self.section_id,
             'title': self.title,
             'content': self.content,
+            'description': self.description,
+            'key_points': self.key_points,
             'object_type': self.object_type,
             'keywords': self.keywords,
             'order_index': self.order_index,
@@ -606,6 +610,22 @@ class DatabaseManager:
         finally:
             session.close()
 
+    def delete_relationship(self, rel_id):
+        """Delete a relationship by ID"""
+        session = self.get_session()
+        try:
+            rel = session.query(ConceptRelationship).filter(ConceptRelationship.id == rel_id).first()
+            if not rel:
+                raise ValueError(f"Relationship with ID {rel_id} not found")
+            session.delete(rel)
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
     def bulk_create_relationships(self, relationships_data):
         session = self.get_session()
         try:
@@ -842,6 +862,8 @@ class DatabaseManager:
                         section_id=section.id,
                         title=lo_data['title'],
                         content=lo_data.get('content'),
+                        description=lo_data.get('description'),  # Rich description
+                        key_points=lo_data.get('key_points'),  # Detailed key points
                         object_type=lo_data.get('object_type'),
                         keywords=lo_data.get('keywords'),
                         order_index=lo_idx

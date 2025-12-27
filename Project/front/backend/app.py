@@ -301,22 +301,6 @@ def parse_lesson(lesson_id):
         else:
             print(f"[API] WARNING: No relationships extracted (API providers may be rate-limited)")
         
-        # Generate and save lesson summary
-        summary = content_parser.generate_lesson_summary(
-            lesson['raw_content'],
-            lesson['title']
-        )
-        if summary:
-            # Update lesson with summary
-            session = db.get_session()
-            try:
-                db_lesson = session.query(Lesson).filter(Lesson.id == lesson_id).first()
-                if db_lesson:
-                    db_lesson.summary = summary
-                    session.commit()
-            finally:
-                session.close()
-        
         # Return the parsed structure
         sections = db.get_sections_for_lesson(lesson_id)
         for section in sections:
@@ -366,6 +350,16 @@ def get_lesson_ontology(lesson_id):
     try:
         relationships = db.get_relationships_for_lesson(lesson_id)
         return jsonify({'relationships': relationships}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/relationships/<int:rel_id>', methods=['DELETE'])
+def delete_relationship(rel_id):
+    """Delete a specific relationship"""
+    try:
+        db.delete_relationship(rel_id)
+        return jsonify({'message': 'Relationship deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

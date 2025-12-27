@@ -2,20 +2,27 @@
 
 ## Quick Start
 
-**Terminal 1 - Backend:**
+**Navigate to project root, then open 3 separate PowerShell terminals:**
+
+**Terminal 1 - Ollama:**
+```powershell
+.\ollama.ps1 serve
+```
+
+**Terminal 2 - Backend:**
 ```powershell
 cd backend
-.\venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
 python app.py
 ```
 
-**Terminal 2 - Frontend:**
+**Terminal 3 - Frontend:**
 ```powershell
 cd frontend
 npm start
 ```
 
-Then open **http://localhost:3001** in your browser.
+Then open **http://localhost:3000** in your browser.
 
 ---
 
