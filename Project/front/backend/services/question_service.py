@@ -33,6 +33,7 @@ class QuestionService:
             # Get lesson content
             lessons_data = []
             lesson_titles = {}
+            ontology_relationships = []
             
             for lid in lesson_ids:
                 lesson = db.get_lesson_with_sections(lid)
@@ -40,14 +41,22 @@ class QuestionService:
                     return {'error': f'Lesson {lid} not found', 'status': 404}
                 lessons_data.append(lesson)
                 lesson_titles[lid] = db.get_lesson(lid).get('title')
+                
+                # Get ontology relationships for this lesson to enhance question generation
+                rels = db.get_relationships_for_lesson(lid)
+                if rels:
+                    ontology_relationships.extend(rels)
             
-            # Generate questions using AI
+            print(f"[QuestionService] Found {len(ontology_relationships)} ontology relationships for enhanced question generation")
+            
+            # Generate questions using AI with ontology support
             generator = SoloQuizGenerator()
             generated_questions = generator.generate_solo_questions(
                 lessons_data=lessons_data,
                 solo_levels=solo_levels,
                 questions_per_level=questions_per_level,
-                section_ids=section_ids
+                section_ids=section_ids,
+                ontology_relationships=ontology_relationships
             )
             
             # Save to database if requested

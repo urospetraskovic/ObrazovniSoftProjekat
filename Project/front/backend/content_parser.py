@@ -756,76 +756,221 @@ Extract 5-8 distinct concepts. Return ONLY JSON array."""
         
         lo_context = "\n".join(lo_descriptions[:50])
         
-        # Enhanced prompt for TAXONOMIC HIERARCHY and rich ontology structure
-        prompt = f"""You are an expert in educational ONTOLOGY and KNOWLEDGE REPRESENTATION. Your task is to create a RICH TAXONOMIC STRUCTURE from these learning objects.
+        print("[ContentParser] === MULTI-PASS RELATIONSHIP EXTRACTION (High Quality Mode) ===")
+        print(f"[ContentParser] Analyzing {len(all_lo_titles)} learning objects across 5 specialized passes...")
+        
+        all_relationships = []
+        
+        # ============= PASS 1: HIERARCHICAL TAXONOMY =============
+        print("[ContentParser] [PASS 1] Extracting hierarchical relationships...")
+        prompt_p1 = f"""SPECIALIST TASK: Find HIERARCHICAL and TAXONOMIC relationships ONLY.
 
-LESSON: {lesson_title}
-
-LEARNING OBJECTS ({len(all_lo_titles)} total):
+LEARNING OBJECTS ({len(all_lo_titles)}):
 {lo_context}
 
----
+Find relationships where one concept is TYPE, PART, or CATEGORY of another:
+- part_of: A is component/part of B
+- is_type_of: A is a type/kind of B  
+- is_example_of: A exemplifies B
+- specialization_of: A is more specific than B
 
-YOUR TASK: Create a COMPREHENSIVE ONTOLOGY with THREE types of relationships:
+For EACH pair with hierarchy, output: source, target, type, description
+Be EXHAUSTIVE. Find ALL hierarchical links.
 
-## 1. HIERARCHICAL/TAXONOMIC RELATIONSHIPS (MOST IMPORTANT!)
-These create a proper class hierarchy (SubClassOf in OWL):
-- part_of: "A is a component/part of B"
-- is_type_of: "A is a specific type/kind of B"
-- is_subclass_of: "A is a subcategory of B"
-
-## 2. PREREQUISITE/LEARNING ORDER RELATIONSHIPS
-- prerequisite: "A must be learned before B"
-- builds_upon: "A extends or elaborates on B"
-- enables: "A makes B possible"
-
-## 3. SEMANTIC RELATIONSHIPS
-- related_to, contrasts_with, implements, uses, defines, is_example_of
-
----
-
-CRITICAL REQUIREMENTS:
-1. CREATE AT LEAST 3-5 HIERARCHICAL relationships - ESSENTIAL for ontology!
-2. Use EXACT titles from the learning objects list
-3. Each relationship needs: source, target, type, description
-4. Return as many relationships as possible (15-40+ is normal)
-
-EXAMPLE OUTPUT:
-[
-  {{"source": "A Concept", "target": "B Concept", "type": "part_of", "description": "A is part of B"}},
-  {{"source": "Specific Term", "target": "General Term", "type": "is_type_of", "description": "Specific is a type of General"}}
-]
-
-Return ONLY valid JSON array. No markdown, no explanations."""
+JSON ONLY:
+[{{"source": "...", "target": "...", "type": "part_of", "description": "..."}}]"""
         
-        print("[ContentParser] Extracting ontology relationships (15 minute timeout for comprehensive analysis)...")
-        print(f"[ContentParser] Analyzing {len(all_lo_titles)} learning objects for hierarchical connections...")
+        r1 = self._call_ollama(prompt_p1, timeout=1200)
+        rels1 = self._extract_json_from_response(r1) if r1 else []
+        if isinstance(rels1, list):
+            all_relationships.extend(rels1)
+            print(f"[ContentParser] [PASS 1] ✓ Found {len(rels1)} hierarchical relationships")
         
-        # Try to extract relationships with 15-minute timeout
-        response = self._call_ollama(prompt, timeout=900)
+        # ============= PASS 2: PREREQUISITES & ENABLING =============
+        print("[ContentParser] [PASS 2] Extracting prerequisite relationships...")
+        prompt_p2 = f"""SPECIALIST TASK: Find PREREQUISITE, ENABLING, and BUILDING relationships.
+
+LEARNING OBJECTS:
+{lo_context}
+
+Find dependencies showing learning order:
+- prerequisite: A must be learned before B
+- builds_upon: B extends/elaborates A
+- enables: A makes B possible or easier
+- foundation_for: A is foundational for B
+
+Think: What knowledge comes first? What builds on what? What enables what?
+
+JSON ONLY:
+[{{"source": "...", "target": "...", "type": "prerequisite", "description": "..."}}]"""
         
-        if not response:
-            print("[ContentParser] WARNING: Ontology extraction timed out or failed")
-            print("[ContentParser] Generating basic relationships from learning object structure...")
-            # Return basic relationships based on learning object structure
-            return self._generate_fallback_relationships(all_lo_titles, learning_objects)
+        r2 = self._call_ollama(prompt_p2, timeout=1200)
+        rels2 = self._extract_json_from_response(r2) if r2 else []
+        if isinstance(rels2, list):
+            all_relationships.extend(rels2)
+            print(f"[ContentParser] [PASS 2] ✓ Found {len(rels2)} prerequisite relationships")
         
-        relationships = self._extract_json_from_response(response)
-        if not isinstance(relationships, list) or len(relationships) == 0:
-            print("[ContentParser] No relationships extracted from AI response")
-            print("[ContentParser] Generating basic relationships from learning object structure...")
-            return self._generate_fallback_relationships(all_lo_titles, learning_objects)
+        # ============= PASS 3: SEMANTIC RELATIONSHIPS =============
+        print("[ContentParser] [PASS 3] Extracting semantic relationships...")
+        prompt_p3 = f"""SPECIALIST TASK: Find SEMANTIC and FUNCTIONAL relationships.
+
+LEARNING OBJECTS:
+{lo_context}
+
+Find connections:
+- relates_to: Concepts that naturally go together
+- contrasts_with: Opposite or different approaches
+- implements: How a concept is used/applied
+- uses: What a concept depends on
+- defines: Relationship to terminology
+- is_mechanism_of: How it works in broader context
+
+Be creative finding semantic links between all concepts.
+
+JSON ONLY:
+[{{"source": "...", "target": "...", "type": "relates_to", "description": "..."}}]"""
         
-        valid_relationships = self._validate_relationships(relationships, all_lo_titles)
-        print(f"[ContentParser] Found {len(valid_relationships)} valid relationships out of {len(relationships)} extracted")
+        r3 = self._call_ollama(prompt_p3, timeout=1200)
+        rels3 = self._extract_json_from_response(r3) if r3 else []
+        if isinstance(rels3, list):
+            all_relationships.extend(rels3)
+            print(f"[ContentParser] [PASS 3] ✓ Found {len(rels3)} semantic relationships")
         
-        # If very few relationships, augment with fallback
-        if len(valid_relationships) < 3:
-            print("[ContentParser] Very few relationships found, augmenting with fallback relationships...")
-            fallback = self._generate_fallback_relationships(all_lo_titles, learning_objects)
-            valid_relationships.extend(fallback)
+        # ============= PASS 4: CROSS-SECTION INTEGRATION =============
+        print("[ContentParser] [PASS 4] Extracting cross-section relationships...")
+        prompt_p4 = f"""SPECIALIST TASK: Find relationships ACROSS topics (integration points).
+
+LEARNING OBJECTS:
+{lo_context}
+
+Find connections between distant concepts:
+- How general concepts apply in specific domains
+- Concepts appearing in multiple contexts  
+- Integration points spanning topics
+- Applied uses of theoretical concepts
+
+Look for creative semantic bridges.
+
+JSON ONLY:
+[{{"source": "...", "target": "...", "type": "relates_to", "description": "..."}}]"""
         
-        return valid_relationships
+        r4 = self._call_ollama(prompt_p4, timeout=1200)
+        rels4 = self._extract_json_from_response(r4) if r4 else []
+        if isinstance(rels4, list):
+            all_relationships.extend(rels4)
+            print(f"[ContentParser] [PASS 4] ✓ Found {len(rels4)} cross-section relationships")
+        
+        # ============= PASS 5: META-RELATIONSHIPS =============
+        print("[ContentParser] [PASS 5] Extracting meta-relationships...")
+        rel_sample = []
+        for rel in all_relationships[:20]:
+            rel_sample.append(f"{rel.get('source', '')} --[{rel.get('type', '')}]--> {rel.get('target', '')}")
+        sample_str = "\n".join(rel_sample) if rel_sample else "No relationships yet"
+        
+        prompt_p5 = f"""SPECIALIST TASK: Find META-RELATIONSHIPS (relationships between relationships).
+
+Sample relationships found:
+{sample_str}
+
+Find patterns like:
+- If A "prerequisite" B AND B "enables" C → create: prerequisite "leads_into" enables
+- Concept HUBS (connect many others)
+- Relationship chains and dependencies
+- Conceptual bridges
+
+JSON ONLY:
+[{{"source": "...", "target": "...", "type": "meta_relationship", "description": "..."}}]"""
+        
+        r5 = self._call_ollama(prompt_p5, timeout=1200)
+        rels5 = self._extract_json_from_response(r5) if r5 else []
+        if isinstance(rels5, list):
+            all_relationships.extend(rels5)
+            print(f"[ContentParser] [PASS 5] ✓ Found {len(rels5)} meta-relationships")
+        
+        print(f"[ContentParser] Total raw relationships: {len(all_relationships)}")
+        
+        valid_relationships = self._validate_relationships(all_relationships, all_lo_titles)
+        
+        # Deduplicate
+        seen = set()
+        unique_rels = []
+        for rel in valid_relationships:
+            key = (rel.get('source'), rel.get('target'), rel.get('type'))
+            if key not in seen:
+                seen.add(key)
+                unique_rels.append(rel)
+        
+        print(f"[ContentParser] Valid unique relationships: {len(unique_rels)}")
+        
+        if len(unique_rels) < 5:
+            print("[ContentParser] Few relationships found, adding smart fallback...")
+            fallback = self._generate_smart_fallback_relationships(all_lo_titles, learning_objects)
+            unique_rels.extend(fallback)
+        
+        return unique_rels
+    
+    def _generate_smart_fallback_relationships(self, all_lo_titles: List[str], learning_objects: List[Dict]) -> List[Dict]:
+        """
+        Generate intelligent fallback relationships using content analysis.
+        Used when AI extraction yields few results.
+        """
+        relationships = []
+        
+        # Strategy 1: Type-based hierarchies
+        type_groups = {}
+        for lo in learning_objects:
+            obj_type = lo.get('type', lo.get('object_type', 'concept')).lower()
+            if obj_type not in type_groups:
+                type_groups[obj_type] = []
+            type_groups[obj_type].append(lo['title'])
+        
+        # Create type hierarchies
+        for obj_type, titles in type_groups.items():
+            if len(titles) > 1:
+                # First is general, others are specific
+                general = titles[0]
+                for specific in titles[1:]:
+                    relationships.append({
+                        "source": specific,
+                        "target": general,
+                        "type": "is_type_of",
+                        "description": f"{specific} is a type of {general}"
+                    })
+        
+        # Strategy 2: Sequential prerequisites (learning order)
+        for i in range(len(all_lo_titles) - 1):
+            source = all_lo_titles[i]
+            target = all_lo_titles[i + 1]
+            if source and target and source != target:
+                relationships.append({
+                    "source": source,
+                    "target": target,
+                    "type": "prerequisite",
+                    "description": f"{source} should be learned before {target}"
+                })
+        
+        # Strategy 3: Keyword-based relationships
+        for i, lo1 in enumerate(learning_objects):
+            keywords1 = set(lo1.get('keywords', []))
+            if not keywords1:
+                continue
+            for j in range(i + 1, min(i + 4, len(learning_objects))):
+                lo2 = learning_objects[j]
+                keywords2 = set(lo2.get('keywords', []))
+                # If they share keywords, they're related
+                if keywords1 & keywords2:
+                    title1 = lo1['title']
+                    title2 = lo2['title']
+                    if title1 != title2:
+                        relationships.append({
+                            "source": title1,
+                            "target": title2,
+                            "type": "relates_to",
+                            "description": f"Both relate to: {', '.join(list(keywords1 & keywords2)[:3])}"
+                        })
+        
+        print(f"[ContentParser] Generated {len(relationships)} smart fallback relationships")
+        return relationships
     
     def _generate_fallback_relationships(self, all_lo_titles: List[str], learning_objects: List[Dict]) -> List[Dict]:
         """

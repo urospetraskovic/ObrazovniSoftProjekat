@@ -158,18 +158,19 @@ class SoloQuizGeneratorLocal:
         lessons_data: List[Dict[str, Any]],
         solo_levels: List[str],
         questions_per_level: int = 3,
-        section_ids: List[int] = None
+        section_ids: List[int] = None,
+        ontology_relationships: List[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
         """
         Generate questions based on SOLO taxonomy levels from parsed lessons.
-        
-        MEMORY-OPTIMIZED: Reduced question generation with simplified prompts.
+        NOW WITH ONTOLOGY SUPPORT: Uses domain knowledge relationships to enhance questions!
         
         Args:
             lessons_data: List of lesson dicts with sections and learning objects
             solo_levels: List of SOLO levels to generate questions for
             questions_per_level: Number of questions per SOLO level (max 2 for memory)
             section_ids: Optional list of specific section IDs to use
+            ontology_relationships: Optional domain ontology relationships for enhanced context
             
         Returns:
             List of question dicts ready for database storage
@@ -177,8 +178,13 @@ class SoloQuizGeneratorLocal:
         print(f"\n[SOLO-Local] Starting MEMORY-OPTIMIZED question generation")
         print(f"[SOLO-Local] Lessons: {len(lessons_data)}, Levels: {solo_levels}")
         
-        # Limit questions per level to reduce memory usage - now 3 per level
-        questions_per_level = min(questions_per_level, 3)  # Max 3 per level (was 2)
+        # Store ontology relationships for use in all question generators
+        self.ontology_relationships = ontology_relationships or []
+        if self.ontology_relationships:
+            print(f"[SOLO-Local] ✓ Using {len(self.ontology_relationships)} ontology relationships to enhance questions")
+        
+        # Honor requested questions per level (no artificial cap - running locally)
+        # The user can request whatever they want, we'll generate it
         print(f"[SOLO-Local] Questions per level: {questions_per_level}")
         
         # Reset question tracking for this generation session
@@ -221,8 +227,10 @@ class SoloQuizGeneratorLocal:
                             primary_lesson, section_ids, content_summary
                         )
                     elif level == 'extended_abstract':
+                        # For extended abstract, use both lessons if available
+                        secondary_lesson = lessons_data[1] if len(lessons_data) > 1 else None
                         question = self._generate_extended_abstract_question(
-                            primary_lesson, content_summary
+                            primary_lesson, content_summary, secondary_lesson
                         )
                     else:
                         question = None
@@ -244,6 +252,50 @@ class SoloQuizGeneratorLocal:
         
         print(f"\n[SOLO-Local] Total questions generated: {len(generated_questions)}")
         return generated_questions
+    
+    def _build_ontology_context(self, learning_objects: List[Dict] = None) -> str:
+        """
+        Build ontology context from domain relationships.
+        Shows prerequisites, hierarchies, and semantic connections.
+        """
+        if not self.ontology_relationships:
+            return ""
+        
+        # Filter relationships relevant to the learning objects if provided
+        relevant_rels = self.ontology_relationships
+        if learning_objects:
+            lo_titles = {lo.get('title', '') for lo in learning_objects}
+            relevant_rels = [
+                r for r in self.ontology_relationships
+                if r.get('source_title', '') in lo_titles or r.get('target_title', '') in lo_titles
+            ]
+        
+        if not relevant_rels:
+            return ""
+        
+        # Build a formatted ontology context
+        ontology_lines = ["DOMAIN ONTOLOGY (concept relationships):"]
+        
+        # Group by relationship type
+        rels_by_type = {}
+        for rel in relevant_rels[:20]:  # Limit to top 20 to keep it concise
+            rel_type = rel.get('relationship_type', 'related_to')
+            if rel_type not in rels_by_type:
+                rels_by_type[rel_type] = []
+            rels_by_type[rel_type].append(rel)
+        
+        # Format relationships
+        for rel_type, rels in sorted(rels_by_type.items()):
+            ontology_lines.append(f"\n{rel_type.upper().replace('_', ' ')}:")
+            for rel in rels[:5]:  # Max 5 per type
+                source = rel.get('source_title', '')
+                target = rel.get('target_title', '')
+                desc = rel.get('description', '')
+                ontology_lines.append(f"  • {source} → {target}")
+                if desc:
+                    ontology_lines.append(f"    ({desc[:80]})")
+        
+        return "\n".join(ontology_lines)
     
     def _generate_content_summary(self, lesson: Dict[str, Any]) -> str:
         """Generate a summary of the lesson content for higher-order questions"""
@@ -412,13 +464,17 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         content = "\n".join(los_content)
         
+        # Add ontology context if available
+        ontology_context = self._build_ontology_context(section.get('learning_objects', []))
+        ontology_section = f"\n\n{ontology_context}" if ontology_context else ""
+        
         # Comprehensive prompt from quiz_generator.py
         prompt = f"""Create a MULTISTRUCTURAL level question about '{lesson_title}'.
 
 SECTION: {section_title}
 
 CONTENT:
-{content}
+{content}{ontology_section}
 
 MULTISTRUCTURAL LEVEL DEFINITION:
 At this stage, students gain an understanding of numerous relevant independent aspects. Despite understanding the relationship between different aspects, its relationship to the whole remains unclear. Suppose the teacher is teaching about several topics and ideas, the students can make varied connections, but they fail to understand the significance of the whole. The students' responses are based on relevant aspects, but their responses are handled independently.
@@ -503,6 +559,12 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         combined_content = "\n".join(content_parts)[:3000]
         
+        # Add ontology relationships for structure understanding
+        ontology_context = self._build_ontology_context([
+            lo for section in sections for lo in section.get('learning_objects', [])
+        ])
+        ontology_section = f"\n\n{ontology_context}" if ontology_context else ""
+        
         # Add summary section for higher-order understanding
         summary_section = ""
         if content_summary:
@@ -512,12 +574,12 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         prompt = f"""Create a RELATIONAL level question about '{lesson_title}'.
 
 CONTENT:
-{combined_content}{summary_section}
+{combined_content}{ontology_section}{summary_section}
 
 RELATIONAL LEVEL DEFINITION:
 This stage relates to aspects of knowledge combining to form a structure. By this stage, the student is able to understand the importance of different parts in relation to the whole. They are able to connect concepts and ideas, so it provides a coherent knowledge of the whole thing. Moreover, the students' response indicates an understanding of the task by combining all the parts, and they can demonstrate how each part contributes to the whole.
 
-TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
+TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content, domain ontology AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
 
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options that can be eliminated without thinking
@@ -568,66 +630,94 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
     def _generate_extended_abstract_question(
         self,
         lesson: Dict[str, Any],
-        content_summary: str = ""
+        content_summary: str = "",
+        secondary_lesson: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
-        Generate EXTENDED ABSTRACT question requiring synthesis and application
+        Generate EXTENDED ABSTRACT question requiring synthesis and cross-lesson application
         
         Uses comprehensive SOLO taxonomy definitions and detailed distractor guidance.
-        Requires applying learned concepts to NEW situations not in the content.
+        For maximum effectiveness, combines concepts from TWO lessons to test transfer of knowledge.
+        Requires applying learned concepts to NEW situations that synthesize both topics.
         """
         
         lesson_title = lesson.get('title', 'Lesson')
         
-        # Get key concepts from all sections
-        concepts = []
+        # Get key concepts from primary lesson
+        concepts_primary = []
         for section in lesson.get('sections', []):
             section_title = section.get('title', '')
             for lo in section.get('learning_objects', [])[:4]:
-                concepts.append(f"- {lo.get('title', '')}: {lo.get('description', '')[:150]}")
+                concepts_primary.append(f"- {lo.get('title', '')}: {lo.get('description', '')[:150]}")
         
-        concepts_text = "\n".join(concepts[:15])
+        concepts_text = "\n".join(concepts_primary[:15])
+        
+        # Get concepts from secondary lesson if provided
+        concepts_secondary_text = ""
+        secondary_title = ""
+        if secondary_lesson:
+            secondary_title = secondary_lesson.get('title', 'Lesson 2')
+            concepts_secondary = []
+            for section in secondary_lesson.get('sections', []):
+                for lo in section.get('learning_objects', [])[:4]:
+                    concepts_secondary.append(f"- {lo.get('title', '')}: {lo.get('description', '')[:150]}")
+            secondary_concepts = "\n".join(concepts_secondary[:15])
+            concepts_secondary_text = f"\n\nSECONDARY TOPIC ({secondary_title}) CONCEPTS:\n{secondary_concepts}"
         
         # Add summary section for higher-order understanding
         summary_section = ""
         if content_summary:
             summary_section = f"\n\nCONTENT SUMMARY (key themes and relationships):\n{content_summary[:1000]}\n"
         
-        # Comprehensive prompt from quiz_generator.py
-        prompt = f"""Create an EXTENDED ABSTRACT level question about '{lesson_title}'.
+        # Comprehensive prompt with EXPLICIT INSTRUCTIONS for combining 2 lessons
+        if secondary_lesson:
+            combine_instruction = f"""CRITICAL - COMBINE 2 TOPICS:
+You MUST create a question that connects and combines concepts from BOTH '{lesson_title}' AND '{secondary_title}'.
+The question should show how these two topics relate to each other, influence each other, or can be applied together.
+Example: If lesson 1 is about Process Management and lesson 2 is about Virtual Memory, ask how processes interact with virtual memory.
+The student MUST demonstrate understanding of BOTH topics to answer correctly."""
+        else:
+            combine_instruction = "Create a question that generalizes principles to NEW contexts not directly mentioned in the content."
+        
+        prompt = f"""Create an EXTENDED ABSTRACT level question{' combining 2 lessons' if secondary_lesson else ''}.
 
-KEY CONCEPTS:
-{concepts_text}{summary_section}
+PRIMARY TOPIC ({lesson_title}) CONCEPTS:
+{concepts_text}{concepts_secondary_text}{summary_section}
+
+{combine_instruction}
 
 EXTENDED ABSTRACT LEVEL DEFINITION:
 By this level, students are able to make connections within the provided task, and they also create connections beyond that. They develop the ability to transfer and generalise the concepts and principles from one subject area into a particular domain. Therefore, the students' response indicates that they can conceptualise beyond the level of what has been taught. They are able to propose new concepts and ideas depending on their understanding of the task or subject taught.
 
-TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Use the summary to understand the core principles, then create a scenario that requires applying those principles to a completely NEW situation. Student should predict, generalize, or solve scenarios beyond what was directly taught.
+TASK: Create a question that requires:
+- Understanding core principles from {'both topics' if secondary_lesson else 'the lesson'}
+- {'Combining/relating these 2 independent concepts' if secondary_lesson else 'Applying this knowledge to'} to a NEW context NOT directly mentioned in the content
+- Student must synthesize and generalize to demonstrate mastery
 
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options
 - **DO** create TRICKY distractors that:
   * Look correct if you misunderstand which principle applies
   * Correctly apply a DIFFERENT but related principle
+  * Misapply knowledge from {'the wrong lesson' if secondary_lesson else 'the content'}
   * Follow logically from the content but reach wrong conclusion
   * Represent COMMON OVERGENERALIZATIONS of the principles
-  * Seem reasonable on surface but violate subtle constraints
   * Apply the principle to SIMILAR but wrong context
 - Example BAD distractor: "Blue elephants" (nonsense)
 - Example GOOD distractor: "You should increase speed" (correct for acceleration problem, wrong for this momentum problem - different principle)
-- Distractors should be SOPHISTICATED errors that good test-takers might make
+- Distractors should be SOPHISTICATED errors that test deep understanding
 
 Requirements:
-- Use the summary to identify transferable concepts and principles
-- Ask about applying/generalizing these concepts to a NEW different situation
-- Scenario should NOT be directly mentioned in the content
+- {'Demonstrate understanding of relationship between both topics' if secondary_lesson else 'Identify transferable concepts and principles'}
+- Create a scenario that requires applying/synthesizing knowledge to a NEW situation
+- Scenario should NOT be directly mentioned in the provided content
 - Requires student to conceptualize beyond what was taught
-- Student must demonstrate ability to transfer knowledge to new contexts
+- Student must demonstrate ability to TRANSFER knowledge across {'domains' if secondary_lesson else 'contexts'}
 - ALL TEXT IN ENGLISH
 - Question < 300 chars
 - 4 MC options (A-D), one correct
 - 3 distractors must be CHALLENGING: plausible applications of WRONG principles or MISAPPLICATIONS
-- Explanation < 250 chars
+- Explanation < 250 chars, showing how both topics connect {'(if applicable)' if secondary_lesson else ''}
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
         
