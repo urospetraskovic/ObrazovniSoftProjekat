@@ -289,9 +289,10 @@ class ContentParser:
         return chunks
     
     def _extract_sections_from_chunk(self, chunk: str, lesson_title: str, chunk_num: int, total_chunks: int) -> List[Dict]:
-        """Extract sections from a single chunk of content with better prompts"""
+        """Extract sections from a single chunk with ENHANCED multi-level analysis"""
         
-        prompt = f"""You are an expert educational content analyst. Analyze this PART of a lesson and identify all distinct topics and sections.
+        # LEVEL 1: Identify major sections
+        prompt_l1 = f"""You are an expert educational content analyst. Analyze this PART of a lesson and identify ALL distinct topics and sections.
 
 LESSON: {lesson_title}
 PART {chunk_num} OF {total_chunks}
@@ -300,13 +301,13 @@ CONTENT:
 {chunk}
 
 CRITICAL INSTRUCTIONS:
-1. Identify ALL distinct topics, subtopics, and themes in this content
-2. Each section should represent a specific concept or topic area
-3. Be granular - prefer multiple focused sections over few large ones
-4. Look for: definitions, processes, components, techniques, concepts
+1. Identify EVERY distinct topic, subtopic, and theme in this content
+2. Be thorough and granular - identify 5-12 sections
+3. Each section represents a specific concept, topic, or theme area
+4. Look for: definitions, processes, components, techniques, concepts, relationships, examples
 5. **ALL TITLES MUST BE IN ENGLISH** - translate from any other language
-6. Do NOT use Serbian, Croatian, or any other language for section titles
-7. Examples: "Definition of Process" NOT "Pojam Procesa", "Process States" NOT "Stanja Procesa"
+6. Include implicit topics, not just explicitly stated section headers
+7. Look for patterns: "Introduction to X", "Types of Y", "Process of Z", "Characteristics of W"
 
 OUTPUT FORMAT (JSON array):
 [
@@ -314,17 +315,84 @@ OUTPUT FORMAT (JSON array):
   {{"title": "Another Topic (IN ENGLISH)", "key_topics": ["keywordA", "keywordB"]}}
 ]
 
-Return ONLY the JSON array. Find all distinct sections in this content. REMEMBER: ALL TITLES IN ENGLISH."""
+Return ONLY the JSON array with 5-12 sections. Find ALL distinct sections. REMEMBER: ALL TITLES IN ENGLISH."""
         
-        response = self._call_ollama(prompt, timeout=120)
+        print(f"[ContentParser] [SECTION EXTRACTION] Analyzing chunk {chunk_num}/{total_chunks}...")
+        response_l1 = self._call_ollama(prompt_l1, timeout=150)
+        sections = self._extract_json_from_response(response_l1) if response_l1 else []
         
-        if not response:
-            return []
+        if not isinstance(sections, list):
+            sections = []
         
-        sections = self._extract_json_from_response(response)
-        if isinstance(sections, list):
-            return sections[:8]  # Allow up to 8 sections per chunk naturally
-        return []
+        print(f"[ContentParser] Level 1 found {len(sections)} initial sections")
+        
+        # LEVEL 2: Validate and enrich sections with context
+        if len(sections) > 0:
+            sections_str = ", ".join([s.get('title', '') for s in sections[:10]])
+            
+            prompt_l2 = f"""Validate and enrich these sections identified from "{lesson_title}":
+
+SECTIONS: {sections_str}
+
+CONTENT SNIPPET:
+{chunk[:1500]}
+
+---
+
+For each section, determine:
+1. Importance level: [foundational, core, supporting, advanced]
+2. Related_sections: Which other identified sections relate to this one
+3. Learning_prerequisites: What must be known before understanding this
+4. Subtopics: 2-4 subtopics or related concepts within this section
+
+Return ONLY JSON array:
+[{{"title": "SectionName", "importance": "...", "related_sections": [...], "learning_prerequisites": [...], "subtopics": [...]}}]"""
+            
+            response_l2 = self._call_ollama(prompt_l2, timeout=120)
+            enriched = self._extract_json_from_response(response_l2) if response_l2 else {}
+            
+            if isinstance(enriched, list):
+                for section in sections:
+                    for enrich_data in enriched:
+                        if enrich_data.get('title', '').lower() == section.get('title', '').lower():
+                            section['importance'] = enrich_data.get('importance', 'core')
+                            section['related_sections'] = enrich_data.get('related_sections', [])
+                            section['learning_prerequisites'] = enrich_data.get('learning_prerequisites', [])
+                            section['subtopics'] = enrich_data.get('subtopics', [])
+                            break
+            
+            print(f"[ContentParser] Level 2 enriched sections with context")
+        
+        # LEVEL 3: Gap detection - look for missing sections
+        if len(sections) < 4:
+            print(f"[ContentParser] Level 3 gap detection - found only {len(sections)} sections, looking for more...")
+            
+            prompt_l3 = f"""This chunk appears to have limited sections. Are there any major topics or concepts NOT in this list?
+
+IDENTIFIED: {", ".join([s.get('title', '') for s in sections])}
+
+CONTENT:
+{chunk[:2000]}
+
+---
+
+List any significant topics, concepts, or sections that should be added. Be thorough.
+
+Return ONLY JSON:
+{{"additional_sections": [{{\"title\": \"...\", \"key_topics\": [...]}}]}}"""
+            
+            response_l3 = self._call_ollama(prompt_l3, timeout=120)
+            additional = self._extract_json_from_response(response_l3) if response_l3 else {}
+            
+            if isinstance(additional, dict) and additional.get('additional_sections'):
+                for add_section in additional.get('additional_sections', [])[:3]:
+                    if add_section.get('title'):
+                        sections.append(add_section)
+                
+                print(f"[ContentParser] Level 3 added {len(additional.get('additional_sections', []))} missing sections")
+        
+        # Return all found sections (up to 12 per chunk naturally)
+        return sections[:12]
     
     def _merge_similar_sections(self, sections: List[Dict]) -> List[Dict]:
         """Merge sections that are too similar to avoid duplication"""
@@ -477,15 +545,18 @@ Return ONLY the JSON array with 5-15 natural sections (only include if meaningfu
     
     def _extract_learning_objects(self, section_content: str, section_title: str, lesson_title: str) -> List[Dict]:
         """
-        Extract educational learning objects with balanced quality and memory.
+        Extract educational learning objects with ENHANCED QUALITY multi-pass analysis.
         
-        BALANCED: Extracts 5-8 learning objects per section.
+        ENHANCEMENT: Uses 3-pass extraction for comprehensive coverage:
+        1. Primary extraction: Get main concepts
+        2. Relationship analysis: Find connections and prerequisites
+        3. Quality refinement: Ensure completeness and accuracy
         """
-        # Use larger content preview for better context
-        content_preview = section_content[:2000].strip()
+        content_preview = section_content[:3000].strip()  # Increased from 2000
         
-        # Balanced prompt with better English instructions and focus on quality
-        prompt = f"""You are an educational content expert. Extract 5-8 key learning objects from this educational content.
+        # PASS 1: Primary extraction with comprehensive prompt
+        print(f"[ContentParser] [PASS 1] Extracting core learning objects from: {section_title}")
+        prompt_pass1 = f"""You are an expert educational content analyst. Extract ALL key learning objects from this section.
 
 LESSON: {lesson_title}
 SECTION: {section_title}
@@ -495,52 +566,139 @@ CONTENT:
 
 ---
 
-For each concept, provide (JSON array format):
-- title: Clear concept name (3-8 words, MUST BE IN ENGLISH)
-- type: One of [concept, definition, process, principle, component, technique]
-- description: 2-3 sentence clear explanation (MUST BE IN ENGLISH)
-- key_points: 1-3 important facts or details
-- keywords: 2-5 related search terms (MUST BE IN ENGLISH)
+EXTRACTION GUIDELINES:
+1. Identify EVERY distinct concept, term, process, or principle mentioned
+2. Extract only UNIQUE, VALUABLE objects - NO forced or duplicate concepts
+3. Include: definitions, key concepts, processes, principles, examples, components
+4. Look for implicit concepts, not just explicitly stated ones
+5. Quality over quantity - better 4 excellent objects than 10 mediocre ones
+6. ALL OUTPUT MUST BE IN ENGLISH (translate if needed)
 
-IMPORTANT REQUIREMENTS:
-1. Extract 4-8 distinct, important concepts
-2. ALL OUTPUT MUST BE IN ENGLISH (translate if source is not English)
-3. Each object must be unique and valuable for learning
-4. Include all key concepts mentioned in the content
-5. Return ONLY a valid JSON array, no other text
+For each object, provide:
+- title: Clear name (3-8 words, IN ENGLISH)
+- type: One of [concept, definition, process, principle, component, example, technique, structure]
+- description: 2-4 sentences, comprehensive explanation
+- key_points: 2-4 important facts or characteristics
+- keywords: 3-6 related search terms (IN ENGLISH)
 
-Example format:
-[{{"title": "Concept Name", "type": "concept", "description": "Description here. More details about it.", "key_points": ["Point 1", "Point 2"], "keywords": ["key1", "key2", "key3"]}}]
-"""
+Return ONLY a valid JSON array with ALL distinct important objects (natural number, not forced):
+[{{"title": "...", "type": "...", "description": "...", "key_points": [...], "keywords": [...]}}]"""
         
-        print(f"[ContentParser] Extracting learning objects from: {section_title}")
-        response = self._call_ollama(prompt, timeout=150)
+        response_pass1 = self._call_ollama(prompt_pass1, timeout=180)
+        objects_pass1 = self._extract_json_from_response(response_pass1) if response_pass1 else []
         
-        if not response:
-            print("[ContentParser] No response from Ollama")
-            return []
+        if not isinstance(objects_pass1, list):
+            objects_pass1 = []
         
-        objects = self._extract_json_from_response(response)
-        if not isinstance(objects, list) or len(objects) == 0:
-            print("[ContentParser] No objects extracted, trying simple extraction...")
-            return self._extract_learning_objects_simple(section_content, section_title, lesson_title)
+        print(f"[ContentParser] [PASS 1] Found {len(objects_pass1)} initial objects")
         
-        # Validate and clean the objects (limit to 8 max)
+        # PASS 2: Relationship and context analysis
+        print(f"[ContentParser] [PASS 2] Analyzing relationships and prerequisites...")
+        if len(objects_pass1) > 0:
+            titles_str = ", ".join([obj.get('title', '') for obj in objects_pass1[:10]])
+            
+            prompt_pass2 = f"""Analyze these concepts from "{section_title}" and enhance them with relationship information.
+
+EXTRACTED CONCEPTS: {titles_str}
+
+SECTION CONTENT:
+{content_preview[:2000]}
+
+---
+
+For each concept listed, add:
+1. Prerequisites: What concepts must be understood first
+2. Related_concepts: Connected or similar concepts
+3. Learning_outcomes: What should students be able to do after learning this
+4. Common_misconceptions: Typical student misunderstandings (if applicable)
+5. Real_world_applications: Practical uses or examples (if applicable)
+
+Return ONLY a JSON array with enhanced details:
+[{{"title": "ConceptName", "prerequisites": [...], "related_concepts": [...], "learning_outcomes": [...], "common_misconceptions": [...], "real_world_applications": [...]}}]"""
+            
+            response_pass2 = self._call_ollama(prompt_pass2, timeout=180)
+            relationships = self._extract_json_from_response(response_pass2) if response_pass2 else {}
+            
+            # Merge relationship data into objects
+            if isinstance(relationships, list):
+                for obj in objects_pass1:
+                    for rel_data in relationships:
+                        if rel_data.get('title', '').lower() == obj.get('title', '').lower():
+                            obj['prerequisites'] = rel_data.get('prerequisites', [])
+                            obj['related_concepts'] = rel_data.get('related_concepts', [])
+                            obj['learning_outcomes'] = rel_data.get('learning_outcomes', [])
+                            obj['common_misconceptions'] = rel_data.get('common_misconceptions', [])
+                            obj['real_world_applications'] = rel_data.get('real_world_applications', [])
+                            break
+        
+        print(f"[ContentParser] [PASS 2] Enhanced with relationship data")
+        
+        # PASS 3: Quality check and gap filling
+        print(f"[ContentParser] [PASS 3] Quality verification and gap analysis...")
+        
+        if len(objects_pass1) > 2:
+            # Ask AI to identify any missing concepts
+            prompt_pass3 = f"""Review the extracted concepts for "{section_title}" and identify ANY important concepts we missed.
+
+EXTRACTED: {", ".join([obj.get('title', '') for obj in objects_pass1[:8]])}
+
+ORIGINAL CONTENT:
+{content_preview[:2500]}
+
+---
+
+Are there important concepts, definitions, or principles NOT in the extracted list? 
+List any MISSING key concepts that should be included.
+
+Return ONLY a JSON object with missing concepts (or empty array if complete):
+{{"missing_concepts": [{{\"title\": \"...\", \"description\": \"...\", \"type\": \"...\"}}]}}"""
+            
+            response_pass3 = self._call_ollama(prompt_pass3, timeout=150)
+            missing = self._extract_json_from_response(response_pass3) if response_pass3 else {}
+            
+            if isinstance(missing, dict) and missing.get('missing_concepts'):
+                for missing_obj in missing.get('missing_concepts', [])[:3]:  # Add up to 3 missing
+                    if missing_obj.get('title'):
+                        objects_pass1.append({
+                            'title': missing_obj.get('title', 'Unknown')[:150],
+                            'type': missing_obj.get('type', 'concept'),
+                            'description': missing_obj.get('description', '')[:600],
+                            'key_points': [],
+                            'keywords': []
+                        })
+            
+            print(f"[ContentParser] [PASS 3] Added {len(missing.get('missing_concepts', []))} missing concepts")
+        
+        # Validate and clean all objects
         validated_objects = []
-        for obj in objects[:8]:  # Hard limit to 8 objects
+        seen_titles = set()
+        
+        for obj in objects_pass1:
             if not obj.get('title'):
                 continue
-                
+            
+            title_lower = obj.get('title', '').lower()
+            if title_lower in seen_titles:
+                continue
+            seen_titles.add(title_lower)
+            
             validated = {
                 'title': obj.get('title', 'Unknown')[:150],
                 'type': obj.get('type', 'concept'),
                 'description': obj.get('description', '')[:600],
                 'key_points': obj.get('key_points', []) if isinstance(obj.get('key_points'), list) else [],
-                'keywords': obj.get('keywords', [])[:6] if isinstance(obj.get('keywords'), list) else []
+                'keywords': obj.get('keywords', [])[:6] if isinstance(obj.get('keywords'), list) else [],
+                'prerequisites': obj.get('prerequisites', []) if isinstance(obj.get('prerequisites'), list) else [],
+                'related_concepts': obj.get('related_concepts', []) if isinstance(obj.get('related_concepts'), list) else [],
+                'learning_outcomes': obj.get('learning_outcomes', []) if isinstance(obj.get('learning_outcomes'), list) else [],
             }
             validated_objects.append(validated)
         
-        print(f"[ContentParser] Extracted {len(validated_objects)} learning objects")
+        # Limit to 12 max (but keep all that were found)
+        if len(validated_objects) > 12:
+            validated_objects = validated_objects[:12]
+        
+        print(f"[ContentParser] [FINAL] Extracted {len(validated_objects)} high-quality learning objects (quality-focused extraction)")
         return validated_objects
     
     def _extract_learning_objects_simple(self, section_content: str, section_title: str, lesson_title: str) -> List[Dict]:
@@ -579,32 +737,31 @@ Extract 5-8 distinct concepts. Return ONLY JSON array."""
         Extract meaningful relationships between learning objects.
         Focus on quality educational connections WITH PROPER TAXONOMIC HIERARCHY.
         
-        NOTE: This is computationally intensive. Timeout is set to 900 seconds (15 minutes)
-        for local Ollama models. Increase if needed for slower hardware.
+        IMPROVED: Better fallback if AI extraction fails or times out.
         """
         if not learning_objects:
             print("[ContentParser] No learning objects to relate")
             return []
         
-        # Build descriptions for ALL learning objects (not just first 15)
+        # Build descriptions for ALL learning objects
         lo_descriptions = []
         all_lo_titles = []
         
-        for lo in learning_objects:  # Use ALL learning objects
+        for lo in learning_objects:
             title = lo.get("title", lo.get("name", ""))
-            desc = lo.get("description", "")[:80]  # Shorter desc to fit more LOs
+            desc = lo.get("description", "")[:80]
             type_str = lo.get("type", lo.get("object_type", "concept"))
             lo_descriptions.append(f"- {title} ({type_str}): {desc}")
             all_lo_titles.append(title)
         
-        lo_context = "\n".join(lo_descriptions[:50])  # Show first 50 in prompt
+        lo_context = "\n".join(lo_descriptions[:50])
         
         # Enhanced prompt for TAXONOMIC HIERARCHY and rich ontology structure
         prompt = f"""You are an expert in educational ONTOLOGY and KNOWLEDGE REPRESENTATION. Your task is to create a RICH TAXONOMIC STRUCTURE from these learning objects.
 
 LESSON: {lesson_title}
 
-LEARNING OBJECTS ({len(all_lo_titles)} total, showing first 50):
+LEARNING OBJECTS ({len(all_lo_titles)} total):
 {lo_context}
 
 ---
@@ -613,62 +770,129 @@ YOUR TASK: Create a COMPREHENSIVE ONTOLOGY with THREE types of relationships:
 
 ## 1. HIERARCHICAL/TAXONOMIC RELATIONSHIPS (MOST IMPORTANT!)
 These create a proper class hierarchy (SubClassOf in OWL):
-- part_of: "A is a component/part of B" (e.g., "CPU part_of Computer")
-- is_type_of: "A is a specific type/kind of B" (e.g., "Virtual Memory is_type_of Memory Management")
-- is_subclass_of: "A is a subcategory of B" (e.g., "Process Scheduling is_subclass_of Operating System Functions")
+- part_of: "A is a component/part of B"
+- is_type_of: "A is a specific type/kind of B"
+- is_subclass_of: "A is a subcategory of B"
 
 ## 2. PREREQUISITE/LEARNING ORDER RELATIONSHIPS
-These show learning dependencies:
-- prerequisite: "A must be learned before B" 
+- prerequisite: "A must be learned before B"
 - builds_upon: "A extends or elaborates on B"
-- enables: "A makes B possible or meaningful"
+- enables: "A makes B possible"
 
 ## 3. SEMANTIC RELATIONSHIPS
-These show meaningful connections:
-- related_to: "A and B are connected concepts"
-- contrasts_with: "A differs from B in important ways"
-- implements: "A is a concrete implementation of B"
-- uses: "A uses or applies B"
-- defines: "A provides the definition for B"
-- is_example_of: "A is an example of B"
+- related_to, contrasts_with, implements, uses, defines, is_example_of
 
 ---
 
-CRITICAL INSTRUCTIONS:
-1. CREATE AT LEAST 3-5 HIERARCHICAL (part_of, is_type_of, is_subclass_of) relationships - these are ESSENTIAL for ontology structure!
-2. Find general/abstract concepts that can be PARENTS of more specific concepts
-3. Use EXACT titles from the learning objects list
-4. Each relationship needs source, target, type, and a clear description
-5. Return as many relationships as you can find (15-40+ is typical for good coverage)
+CRITICAL REQUIREMENTS:
+1. CREATE AT LEAST 3-5 HIERARCHICAL relationships - ESSENTIAL for ontology!
+2. Use EXACT titles from the learning objects list
+3. Each relationship needs: source, target, type, description
+4. Return as many relationships as possible (15-40+ is normal)
 
 EXAMPLE OUTPUT:
 [
-  {{"source": "Process State", "target": "Process Management", "type": "part_of", "description": "Process state tracking is a component of overall process management"}},
-  {{"source": "Ready State", "target": "Process State", "type": "is_type_of", "description": "Ready state is a specific type of process state"}},
-  {{"source": "Context Switch", "target": "Process Scheduling", "type": "implements", "description": "Context switching implements the mechanism for process scheduling"}},
-  {{"source": "Process Definition", "target": "Process State", "type": "prerequisite", "description": "Understanding what a process is must come before understanding its states"}}
+  {{"source": "A Concept", "target": "B Concept", "type": "part_of", "description": "A is part of B"}},
+  {{"source": "Specific Term", "target": "General Term", "type": "is_type_of", "description": "Specific is a type of General"}}
 ]
 
-Return ONLY a JSON array with relationships. Be comprehensive!"""
+Return ONLY valid JSON array. No markdown, no explanations."""
         
-        print("[ContentParser] Extracting ontology relationships with TAXONOMIC HIERARCHY (this may take 5-15 minutes)...")
+        print("[ContentParser] Extracting ontology relationships (15 minute timeout for comprehensive analysis)...")
         print(f"[ContentParser] Analyzing {len(all_lo_titles)} learning objects for hierarchical connections...")
-        response = self._call_ollama(prompt, timeout=900)  # 900 seconds = 15 minutes
+        
+        # Try to extract relationships with 15-minute timeout
+        response = self._call_ollama(prompt, timeout=900)
         
         if not response:
             print("[ContentParser] WARNING: Ontology extraction timed out or failed")
-            print("[ContentParser] This is normal for complex lessons - try re-parsing with more timeout if needed")
-            return []
+            print("[ContentParser] Generating basic relationships from learning object structure...")
+            # Return basic relationships based on learning object structure
+            return self._generate_fallback_relationships(all_lo_titles, learning_objects)
         
         relationships = self._extract_json_from_response(response)
-        if not isinstance(relationships, list):
-            return []
+        if not isinstance(relationships, list) or len(relationships) == 0:
+            print("[ContentParser] No relationships extracted from AI response")
+            print("[ContentParser] Generating basic relationships from learning object structure...")
+            return self._generate_fallback_relationships(all_lo_titles, learning_objects)
         
-        # Validate relationships - ensure source and target exist in ANY learning object
+        valid_relationships = self._validate_relationships(relationships, all_lo_titles)
+        print(f"[ContentParser] Found {len(valid_relationships)} valid relationships out of {len(relationships)} extracted")
+        
+        # If very few relationships, augment with fallback
+        if len(valid_relationships) < 3:
+            print("[ContentParser] Very few relationships found, augmenting with fallback relationships...")
+            fallback = self._generate_fallback_relationships(all_lo_titles, learning_objects)
+            valid_relationships.extend(fallback)
+        
+        return valid_relationships
+    
+    def _generate_fallback_relationships(self, all_lo_titles: List[str], learning_objects: List[Dict]) -> List[Dict]:
+        """
+        Generate basic relationships when AI extraction fails.
+        Based on learning object types and ordering.
+        """
+        relationships = []
+        
+        # Strategy 1: Create prerequisites based on ordering
+        for i in range(len(all_lo_titles) - 1):
+            source = all_lo_titles[i]
+            target = all_lo_titles[i + 1]
+            if source and target and source != target:
+                relationships.append({
+                    "source": source,
+                    "target": target,
+                    "type": "prerequisite",
+                    "description": f"{source} is typically learned before {target}"
+                })
+        
+        # Strategy 2: Group by type and create hierarchies
+        type_groups = {}
+        for lo in learning_objects:
+            obj_type = lo.get('type', lo.get('object_type', 'concept')).lower()
+            if obj_type not in type_groups:
+                type_groups[obj_type] = []
+            type_groups[obj_type].append(lo.get('title', ''))
+        
+        # For each type group with multiple items, create part_of relationships
+        for obj_type, titles in type_groups.items():
+            if len(titles) > 1:
+                # The first one is the parent/general concept
+                parent = titles[0]
+                for child in titles[1:]:
+                    if parent and child and parent != child:
+                        relationships.append({
+                            "source": child,
+                            "target": parent,
+                            "type": "part_of",
+                            "description": f"{child} is part of or related to {parent}"
+                        })
+        
+        # Strategy 3: Create related_to for adjacent concepts
+        for i in range(len(all_lo_titles)):
+            for j in range(i + 1, min(i + 3, len(all_lo_titles))):
+                source = all_lo_titles[i]
+                target = all_lo_titles[j]
+                if source and target and source != target:
+                    # Check if this relationship doesn't already exist
+                    exists = any(r['source'] == source and r['target'] == target for r in relationships)
+                    if not exists:
+                        relationships.append({
+                            "source": source,
+                            "target": target,
+                            "type": "related_to",
+                            "description": f"{source} is related to {target}"
+                        })
+        
+        print(f"[ContentParser] Generated {len(relationships)} fallback relationships")
+        return relationships
+    
+    def _validate_relationships(self, relationships: List[Dict], all_lo_titles: List[str]) -> List[Dict]:
+        """Validate relationships and match against learning object titles"""
         valid_relationships = []
-        title_set = set(all_lo_titles)  # Use ALL titles, not just first 15
+        title_set = set(all_lo_titles)
         
-        # Create a mapping for fuzzy matching (normalized titles to original titles)
+        # Create normalized mapping
         normalized_to_original = {}
         for title in all_lo_titles:
             normalized = title.strip().lower()
@@ -676,7 +900,6 @@ Return ONLY a JSON array with relationships. Be comprehensive!"""
         
         def clean_title(title):
             """Remove type metadata like (concept), (definition), etc"""
-            # Remove anything in parentheses
             cleaned = re.sub(r'\s*\([^)]*\)\s*$', '', title).strip()
             return cleaned
         
@@ -684,7 +907,6 @@ Return ONLY a JSON array with relationships. Be comprehensive!"""
             source = rel.get("source", "").strip()
             target = rel.get("target", "").strip()
             
-            # Remove type metadata (concept), (definition), etc
             source_clean = clean_title(source)
             target_clean = clean_title(target)
             
@@ -699,13 +921,11 @@ Return ONLY a JSON array with relationships. Be comprehensive!"""
                 target_normalized = target_clean.lower()
                 
                 if source_normalized in normalized_to_original and target_normalized in normalized_to_original:
-                    # Update relationship with exact titles
                     rel["source"] = normalized_to_original[source_normalized]
                     rel["target"] = normalized_to_original[target_normalized]
                     if rel["source"] != rel["target"]:
                         valid_relationships.append(rel)
         
-        print(f"[ContentParser] Found {len(valid_relationships)} valid relationships out of {len(relationships)} extracted")
         return valid_relationships
 # Create global instance
 content_parser = ContentParser()

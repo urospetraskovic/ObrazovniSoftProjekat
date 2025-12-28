@@ -2969,6 +2969,22 @@ button {
   color: var(--neutral-700);
 }
 
+.full-question-text {
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.question-timestamp {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  margin-top: 6px;
+  font-style: italic;
+}
+
 .selection-summary {
   background: var(--neutral-50);
   padding: 20px;

@@ -741,7 +741,7 @@ class SoloQuizGenerator:
     
     def _generate_question(self, content: str, level: str, context: str, content_summary: str = "") -> Dict[str, Any]:
         """
-        Generate a single question at specified SOLO level
+        Generate a single question at specified SOLO level with quality validation
         
         Args:
             content: Chapter content
@@ -761,23 +761,167 @@ class SoloQuizGenerator:
                 print(f"Using mock questions (no API keys configured)")
                 return None
             
-            # Call API to generate question
-            prompt = self._build_prompt(content, level, context, content_summary)
-            response = self._call_api(prompt)
-            
-            if response:
-                parsed = self._parse_question_response(response)
-                if parsed:
-                    return parsed
-                else:
-                    print(f"Failed to parse API response for {level}. API exhausted.")
-                    return None
-            else:
-                print(f"API returned None for {level} question. API exhausted.")
-                return None
+            # Use quality-checked generation
+            return self._generate_question_with_quality(content, level, context, content_summary)
                 
         except Exception as e:
             print(f"Error generating {level} question: {str(e)}")
+            return None
+    
+    def _validate_question_quality(self, question_data: Dict[str, Any], level: str) -> Dict[str, bool]:
+        """
+        Validate generated question for quality metrics.
+        Returns dict with validation results.
+        """
+        quality_checks = {
+            'has_structure': False,
+            'has_realistic_distractors': False,
+            'no_obvious_answer': False,
+            'good_explanation': False,
+            'overall_pass': False
+        }
+        
+        try:
+            q = question_data.get('question', '')
+            opts = question_data.get('options', [])
+            corr = question_data.get('correct_answer', '')
+            expl = question_data.get('explanation', '')
+            
+            # Check 1: Has proper structure
+            if q and len(opts) == 4 and corr and expl:
+                quality_checks['has_structure'] = True
+            
+            # Check 2: Distractors aren't obviously wrong
+            bad_patterns = ['fake', 'pretend', 'made up', 'nonsense', 'cheese', 'obviously', 'never true', 'always wrong']
+            has_bad_pattern = any(pattern in ' '.join([o.lower() for o in opts]) for pattern in bad_patterns)
+            
+            if not has_bad_pattern:
+                quality_checks['has_realistic_distractors'] = True
+            
+            # Check 3: Correct answer isn't obvious by length/structure
+            opt_lengths = [len(o) for o in opts]
+            length_variance = max(opt_lengths) - min(opt_lengths)
+            
+            q_words = set(q.lower().split())
+            corr_words = set(corr.lower().split())
+            keyword_overlap = len(q_words & corr_words) / (len(q_words) + 1) if q_words else 0
+            
+            if length_variance < 40 and keyword_overlap < 0.5:
+                quality_checks['no_obvious_answer'] = True
+            
+            # Check 4: Explanation is detailed and meaningful
+            generic_phrases = ['this is correct', 'the answer is', 'because it is', 'the correct']
+            is_generic = any(phrase in expl.lower() for phrase in generic_phrases)
+            
+            # Explanation should be longer and more detailed than the question
+            if not is_generic and len(expl) > 40 and len(expl.split()) > 8:
+                quality_checks['good_explanation'] = True
+            
+            # Overall: pass if 3/4 checks pass
+            passed_checks = sum(1 for k, v in quality_checks.items() if k != 'overall_pass' and v)
+            quality_checks['overall_pass'] = passed_checks >= 3
+            
+        except Exception as e:
+            print(f"[QUALITY] Error: {str(e)}")
+            quality_checks['overall_pass'] = False
+        
+        return quality_checks
+    
+    def _refine_question(self, question_data: Dict[str, Any], level: str, quality_issues: List[str]) -> Dict[str, Any]:
+        """
+        Refine a question that didn't pass quality checks.
+        Asks AI to critique and improve the question with specific feedback.
+        """
+        issues_str = ", ".join(quality_issues)
+        
+        refinement_prompt = f"""You are an expert educational assessment designer. IMPROVE this question that failed quality checks.
+
+ORIGINAL QUESTION:
+{json.dumps(question_data, indent=2)}
+
+QUALITY ISSUES TO FIX:
+{issues_str}
+
+SPECIFIC IMPROVEMENTS NEEDED:
+1. If "has_realistic_distractors" failed:
+   - Make distractors MORE PLAUSIBLE and LESS OBVIOUS
+   - Each distractor should be a realistic misconception
+   - Avoid words like "fake", "never", "always", "impossible"
+
+2. If "no_obvious_answer" failed:
+   - Vary option lengths more (but keep them reasonable)
+   - Make distractors structurally similar to correct answer
+   - Student should need to think, not just eliminate obviously wrong options
+
+3. If "good_explanation" failed:
+   - Expand explanation to 5-7 sentences minimum
+   - Explain WHY correct answer is right AND WHY each distractor is wrong
+   - Make it educational, not just confirmatory
+
+RETURN ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+        
+        try:
+            refined_response = self._call_api(refinement_prompt)
+            refined_data = self._parse_question_response(refined_response)
+            if refined_data and all(k in refined_data for k in ['question', 'options', 'correct_answer', 'explanation']):
+                print(f"[REFINE] Successfully refined {level} question")
+                return refined_data
+        except Exception as e:
+            print(f"[REFINE] Error: {str(e)}")
+        
+        return question_data
+    
+    def _generate_question_with_quality(self, content: str, level: str, context: str, content_summary: str = "", attempt: int = 1) -> Dict[str, Any]:
+        """
+        Generate a question with quality validation and optional refinement.
+        Returns None only if API is exhausted or max attempts exceeded.
+        """
+        max_attempts = 2
+        
+        if attempt > max_attempts:
+            print(f"[{level.upper()}] Reached max refinement attempts")
+            return None
+        
+        try:
+            # Generate question
+            prompt = self._build_prompt(content, level, context, content_summary)
+            response = self._call_api(prompt)
+            
+            if not response:
+                return None
+            
+            question_data = self._parse_question_response(response)
+            if not question_data:
+                return None
+            
+            # Validate quality
+            quality_checks = self._validate_question_quality(question_data, level)
+            
+            if quality_checks['overall_pass']:
+                print(f"[{level.upper()}] ✓ Quality passed")
+                return question_data
+            else:
+                # Identify failed checks
+                failed_checks = [k for k, v in quality_checks.items() if not v and k != 'overall_pass']
+                print(f"[{level.upper()}] ⚠ Quality issues: {', '.join(failed_checks)} - Refining...")
+                
+                # Try refinement
+                refined = self._refine_question(question_data, level, failed_checks)
+                
+                # Check refined version
+                refined_checks = self._validate_question_quality(refined, level)
+                if refined_checks['overall_pass']:
+                    print(f"[{level.upper()}] ✓ Refined question passed")
+                    return refined
+                elif attempt < max_attempts:
+                    print(f"[{level.upper()}] Refined question still has issues, regenerating...")
+                    return self._generate_question_with_quality(content, level, context, content_summary, attempt + 1)
+                else:
+                    print(f"[{level.upper()}] Returning refined question despite remaining issues")
+                    return refined
+                    
+        except Exception as e:
+            print(f"[{level.upper()}] Error in quality generation: {str(e)}")
             return None
     
     def _build_prompt(self, content: str, level: str, context: str, content_summary: str = "") -> str:
@@ -799,135 +943,160 @@ class SoloQuizGenerator:
             summary_section = f"\n\nCONTENT SUMMARY (key themes and relationships):\n{content_summary}\n"
         
         prompts = {
-            'unistructural': f"""Create a UNISTRUCTURAL level question about '{context}'.
+            'unistructural': f"""Create a CHALLENGING UNISTRUCTURAL level question about '{context}'.
 
 Content: {content_preview}
 
 UNISTRUCTURAL LEVEL DEFINITION:
-At this stage, the learner gets to know just a single relevant aspect of a task or subject; the student gets a basic understanding of a concept or task. Therefore, a student is able to make easy and apparent connections, but he or she does not have any idea how significant that information be or not. In addition, the students' response indicates a concrete understanding of the task, but it focuses on only one relevant aspect.
+At this stage, the learner knows just ONE specific fact/concept. The question tests direct recall but must be specific enough that superficial reading won't work. Students must identify or accurately name a single element directly stated in the content - but this should require actual understanding, not just keyword matching.
 
-TASK: Create a question that tests knowledge of ONE specific fact/concept. Student should identify or name a single element directly stated in the content.
+YOUR TASK:
+1. Pick ONE specific fact from the content (not obvious from title alone)
+2. Create plausible but WRONG distractors that are related to the topic
+3. Each distractor should be something students might choose if they:
+   - Misread details
+   - Confused related concepts
+   - Remember a related but different fact
+   - Hold a common misconception
+4. The correct answer should require reading the actual content, not guessing
 
-CRITICAL INSTRUCTIONS FOR DISTRACTORS:
-- **DO NOT** create obviously wrong options that can be eliminated by common sense
-- **DO** create plausible but INCORRECT options that:
-  * Are related to the topic but refer to WRONG specifics
-  * Sound similar to correct answer but are incorrect variants
-  * Common misconceptions that students might hold
-  * Related but different concepts from the content
-- Example BAD distractor: "The moon is made of cheese" 
-- Example GOOD distractor: "Neptune" (instead of "Uranus") - students who didn't read carefully pick this
-- Make students actually think about the specific detail, not guess
+DETAILED DISTRACTOR GUIDE WITH EXAMPLES:
+- BAD: "Blue" as distractor for "What color is grass?" - Too obviously wrong
+- GOOD: "Chlorophyll-b" as distractor for "What is the primary photosynthetic pigment?" - Related, specific, plausible misconception
+- BAD: "The Moon is made of cheese" - Nonsensical
+- GOOD: "Titan" as distractor for "Which planet has the largest moon?" - Related to astronomy, requires verification
 
 Requirements:
-- Focus on ONE isolated aspect only
-- No connections to other concepts required
-- Question < 250 chars
-- 4 MC options (A-D), one correct
-- 3 distractors must be PLAUSIBLE and require reading comprehension to eliminate
-- Explanation < 250 chars
+- Question must require SPECIFIC KNOWLEDGE from the content, not general knowledge
+- No trick questions or wordplay
+- Exactly 4 options (A-D), one correct
+- 3 plausible distractors that are FACTUALLY WRONG but conceptually related
+- All options should be similar in length (within 10 words)
+- Explanation: 50-100 words, explain the specific fact and why distractors are wrong
+- Question: 200 chars maximum
 
-Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
+Return ONLY valid JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-            'multistructural': f"""Create a MULTISTRUCTURAL level question about '{context}'.
+            'multistructural': f"""Create a CHALLENGING MULTISTRUCTURAL level question about '{context}'.
 
 Content: {content_preview}
 
 MULTISTRUCTURAL LEVEL DEFINITION:
-At this stage, students gain an understanding of numerous relevant independent aspects. Despite understanding the relationship between different aspects, its relationship to the whole remains unclear. Suppose the teacher is teaching about several topics and ideas, the students can make varied connections, but they fail to understand the significance of the whole. The students' responses are based on relevant aspects, but their responses are handled independently.
+Students understand MULTIPLE separate facts/features from the content but DON'T need to explain how they relate. The question lists several independent elements. This is NOT about relationships, just about identifying correct combinations of facts.
 
-TASK: Create a question that tests knowledge of MULTIPLE separate facts/features. Student should list or identify several independent elements WITHOUT explaining how they connect.
+YOUR TASK:
+1. Identify 3-4 separate facts/features from the content
+2. Create the correct answer with all TRUE facts
+3. Create 3 distractors where:
+   - Mix some TRUE facts with 1-2 FALSE facts
+   - Present correct facts in slightly wrong context
+   - Combine facts in wrong sequences
+   - Include related but not-mentioned aspects
+4. Force students to verify EACH component independently
 
-CRITICAL INSTRUCTIONS FOR DISTRACTORS:
-- **DO NOT** create obviously wrong options that can be eliminated by common sense
-- **DO** create plausible but INCORRECT combinations that:
-  * Mix some correct items with 1-2 WRONG items
-  * Include correct items in wrong contexts
-  * Reorder/rearrange items incorrectly
-  * Include related but not-mentioned aspects from content
-  * Common student misconceptions about the topic
-- Example BAD distractor: "Bananas, dinosaurs, computers" (obviously unrelated)
-- Example GOOD distractor: "DNA, RNA, proteins" (related to biology, but wrong combination for this specific question)
-- Make students verify EACH item, not just recognize keywords
+DETAILED DISTRACTOR GUIDE:
+- BAD: "Apples, rocks, computers" - Obviously unrelated
+- GOOD: "DNA, mitochondria, ribosomes" for "What are eukaryotic cell organelles?" 
+  * Correct answer might be: "Mitochondria, ribosomes, chloroplasts"
+  * Bad distractor: "DNA, mitochondria, ribosomes" - DNA is NOT an organelle, even though it's in eukaryotic cells
+- This forces verification of each item's category
+- GOOD: "Nucleotide, glucose, amino acid" for "What are monomers of biological macromolecules?"
+  * Distractors might swap one correct with wrong: "Nucleotide, glucose, lipid" - lipid isn't a monomer
 
 Requirements:
-- Multiple items or aspects, but handled independently
-- Don't require showing relationships between items
-- Question < 250 chars
-- 4 MC options (A-D), one correct
-- 3 distractors must combine PLAUSIBLE elements that seem correct at first glance
-- Explanation < 250 chars
+- Multiple independent facts (3-5), no connections required
+- 4 options (A-D): One fully correct, three with mixed right/wrong elements
+- All options should be similar in length and structure
+- Each distractor has AT LEAST ONE factually wrong element
+- Explanation: 75-125 words, list what's correct/wrong in each option
+- Question: 250 chars maximum
 
-Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
+Return ONLY valid JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-            'relational': f"""Create a RELATIONAL level question about '{context}'.
+            'relational': f"""Create a CHALLENGING RELATIONAL level question about '{context}'.
 
 Content: {content_preview}{summary_section}
 
 RELATIONAL LEVEL DEFINITION:
-This stage relates to aspects of knowledge combining to form a structure. By this stage, the student is able to understand the importance of different parts in relation to the whole. They are able to connect concepts and ideas, so it provides a coherent knowledge of the whole thing. Moreover, the students' response indicates an understanding of the task by combining all the parts, and they can demonstrate how each part contributes to the whole.
+Students understand HOW parts CONNECT and RELATE. This requires showing understanding of relationships, patterns, cause-effect, and how elements work together. The student must demonstrate integrated understanding of how different elements fit into a coherent whole.
 
-TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
+YOUR TASK:
+1. Identify a KEY RELATIONSHIP or MECHANISM from the content
+2. Ask WHY or HOW something works (requires understanding the relationship)
+3. Create distractors that:
+   - Include partially correct reasoning (right concepts, wrong relationship)
+   - Reverse cause and effect plausibly
+   - Confuse correlation with causation
+   - Apply similar mechanisms from different parts of content
+   - Represent genuine misconceptions
+4. Explanation must show the MECHANISM, not just confirm the answer
 
-CRITICAL INSTRUCTIONS FOR DISTRACTORS:
-- **DO NOT** create obviously wrong options that can be eliminated without thinking
-- **DO** create CHALLENGING distractors that:
-  * Seem logical if you only understand PART of the relationship
-  * Require understanding the FULL integrated picture to reject
-  * Include partially correct connections (correct concepts, wrong relationship)
-  * Reverse causes and effects (plausible but backwards)
-  * Connect concepts that ARE related but in wrong ways
-  * Address a DIFFERENT relationship that also exists in the content
-- Example BAD distractor: "Because trees don't exist" (obviously wrong)
-- Example GOOD distractor: "Because temperature increases while gas pressure also increases" (confuses correlation with the actual causal mechanism)
-- Distractors should reflect REAL misconceptions about how things relate
+DETAILED DISTRACTOR GUIDE:
+- BAD: "Because God made it that way" - Nonsensical
+- GOOD for "Why do plants appear green?": 
+  * Correct: "Chlorophyll absorbs blue and red light, reflecting green"
+  * Bad distractor 1: "Chlorophyll is green" - True but doesn't explain WHY
+  * Bad distractor 2: "The sun's light contains green" - Superficially plausible
+  * Bad distractor 3: "Plants produce green pigment for protection" - Plausible misconception
+
+- GOOD for "How does feedback regulation maintain homeostasis?":
+  * Distractors might confuse positive/negative feedback
+  * Or show understanding of WHAT happens but wrong MECHANISM
+  * Or apply mechanism from different system
 
 Requirements:
-- Ask about relationships, connections, or cause-effect WITHIN the content
-- Use the summary to understand the broader context and key themes
-- Require understanding of how parts fit together into a coherent whole
-- Student must show how different elements relate to each other
-- Question < 250 chars
-- 4 MC options (A-D), one correct
-- 3 distractors must be CHALLENGING and reflect real misconceptions
-- Explanation < 250 chars
+- Question asks about a relationship, mechanism, or "how/why"
+- Requires integration of multiple concepts from content
+- 4 options (A-D), one with correct relationship/mechanism
+- 3 sophisticated distractors showing real misconceptions
+- Explanation: 100-150 words, explain correct mechanism AND why each distractor is wrong
+- Question: 280 chars maximum
 
-Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
+Return ONLY valid JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}""",
 
-            'extended_abstract': f"""Create an EXTENDED ABSTRACT level question about '{context}'.
+            'extended_abstract': f"""Create a CHALLENGING EXTENDED ABSTRACT level question about '{context}'.
 
 Content: {content_preview}{summary_section}
 
 EXTENDED ABSTRACT LEVEL DEFINITION:
-By this level, students are able to make connections within the provided task, and they also create connections beyond that. They develop the ability to transfer and generalise the concepts and principles from one subject area into a particular domain. Therefore, the students' response indicates that they can conceptualise beyond the level of what has been taught. They are able to propose new concepts and ideas depending on their understanding of the task or subject taught.
+Students APPLY and GENERALIZE learned concepts to NEW situations NOT mentioned in content. This requires recognizing underlying principles and transferring them to novel contexts. Highest level of thinking - going beyond what was taught.
 
-TASK: Create a question that tests ability to APPLY knowledge to NEW contexts NOT in the content. Use the summary to understand the core principles, then create a scenario that requires applying those principles to a completely NEW situation. Student should predict, generalize, or solve scenarios beyond what was directly taught.
+YOUR TASK:
+1. From the summary, extract the CORE PRINCIPLE(s)
+2. Create a NOVEL SCENARIO not in the content but requiring these principles
+3. Ask student to APPLY principles to this new situation
+4. Create distractors that:
+   - Apply DIFFERENT but related principles
+   - Overgeneralize the principle incorrectly
+   - Apply principle partially or to wrong context
+   - Show sophisticated misunderstanding
+5. Student must THINK through problem, not recall
 
-CRITICAL INSTRUCTIONS FOR DISTRACTORS:
-- **DO NOT** create obviously wrong options
-- **DO** create TRICKY distractors that:
-  * Look correct if you misunderstand which principle applies
-  * Correctly apply a DIFFERENT but related principle
-  * Follow logically from the content but reach wrong conclusion
-  * Represent COMMON OVERGENERALIZATIONS of the principles
-  * Seem reasonable on surface but violate subtle constraints
-  * Apply the principle to SIMILAR but wrong context
-- Example BAD distractor: "Blue elephants" (nonsense)
-- Example GOOD distractor: "You should increase speed" (correct for acceleration problem, wrong for this momentum problem - different principle)
-- Distractors should be SOPHISTICATED errors that good test-takers might make
+DETAILED DISTRACTOR GUIDE:
+- BAD: "Blue elephants" - Nonsense
+- GOOD for transferring osmosis to new context:
+  * Content covered: osmosis in plant cells
+  * New scenario: "Drug delivery into cancer cells"
+  * Correct answer: "Hypotonic environment draws water in, disrupting cell" (applies osmosis)
+  * Bad distractor 1: "Hypertonic environment draws water in" - Reverses mechanism
+  * Bad distractor 2: "Increase ion pumps" - Applies active transport instead of osmosis
+  * Bad distractor 3: "Heat osmosis speeds it up" - Overgeneralization
+
+- GOOD for transferring photosynthesis principles:
+  * Content covered: photosynthesis in plants
+  * New scenario: "Why certain algae need more light than land plants"
+  * Requires transfer AND consideration of new variables
 
 Requirements:
-- Use the summary to identify transferable concepts and principles
-- Ask about applying/generalizing these concepts to a NEW different situation
-- Scenario should NOT be directly mentioned in the content
-- Requires student to conceptualize beyond what was taught
-- Student must demonstrate ability to transfer knowledge to new contexts
-- Question < 250 chars
-- 4 MC options (A-D), one correct
-- 3 distractors must be CHALLENGING: plausible applications of WRONG principles or MISAPPLICATIONS
-- Explanation < 250 chars
+- Novel scenario NOT directly from content
+- Requires applying underlying principles to new situation
+- 4 options (A-D): One shows correct principle transfer
+- 3 distractors show sophisticated misapplications/related wrong principles
+- Can reference new variables/constraints not in original
+- Explanation: 100-150 words, explain principle transfer and why others fail
+- Question: 300 chars maximum
 
-Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
+Return ONLY valid JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
         }
         
         return prompts.get(level, prompts['unistructural'])

@@ -218,7 +218,12 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
                         <span className="cross-topic-badge-mini">🔀 Cross-Topic</span>
                       )}
                     </div>
-                    <p>{question.question_text?.substring(0, 100)}...</p>
+                    <p className="full-question-text">{question.question_text}</p>
+                    {question.created_at && (
+                      <div className="question-timestamp">
+                        Generated: {new Date(question.created_at).toLocaleString()}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
