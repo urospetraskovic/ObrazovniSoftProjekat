@@ -3,8 +3,9 @@ Lesson Service
 Handles all lesson-related business logic
 """
 
-from database import db
-from content_parser import content_parser
+from repository import db
+from models import Lesson
+from core import content_parser
 
 
 class LessonService:
@@ -80,8 +81,8 @@ class LessonService:
             if summary:
                 session = db.get_session()
                 try:
-                    lesson_obj = session.query(db.Lesson).filter(
-                        db.Lesson.id == lesson_id
+                    lesson_obj = session.query(Lesson).filter(
+                        Lesson.id == lesson_id
                     ).first()
                     if lesson_obj:
                         lesson_obj.summary = summary

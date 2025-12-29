@@ -1,349 +1,28 @@
 """
-Database module for the SOLO Quiz Generator
-Handles all database operations using SQLite with SQLAlchemy ORM
+Database Repository
+All CRUD operations for the SOLO Quiz Generator database
 """
 
-import os
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, JSON, Float, Enum
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-import enum
-
-# Database path
-DB_PATH = os.path.join(os.path.dirname(__file__), 'quiz_database.db')
-DATABASE_URL = f"sqlite:///{DB_PATH}"
-
-# Create engine and base
-engine = create_engine(DATABASE_URL, echo=False)
-Base = declarative_base()
-Session = sessionmaker(bind=engine)
+from models import (
+    Base, engine, Session,
+    Course, Lesson, Section, LearningObject, 
+    ConceptRelationship, Question, Quiz, QuizQuestion
+)
 
 
-class SoloLevel(enum.Enum):
-    """SOLO Taxonomy levels for questions"""
-    UNISTRUCTURAL = "unistructural"
-    MULTISTRUCTURAL = "multistructural"
-    RELATIONAL = "relational"
-    EXTENDED_ABSTRACT = "extended_abstract"
+def init_database():
+    """Initialize the database, creating all tables"""
+    from models.models import DB_PATH
+    Base.metadata.create_all(engine)
+    print(f"[DATABASE] Initialized at {DB_PATH}")
 
 
-class Course(Base):
-    """
-    Course model - top level container (e.g., "Operating Systems")
-    """
-    __tablename__ = 'courses'
-    
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    code = Column(String(50), nullable=True)  # e.g., "OS", "CS101"
-    description = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    lessons = relationship("Lesson", back_populates="course", cascade="all, delete-orphan")
-    quizzes = relationship("Quiz", back_populates="course", cascade="all, delete-orphan")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'code': self.code,
-            'description': self.description,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'lesson_count': len(self.lessons) if self.lessons else 0
-        }
-
-
-class Lesson(Base):
-    """
-    Lesson model - represents a PDF file/lesson (e.g., "Virtual Memory")
-    """
-    __tablename__ = 'lessons'
-    
-    id = Column(Integer, primary_key=True)
-    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
-    title = Column(String(255), nullable=False)
-    filename = Column(String(255), nullable=True)  # Original PDF filename
-    file_path = Column(String(512), nullable=True)  # Path to stored PDF
-    raw_content = Column(Text, nullable=True)  # Extracted text from PDF
-    summary = Column(Text, nullable=True)  # AI-generated summary
-    order_index = Column(Integer, default=0)  # Order within course
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    course = relationship("Course", back_populates="lessons")
-    sections = relationship("Section", back_populates="lesson", cascade="all, delete-orphan")
-    
-    def to_dict(self, include_content=False):
-        result = {
-            'id': self.id,
-            'course_id': self.course_id,
-            'title': self.title,
-            'filename': self.filename,
-            'summary': self.summary,
-            'order_index': self.order_index,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'section_count': len(self.sections) if self.sections else 0
-        }
-        if include_content:
-            result['raw_content'] = self.raw_content
-        return result
-
-
-class Section(Base):
-    """
-    Section model - major divisions within a lesson (e.g., "Page Replacement Algorithms")
-    """
-    __tablename__ = 'sections'
-    
-    id = Column(Integer, primary_key=True)
-    lesson_id = Column(Integer, ForeignKey('lessons.id'), nullable=False)
-    title = Column(String(255), nullable=False)
-    content = Column(Text, nullable=True)  # Text content of this section
-    summary = Column(Text, nullable=True)  # AI-generated summary
-    order_index = Column(Integer, default=0)  # Order within lesson
-    start_page = Column(Integer, nullable=True)  # PDF page where section starts
-    end_page = Column(Integer, nullable=True)  # PDF page where section ends
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    lesson = relationship("Lesson", back_populates="sections")
-    learning_objects = relationship("LearningObject", back_populates="section", cascade="all, delete-orphan")
-    
-    def to_dict(self, include_content=False):
-        result = {
-            'id': self.id,
-            'lesson_id': self.lesson_id,
-            'title': self.title,
-            'summary': self.summary,
-            'order_index': self.order_index,
-            'start_page': self.start_page,
-            'end_page': self.end_page,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'learning_object_count': 0
-        }
-        # Try to get learning object count, fallback to 0 if columns don't exist
-        try:
-            result['learning_object_count'] = len(self.learning_objects) if self.learning_objects else 0
-        except Exception:
-            result['learning_object_count'] = 0
-        if include_content:
-            result['content'] = self.content
-        return result
-
-
-class LearningObject(Base):
-    """
-    Learning Object model - smallest unit of knowledge (concepts, definitions, procedures)
-    """
-    __tablename__ = 'learning_objects'
-    
-    id = Column(Integer, primary_key=True)
-    section_id = Column(Integer, ForeignKey('sections.id'), nullable=False)
-    title = Column(String(255), nullable=False)
-    content = Column(Text, nullable=True)  # The actual learning content (legacy, can be used for detailed description)
-    description = Column(Text, nullable=True)  # Rich 4-6 sentence comprehensive description
-    key_points = Column(JSON, nullable=True)  # List of detailed key points
-    object_type = Column(String(50), nullable=True)  # concept, definition, procedure, example, etc.
-    keywords = Column(JSON, nullable=True)  # List of keywords for this learning object
-    order_index = Column(Integer, default=0)
-    is_ai_generated = Column(Integer, default=1)  # Boolean as int: 1 = AI generated, 0 = human created
-    human_modified = Column(Integer, default=0)  # Boolean as int: 1 = human edited, 0 = never edited
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    section = relationship("Section", back_populates="learning_objects")
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'section_id': self.section_id,
-            'title': self.title,
-            'content': self.content,
-            'description': self.description,
-            'key_points': self.key_points,
-            'object_type': self.object_type,
-            'keywords': self.keywords,
-            'order_index': self.order_index,
-            'is_ai_generated': bool(getattr(self, 'is_ai_generated', 1)),
-            'human_modified': bool(getattr(self, 'human_modified', 0)),
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-
-class ConceptRelationship(Base):
-    """
-    Ontology relationship between learning objects (concepts)
-    """
-    __tablename__ = 'concept_relationships'
-    
-    id = Column(Integer, primary_key=True)
-    source_id = Column(Integer, ForeignKey('learning_objects.id'), nullable=False)
-    target_id = Column(Integer, ForeignKey('learning_objects.id'), nullable=False)
-    relationship_type = Column(String(50), nullable=False)  # prerequisite, part_of, related_to, etc.
-    description = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    source = relationship("LearningObject", foreign_keys=[source_id])
-    target = relationship("LearningObject", foreign_keys=[target_id])
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'source_id': self.source_id,
-            'target_id': self.target_id,
-            'relationship_type': self.relationship_type,
-            'description': self.description,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'source_title': self.source.title if self.source else None,
-            'target_title': self.target.title if self.target else None
-        }
-
-
-class Question(Base):
-    """
-    Question model - stores generated questions
-    """
-    __tablename__ = 'questions'
-    
-    id = Column(Integer, primary_key=True)
-    # Source tracking - which lesson(s) was this generated from
-    primary_lesson_id = Column(Integer, ForeignKey('lessons.id'), nullable=True)
-    secondary_lesson_id = Column(Integer, ForeignKey('lessons.id'), nullable=True)  # For extended abstract
-    section_id = Column(Integer, ForeignKey('sections.id'), nullable=True)
-    learning_object_id = Column(Integer, ForeignKey('learning_objects.id'), nullable=True)
-    
-    # Question content
-    solo_level = Column(String(50), nullable=False)  # unistructural, multistructural, relational, extended_abstract
-    question_text = Column(Text, nullable=False)
-    question_type = Column(String(50), default='multiple_choice')  # multiple_choice, true_false, short_answer
-    
-    # For multiple choice
-    options = Column(JSON, nullable=True)  # List of options
-    correct_answer = Column(Text, nullable=True)
-    correct_option_index = Column(Integer, nullable=True)
-    
-    # Metadata
-    explanation = Column(Text, nullable=True)
-    difficulty = Column(Float, nullable=True)  # 0-1 scale
-    bloom_level = Column(String(50), nullable=True)  # Bloom's taxonomy equivalent
-    tags = Column(JSON, nullable=True)  # List of tags
-    
-    # AI Generation tracking
-    is_ai_generated = Column(Integer, default=1)  # Boolean as int: 1 = AI generated, 0 = human created
-    human_modified = Column(Integer, default=0)  # Boolean as int: 1 = human edited, 0 = never edited
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    used_count = Column(Integer, default=0)  # How many times used in quizzes
-    
-    # Relationships
-    primary_lesson = relationship("Lesson", foreign_keys=[primary_lesson_id])
-    secondary_lesson = relationship("Lesson", foreign_keys=[secondary_lesson_id])
-    quiz_questions = relationship("QuizQuestion", back_populates="question", cascade="all, delete-orphan")
-    
-    def to_dict(self):
-        result = {
-            'id': self.id,
-            'primary_lesson_id': self.primary_lesson_id,
-            'secondary_lesson_id': self.secondary_lesson_id,
-            'section_id': self.section_id,
-            'learning_object_id': self.learning_object_id,
-            'solo_level': self.solo_level,
-            'question_text': self.question_text,
-            'question_type': self.question_type,
-            'options': self.options,
-            'correct_answer': self.correct_answer,
-            'correct_option_index': self.correct_option_index,
-            'explanation': self.explanation,
-            'difficulty': self.difficulty,
-            'bloom_level': self.bloom_level,
-            'tags': self.tags,
-            'is_ai_generated': bool(getattr(self, 'is_ai_generated', 1)),
-            'human_modified': bool(getattr(self, 'human_modified', 0)),
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'used_count': self.used_count
-        }
-        # Add lesson titles
-        if self.primary_lesson:
-            result['primary_lesson_title'] = self.primary_lesson.title
-        if self.secondary_lesson:
-            result['secondary_lesson_title'] = self.secondary_lesson.title
-        return result
-
-
-class Quiz(Base):
-    """
-    Quiz model - a collection of questions
-    """
-    __tablename__ = 'quizzes'
-    
-    id = Column(Integer, primary_key=True)
-    course_id = Column(Integer, ForeignKey('courses.id'), nullable=True)
-    title = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    
-    # Configuration
-    time_limit_minutes = Column(Integer, nullable=True)
-    passing_score = Column(Float, nullable=True)  # Percentage
-    shuffle_questions = Column(Integer, default=0)  # Boolean as int
-    shuffle_options = Column(Integer, default=0)  # Boolean as int
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    course = relationship("Course", back_populates="quizzes")
-    quiz_questions = relationship("QuizQuestion", back_populates="quiz", cascade="all, delete-orphan")
-    
-    def to_dict(self, include_questions=False):
-        result = {
-            'id': self.id,
-            'course_id': self.course_id,
-            'title': self.title,
-            'description': self.description,
-            'time_limit_minutes': self.time_limit_minutes,
-            'passing_score': self.passing_score,
-            'shuffle_questions': bool(self.shuffle_questions),
-            'shuffle_options': bool(self.shuffle_options),
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'question_count': len(self.quiz_questions) if self.quiz_questions else 0
-        }
-        if include_questions:
-            result['questions'] = [qq.question.to_dict() for qq in self.quiz_questions]
-        return result
-
-
-class QuizQuestion(Base):
-    """
-    Association table between Quiz and Question with ordering
-    """
-    __tablename__ = 'quiz_questions'
-    
-    id = Column(Integer, primary_key=True)
-    quiz_id = Column(Integer, ForeignKey('quizzes.id'), nullable=False)
-    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
-    order_index = Column(Integer, default=0)
-    points = Column(Float, default=1.0)
-    
-    # Relationships
-    quiz = relationship("Quiz", back_populates="quiz_questions")
-    question = relationship("Question", back_populates="quiz_questions")
-
-
-# Database operations class
 class DatabaseManager:
-    """Manager class for database operations"""
+    """Manager class for all database operations"""
+    
+    # Re-export models for backward compatibility
+    Lesson = Lesson
     
     def __init__(self):
         self.Session = Session
@@ -351,15 +30,15 @@ class DatabaseManager:
     def get_session(self):
         return self.Session()
     
-    # Course operations
+    # ==================== COURSE OPERATIONS ====================
+    
     def create_course(self, name, code=None, description=None):
         session = self.get_session()
         try:
             course = Course(name=name, code=code, description=description)
             session.add(course)
             session.commit()
-            result = course.to_dict()
-            return result
+            return course.to_dict()
         finally:
             session.close()
     
@@ -391,11 +70,11 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Lesson operations
+    # ==================== LESSON OPERATIONS ====================
+    
     def create_lesson(self, course_id, title, filename=None, file_path=None, raw_content=None):
         session = self.get_session()
         try:
-            # Get max order_index for this course
             max_order = session.query(Lesson).filter(Lesson.course_id == course_id).count()
             lesson = Lesson(
                 course_id=course_id,
@@ -407,8 +86,7 @@ class DatabaseManager:
             )
             session.add(lesson)
             session.commit()
-            result = lesson.to_dict()
-            return result
+            return lesson.to_dict()
         finally:
             session.close()
     
@@ -431,7 +109,6 @@ class DatabaseManager:
     def get_lesson_with_sections(self, lesson_id):
         session = self.get_session()
         try:
-            # Query lesson without trying to load learning_objects columns that may not exist
             lesson = session.query(Lesson).filter(Lesson.id == lesson_id).first()
             if not lesson:
                 return None
@@ -439,10 +116,8 @@ class DatabaseManager:
             result = lesson.to_dict(include_content=True)
             sections_list = []
             
-            # Manually load sections and learning_objects to avoid column errors
             for s in lesson.sections:
                 section_dict = s.to_dict(include_content=True)
-                # Load learning objects for this section with SQL that doesn't require new columns
                 try:
                     learning_objects = session.query(LearningObject).filter(
                         LearningObject.section_id == s.id
@@ -451,7 +126,6 @@ class DatabaseManager:
                 except Exception as e:
                     print(f"[WARNING] Could not load learning objects for section {s.id}: {str(e)}")
                     section_dict['learning_objects'] = []
-                
                 sections_list.append(section_dict)
             
             result['sections'] = sections_list
@@ -471,7 +145,8 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Section operations
+    # ==================== SECTION OPERATIONS ====================
+    
     def create_section(self, lesson_id, title, content=None, start_page=None, end_page=None):
         session = self.get_session()
         try:
@@ -486,8 +161,7 @@ class DatabaseManager:
             )
             session.add(section)
             session.commit()
-            result = section.to_dict()
-            return result
+            return section.to_dict()
         finally:
             session.close()
     
@@ -511,7 +185,8 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Learning object operations
+    # ==================== LEARNING OBJECT OPERATIONS ====================
+    
     def create_learning_object(self, section_id, title, content=None, object_type=None, keywords=None, is_ai_generated=True):
         session = self.get_session()
         try:
@@ -527,8 +202,7 @@ class DatabaseManager:
             )
             session.add(lo)
             session.commit()
-            result = lo.to_dict()
-            return result
+            return lo.to_dict()
         finally:
             session.close()
     
@@ -576,7 +250,8 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Ontology/Relationship operations
+    # ==================== RELATIONSHIP OPERATIONS ====================
+    
     def create_relationship(self, source_id, target_id, relationship_type, description=None):
         session = self.get_session()
         try:
@@ -595,13 +270,11 @@ class DatabaseManager:
     def get_relationships_for_lesson(self, lesson_id):
         session = self.get_session()
         try:
-            # Get all learning objects for this lesson
             sections = session.query(Section).filter(Section.lesson_id == lesson_id).all()
             section_ids = [s.id for s in sections]
             los = session.query(LearningObject).filter(LearningObject.section_id.in_(section_ids)).all()
             lo_ids = [lo.id for lo in los]
             
-            # Get relationships where both source and target are in this lesson
             rels = session.query(ConceptRelationship).filter(
                 ConceptRelationship.source_id.in_(lo_ids) | 
                 ConceptRelationship.target_id.in_(lo_ids)
@@ -611,7 +284,6 @@ class DatabaseManager:
             session.close()
 
     def delete_relationship(self, rel_id):
-        """Delete a relationship by ID"""
         session = self.get_session()
         try:
             rel = session.query(ConceptRelationship).filter(ConceptRelationship.id == rel_id).first()
@@ -645,7 +317,8 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Question operations
+    # ==================== QUESTION OPERATIONS ====================
+    
     def create_question(self, solo_level, question_text, question_type='multiple_choice',
                        primary_lesson_id=None, secondary_lesson_id=None, section_id=None,
                        learning_object_id=None, options=None, correct_answer=None,
@@ -672,8 +345,7 @@ class DatabaseManager:
             )
             session.add(question)
             session.commit()
-            result = question.to_dict()
-            return result
+            return question.to_dict()
         finally:
             session.close()
     
@@ -684,7 +356,6 @@ class DatabaseManager:
             if not question:
                 return None
             
-            # Mark as human modified if updating
             mark_human_modified = kwargs.pop('mark_human_modified', False)
             
             for key, value in kwargs.items():
@@ -729,7 +400,6 @@ class DatabaseManager:
         session = self.get_session()
         try:
             if course_id:
-                # Get all lessons for this course
                 lessons = session.query(Lesson).filter(Lesson.course_id == course_id).all()
                 lesson_ids = [l.id for l in lessons]
                 questions = session.query(Question).filter(
@@ -754,7 +424,8 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Quiz operations
+    # ==================== QUIZ OPERATIONS ====================
+    
     def create_quiz(self, title, course_id=None, description=None, time_limit_minutes=None,
                    passing_score=None, shuffle_questions=False, shuffle_options=False):
         session = self.get_session()
@@ -770,8 +441,7 @@ class DatabaseManager:
             )
             session.add(quiz)
             session.commit()
-            result = quiz.to_dict()
-            return result
+            return quiz.to_dict()
         finally:
             session.close()
     
@@ -819,30 +489,10 @@ class DatabaseManager:
         finally:
             session.close()
     
-    # Bulk operations for importing parsed content
+    # ==================== BULK OPERATIONS ====================
+    
     def bulk_create_sections_and_learning_objects(self, lesson_id, parsed_data):
-        """
-        Create multiple sections and learning objects from parsed PDF data
-        parsed_data format:
-        [
-            {
-                'title': 'Section Title',
-                'content': 'Section content...',
-                'start_page': 1,
-                'end_page': 5,
-                'learning_objects': [
-                    {
-                        'title': 'LO Title',
-                        'content': 'LO content...',
-                        'object_type': 'concept',
-                        'keywords': ['keyword1', 'keyword2']
-                    },
-                    ...
-                ]
-            },
-            ...
-        ]
-        """
+        """Create multiple sections and learning objects from parsed PDF data"""
         session = self.get_session()
         try:
             for idx, section_data in enumerate(parsed_data):
@@ -855,15 +505,15 @@ class DatabaseManager:
                     order_index=idx
                 )
                 session.add(section)
-                session.flush()  # Get section.id
+                session.flush()
                 
                 for lo_idx, lo_data in enumerate(section_data.get('learning_objects', [])):
                     lo = LearningObject(
                         section_id=section.id,
                         title=lo_data['title'],
                         content=lo_data.get('content'),
-                        description=lo_data.get('description'),  # Rich description
-                        key_points=lo_data.get('key_points'),  # Detailed key points
+                        description=lo_data.get('description'),
+                        key_points=lo_data.get('key_points'),
                         object_type=lo_data.get('object_type'),
                         keywords=lo_data.get('keywords'),
                         order_index=lo_idx
@@ -913,14 +563,8 @@ class DatabaseManager:
             session.close()
 
 
-def init_database():
-    """Initialize the database, creating all tables"""
-    Base.metadata.create_all(engine)
-    print(f"[DATABASE] Initialized at {DB_PATH}")
-
-
-# Initialize database on module import
+# Initialize on import
 init_database()
 
-# Create a global database manager instance
+# Create global database manager instance
 db = DatabaseManager()

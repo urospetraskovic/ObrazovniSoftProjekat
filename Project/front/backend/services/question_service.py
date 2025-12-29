@@ -3,8 +3,8 @@ Question Service
 Handles question generation and management logic
 """
 
-from database import db
-from ai_providers.quiz_generator_local import SoloQuizGeneratorLocal as SoloQuizGenerator
+from repository import db
+from core import SoloQuizGeneratorLocal as SoloQuizGenerator
 
 
 class QuestionService:

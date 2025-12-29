@@ -1072,5 +1072,41 @@ JSON ONLY:
                         valid_relationships.append(rel)
         
         return valid_relationships
+    
+    def generate_lesson_summary(self, content: str, lesson_title: str) -> Optional[str]:
+        """
+        Generate a concise summary of the lesson content.
+        
+        Args:
+            content: Full lesson content
+            lesson_title: Title of the lesson
+            
+        Returns:
+            Summary text or None if generation fails
+        """
+        prompt = f"""Create a concise educational summary of this lesson.
+
+LESSON: {lesson_title}
+
+CONTENT:
+{content[:4000]}
+
+---
+
+Write a 3-5 paragraph summary that covers:
+1. Main topic and scope
+2. Key concepts introduced
+3. Important takeaways
+
+Write in clear, academic English. Keep it concise but comprehensive."""
+
+        response = self._call_ollama(prompt, timeout=120)
+        
+        if response and len(response) > 50:
+            return response.strip()
+        
+        return None
+
+
 # Create global instance
 content_parser = ContentParser()

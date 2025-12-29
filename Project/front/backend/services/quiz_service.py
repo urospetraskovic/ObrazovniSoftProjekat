@@ -3,7 +3,7 @@ Quiz Service
 Handles quiz building and management logic
 """
 
-from database import db
+from repository import db
 
 
 class QuizService:
