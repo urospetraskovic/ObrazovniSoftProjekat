@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { questionApi } from '../api';
+import { useLanguage } from '../context/LanguageContext';
+import TranslationViewer from './TranslationViewer';
 
 function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
+  const { selectedLanguage } = useLanguage();
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuestions, setSelectedQuestions] = useState([]);
@@ -9,6 +12,8 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showTranslationViewer, setShowTranslationViewer] = useState(false);
+  const [viewingTranslationId, setViewingTranslationId] = useState(null);
 
   const filteredQuestions = questions.filter(q => {
     const matchesFilter = filter === 'all' || q.solo_level === filter;
@@ -129,9 +134,9 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
     <div className="question-bank">
       <div className="card">
         <div className="card-header">
-          <h2>❓ Question Bank</h2>
+          <h2>Question Bank</h2>
           <button className="btn-secondary" onClick={onRefresh}>
-            🔄 Refresh
+            Refresh
           </button>
         </div>
 
@@ -232,7 +237,7 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
                     
                     {/* AI Generation Status Badge */}
                     <span className={`question-status-badge ${question.human_modified ? 'human-modified' : question.is_ai_generated ? 'ai-generated' : 'human-created'}`}>
-                      {question.human_modified ? '⚠️ Human Modified' : question.is_ai_generated ? '🤖 AI Generated' : '👤 Human Created'}
+                      {question.human_modified ? 'Human Modified' : question.is_ai_generated ? 'AI Generated' : 'Human Created'}
                     </span>
                   </div>
                   
@@ -240,14 +245,14 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
                   
                   {/* Lesson Source */}
                   <div className={`lesson-source ${question.solo_level === 'extended_abstract' ? 'extended-source' : ''}`}>
-                    <span className="source-icon">📚</span>
+                    <span className="source-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
                     {getLessonSourceDisplay(question)}
                   </div>
 
                   {/* Creation Date */}
                   {question.created_at && (
                     <div className="question-meta-info">
-                      <span className="creation-date">📅 {formatDate(question.created_at)}</span>
+                      <span className="creation-date">{formatDate(question.created_at)}</span>
                     </div>
                   )}
 
@@ -286,18 +291,28 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
 
                 <div className="question-actions">
                   <button
+                    className="btn-icon btn-translate"
+                    onClick={() => {
+                      setViewingTranslationId(question.id);
+                      setShowTranslationViewer(true);
+                    }}
+                    title="View translation"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </button>
+                  <button
                     className="btn-icon btn-edit"
                     onClick={() => handleEditQuestion(question)}
                     title="Edit question"
                   >
-                    ✏️
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
                   <button
                     className="btn-icon btn-danger"
                     onClick={() => handleDeleteQuestion(question.id)}
                     title="Delete question"
                   >
-                    🗑️
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
                 </div>
               </div>
@@ -432,7 +447,7 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
                 {/* Human Modified Notice */}
                 <div className="form-status-info">
                   <span className="status-badge human-modified">
-                    ⚠️ Saving changes will mark this as: Human Modified
+                    Saving changes will mark this as: Human Modified
                   </span>
                 </div>
               </div>
@@ -495,7 +510,7 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
             <div className="modal-body">
               {/* AI Status Info */}
               <div className={`status-info ${editingQuestion.human_modified ? 'human-modified' : editingQuestion.is_ai_generated ? 'ai-generated' : 'human-created'}`}>
-                <strong>Status:</strong> {editingQuestion.human_modified ? 'Human Modified ⚠️' : editingQuestion.is_ai_generated ? 'AI Generated 🤖' : 'Human Created 👤'}
+                <strong>Status:</strong> {editingQuestion.human_modified ? 'Human Modified' : editingQuestion.is_ai_generated ? 'AI Generated' : 'Human Created'}
                 {editingQuestion.is_ai_generated && !editingQuestion.human_modified && (
                   <p style={{ fontSize: '0.85rem', marginTop: '5px', fontStyle: 'italic' }}>
                     This question was AI-generated. Editing it will mark it as human-modified.
@@ -579,6 +594,18 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
           </div>
         </div>
       )}
+      
+      {/* Translation Viewer Modal */}
+      <TranslationViewer
+        isOpen={showTranslationViewer}
+        onClose={() => {
+          setShowTranslationViewer(false);
+          setViewingTranslationId(null);
+        }}
+        entityId={viewingTranslationId}
+        entityType="question"
+        originalText={questions.find(q => q.id === viewingTranslationId)?.question_text}
+      />
     </div>
   );
 }

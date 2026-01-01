@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { quizApi } from '../api';
+import { useLanguage } from '../context/LanguageContext';
+import TranslationViewer from './TranslationViewer';
 
 function QuizBuilder({ questions, course, onSuccess, onError }) {
+  const { selectedLanguage } = useLanguage();
   const [quizTitle, setQuizTitle] = useState('');
   const [quizDescription, setQuizDescription] = useState('');
   const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
@@ -9,6 +12,8 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
   const [timeLimit, setTimeLimit] = useState(null);
   const [creating, setCreating] = useState(false);
   const [createdQuiz, setCreatedQuiz] = useState(null);
+  const [showTranslationViewer, setShowTranslationViewer] = useState(false);
+  const [viewingTranslationId, setViewingTranslationId] = useState(null);
 
   const filteredQuestions = questions.filter(q => 
     filterLevel === 'all' || q.solo_level === filterLevel
@@ -107,7 +112,7 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
   return (
     <div className="quiz-builder">
       <div className="card">
-        <h2>📝 Build Quiz</h2>
+        <h2>Build Quiz</h2>
         
         {/* Quiz Details */}
         <div className="quiz-details-section">
@@ -139,6 +144,12 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
               onChange={(e) => setTimeLimit(e.target.value ? parseInt(e.target.value) : null)}
               min="1"
             />
+          </div>
+          <div className="form-group">
+            <label>Preview Language</label>
+            <p style={{ marginBottom: '8px', fontSize: '0.85rem', color: '#666' }}>
+              Selected language: <strong>{selectedLanguage.toUpperCase()}</strong> (click 🌐 on any question to see its translation)
+            </p>
           </div>
         </div>
 
@@ -215,8 +226,19 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
                         {question.solo_level?.replace('_', ' ')}
                       </span>
                       {question.solo_level === 'extended_abstract' && (
-                        <span className="cross-topic-badge-mini">🔀 Cross-Topic</span>
+                        <span className="cross-topic-badge-mini">Cross-Topic</span>
                       )}
+                      <button
+                        className="btn-translate"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingTranslationId(question.id);
+                          setShowTranslationViewer(true);
+                        }}
+                        title={`View question in ${selectedLanguage}`}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      </button>
                     </div>
                     <p className="full-question-text">{question.question_text}</p>
                     {question.created_at && (
@@ -263,25 +285,36 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
             onClick={handleCreateQuiz}
             disabled={creating || !quizTitle.trim() || selectedQuestionIds.length === 0}
           >
-            {creating ? 'Creating...' : `📝 Create Quiz (${selectedQuestionIds.length} questions)`}
+            {creating ? 'Creating...' : `Create Quiz (${selectedQuestionIds.length} questions)`}
           </button>
         </div>
 
         {/* Created Quiz */}
         {createdQuiz && (
           <div className="created-quiz">
-            <h4>✅ Quiz Created!</h4>
+            <h4>Quiz Created!</h4>
             <p><strong>{createdQuiz.title}</strong></p>
             <p>{createdQuiz.question_count} questions</p>
             <button 
               className="btn-secondary"
               onClick={() => handleExportQuiz(createdQuiz.id)}
             >
-              📥 Export to JSON
+              Export to JSON
             </button>
           </div>
         )}
       </div>
+      
+      <TranslationViewer
+        isOpen={showTranslationViewer}
+        onClose={() => {
+          setShowTranslationViewer(false);
+          setViewingTranslationId(null);
+        }}
+        entityId={viewingTranslationId}
+        entityType="question"
+        originalText={questions.find(q => q.id === viewingTranslationId)?.question_text}
+      />
     </div>
   );
 }

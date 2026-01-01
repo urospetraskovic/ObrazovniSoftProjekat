@@ -118,12 +118,12 @@ function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError })
   return (
     <div className="question-generator">
       <div className="card">
-        <h2>⚡ Generate Questions</h2>
+        <h2>Generate Questions</h2>
         <p className="subtitle">Select lessons and SOLO levels to generate questions</p>
 
         {/* Lesson Selection */}
         <div className="generator-section">
-          <h3>📖 Select Lessons</h3>
+          <h3>Select Lessons</h3>
           {lessons.length === 0 ? (
             <div className="empty-state">
               <p>No parsed lessons available.</p>
@@ -153,21 +153,21 @@ function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError })
             <p className="selection-info">
               {selectedLessons.length} lesson(s) selected
               {soloLevels.extended_abstract && selectedLessons.length === 2 && (
-                <span className="good"> ✓ Ready for Extended Abstract</span>
+                <span className="good"> - Ready for Extended Abstract</span>
               )}
             </p>
           )}
 
           {unparsedLessons.length > 0 && (
             <p className="warning-hint">
-              ⚠️ {unparsedLessons.length} lesson(s) need parsing before they can be used
+              {unparsedLessons.length} lesson(s) need parsing before they can be used
             </p>
           )}
         </div>
 
         {/* SOLO Level Selection */}
         <div className="generator-section">
-          <h3>🎯 SOLO Levels</h3>
+          <h3>SOLO Levels</h3>
           <div className="solo-level-grid">
             {Object.entries(soloLevels).map(([level, active]) => (
               <div
@@ -190,7 +190,7 @@ function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError })
 
         {/* Questions Per Level */}
         <div className="generator-section">
-          <h3>🔢 Questions per Level</h3>
+          <h3>Questions per Level</h3>
           <div className="questions-slider">
             <input
               type="range"
@@ -218,7 +218,7 @@ function QuestionGenerator({ course, onQuestionsGenerated, onSuccess, onError })
             onClick={handleGenerate}
             disabled={generating || selectedLessons.length === 0}
           >
-            {generating ? 'Generating...' : '⚡ Generate Questions'}
+            {generating ? 'Generating...' : 'Generate Questions'}
           </button>
         </div>
       </div>

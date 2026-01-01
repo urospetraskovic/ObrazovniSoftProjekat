@@ -1,10 +1,24 @@
 """
 Ontology Export Utilities
-Functions for generating OWL and Turtle format ontologies from lesson relationships
+Functions for generating OWL and Turtle format ontologies from lesson relationships.
+
+This service uses the SOLO Education Seed Ontology as a foundation and populates it
+with actual content from the database (courses, lessons, learning objects, questions).
+
+Seed Ontology Location: backend/ontology/seed_ontology.owl
 """
 
 import html
 import re
+import os
+
+# Path to seed ontology files
+ONTOLOGY_DIR = os.path.join(os.path.dirname(__file__), '..', 'ontology')
+SEED_OWL_PATH = os.path.join(ONTOLOGY_DIR, 'seed_ontology.owl')
+SEED_TTL_PATH = os.path.join(ONTOLOGY_DIR, 'seed_ontology.ttl')
+
+# Base IRI for the ontology
+BASE_IRI = "http://example.org/solo-education-ontology"
 
 
 def generate_owl_from_relationships(lesson, relationships):

@@ -1,0 +1,1094 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://example.org/solo-education-ontology"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:dcterms="http://purl.org/dc/terms/"
+     ontologyIRI="http://example.org/solo-education-ontology">
+    
+    <!-- ================================================================== -->
+    <!-- SOLO TAXONOMY EDUCATIONAL ONTOLOGY - SEED VERSION                  -->
+    <!-- ================================================================== -->
+    <!-- 
+    This is a SEED ONTOLOGY for the SOLO Quiz Generator system.
+    It provides foundational classes and relationships that will be 
+    populated and evolved as the system processes educational content.
+    
+    Based on:
+    - SOLO Taxonomy (Biggs & Collis, 1982)
+    - IEEE Learning Object Metadata (LOM) concepts
+    - Bloom's Taxonomy alignment
+    - Educational Assessment standards
+    
+    Author: SOLO Quiz Generator Project
+    Version: 1.0 (Seed)
+    Date: 2024
+    -->
+
+    <!-- Prefixes -->
+    <Prefix name="" IRI="http://example.org/solo-education-ontology#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="dc" IRI="http://purl.org/dc/elements/1.1/"/>
+    <Prefix name="lom" IRI="http://ltsc.ieee.org/xsd/LOM#"/>
+    <Prefix name="solo" IRI="http://example.org/solo-education-ontology#"/>
+
+    <!-- Ontology Metadata -->
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="dc:title"/>
+        <Literal>SOLO Taxonomy Educational Ontology</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="dc:description"/>
+        <Literal>A seed ontology for representing educational content, SOLO taxonomy levels, learning objects, and assessment questions. This ontology evolves as the system processes new educational materials.</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="dc:creator"/>
+        <Literal>SOLO Quiz Generator Project</Literal>
+    </Annotation>
+
+    <!-- ================================================================== -->
+    <!-- CORE CLASS HIERARCHY                                               -->
+    <!-- ================================================================== -->
+
+    <!-- Top-level Educational Entity -->
+    <Declaration>
+        <Class IRI="#EducationalEntity"/>
+    </Declaration>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#EducationalEntity</IRI>
+        <Literal>Educational Entity</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#EducationalEntity</IRI>
+        <Literal>Abstract base class for all educational entities in the ontology</Literal>
+    </AnnotationAssertion>
+
+    <!-- ==================== COURSE STRUCTURE ==================== -->
+    
+    <!-- Course -->
+    <Declaration>
+        <Class IRI="#Course"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Course"/>
+        <Class IRI="#EducationalEntity"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Course</IRI>
+        <Literal>Course</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Course</IRI>
+        <Literal>A structured program of study on a particular subject (e.g., Operating Systems, Biology)</Literal>
+    </AnnotationAssertion>
+
+    <!-- Lesson -->
+    <Declaration>
+        <Class IRI="#Lesson"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Lesson"/>
+        <Class IRI="#EducationalEntity"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Lesson</IRI>
+        <Literal>Lesson</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Lesson</IRI>
+        <Literal>A single unit of instruction within a course, typically corresponding to one PDF or document</Literal>
+    </AnnotationAssertion>
+
+    <!-- Section -->
+    <Declaration>
+        <Class IRI="#Section"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Section"/>
+        <Class IRI="#EducationalEntity"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Section</IRI>
+        <Literal>Section</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Section</IRI>
+        <Literal>A major topic division within a lesson</Literal>
+    </AnnotationAssertion>
+
+    <!-- ==================== LEARNING OBJECTS (IEEE LOM inspired) ==================== -->
+    
+    <!-- LearningObject - Base class -->
+    <Declaration>
+        <Class IRI="#LearningObject"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#LearningObject"/>
+        <Class IRI="#EducationalEntity"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#LearningObject</IRI>
+        <Literal>Learning Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#LearningObject</IRI>
+        <Literal>The smallest meaningful unit of educational content that can be independently understood and assessed. Inspired by IEEE LOM standard.</Literal>
+    </AnnotationAssertion>
+
+    <!-- Learning Object Types -->
+    <Declaration>
+        <Class IRI="#Concept"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Concept"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Concept</IRI>
+        <Literal>Concept</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Concept</IRI>
+        <Literal>An abstract idea or general notion (e.g., 'Process Scheduling', 'Photosynthesis')</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Definition"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Definition"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Definition</IRI>
+        <Literal>Definition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Definition</IRI>
+        <Literal>A formal explanation of the meaning of a term or concept</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Procedure"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Procedure"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Procedure</IRI>
+        <Literal>Procedure</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Procedure</IRI>
+        <Literal>A step-by-step process or algorithm</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Principle"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Principle"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Principle</IRI>
+        <Literal>Principle</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Principle</IRI>
+        <Literal>A fundamental truth, law, or rule that guides behavior or explains phenomena</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Example"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Example"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Example</IRI>
+        <Literal>Example</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Example</IRI>
+        <Literal>A concrete instance that illustrates a concept or principle</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Fact"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Fact"/>
+        <Class IRI="#LearningObject"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Fact</IRI>
+        <Literal>Fact</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Fact</IRI>
+        <Literal>A verified piece of information that is objectively true</Literal>
+    </AnnotationAssertion>
+
+    <!-- ==================== SOLO TAXONOMY LEVELS ==================== -->
+    
+    <Declaration>
+        <Class IRI="#SoloLevel"/>
+    </Declaration>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#SoloLevel</IRI>
+        <Literal>SOLO Taxonomy Level</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#SoloLevel</IRI>
+        <Literal>Structure of Observed Learning Outcome (SOLO) taxonomy level, as defined by Biggs and Collis (1982). Describes the complexity of a learner's understanding.</Literal>
+    </AnnotationAssertion>
+
+    <!-- SOLO Level Individuals -->
+    <Declaration>
+        <NamedIndividual IRI="#Prestructural"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#SoloLevel"/>
+        <NamedIndividual IRI="#Prestructural"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Prestructural</IRI>
+        <Literal>Prestructural</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Prestructural</IRI>
+        <Literal>Level 0: No understanding. Response shows no relevant knowledge.</Literal>
+    </AnnotationAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#levelOrder"/>
+        <NamedIndividual IRI="#Prestructural"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">0</Literal>
+    </DataPropertyAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Unistructural"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#SoloLevel"/>
+        <NamedIndividual IRI="#Unistructural"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Unistructural</IRI>
+        <Literal>Unistructural</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Unistructural</IRI>
+        <Literal>Level 1: Understanding of ONE aspect. Can identify, name, or follow simple procedures.</Literal>
+    </AnnotationAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#levelOrder"/>
+        <NamedIndividual IRI="#Unistructural"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">1</Literal>
+    </DataPropertyAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Multistructural"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#SoloLevel"/>
+        <NamedIndividual IRI="#Multistructural"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Multistructural</IRI>
+        <Literal>Multistructural</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Multistructural</IRI>
+        <Literal>Level 2: Understanding of SEVERAL aspects independently. Can describe, list, combine.</Literal>
+    </AnnotationAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#levelOrder"/>
+        <NamedIndividual IRI="#Multistructural"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2</Literal>
+    </DataPropertyAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Relational"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#SoloLevel"/>
+        <NamedIndividual IRI="#Relational"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Relational</IRI>
+        <Literal>Relational</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Relational</IRI>
+        <Literal>Level 3: Understanding of RELATIONSHIPS between aspects. Can compare, contrast, analyze, explain causes.</Literal>
+    </AnnotationAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#levelOrder"/>
+        <NamedIndividual IRI="#Relational"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">3</Literal>
+    </DataPropertyAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#ExtendedAbstract"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#SoloLevel"/>
+        <NamedIndividual IRI="#ExtendedAbstract"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#ExtendedAbstract</IRI>
+        <Literal>Extended Abstract</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#ExtendedAbstract</IRI>
+        <Literal>Level 4: TRANSFER to new domains. Can generalize, hypothesize, theorize, create new applications.</Literal>
+    </AnnotationAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#levelOrder"/>
+        <NamedIndividual IRI="#ExtendedAbstract"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">4</Literal>
+    </DataPropertyAssertion>
+
+    <!-- ==================== BLOOM'S TAXONOMY (for alignment) ==================== -->
+    
+    <Declaration>
+        <Class IRI="#BloomLevel"/>
+    </Declaration>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#BloomLevel</IRI>
+        <Literal>Bloom's Taxonomy Level</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#BloomLevel</IRI>
+        <Literal>Bloom's Taxonomy cognitive domain levels (revised version)</Literal>
+    </AnnotationAssertion>
+
+    <!-- Bloom Level Individuals -->
+    <Declaration>
+        <NamedIndividual IRI="#Remember"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Remember"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Remember</IRI>
+        <Literal>Remember</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Understand"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Understand"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Understand</IRI>
+        <Literal>Understand</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Apply"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Apply"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Apply</IRI>
+        <Literal>Apply</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Analyze"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Analyze"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Analyze</IRI>
+        <Literal>Analyze</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Evaluate"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Evaluate"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Evaluate</IRI>
+        <Literal>Evaluate</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <NamedIndividual IRI="#Create"/>
+    </Declaration>
+    <ClassAssertion>
+        <Class IRI="#BloomLevel"/>
+        <NamedIndividual IRI="#Create"/>
+    </ClassAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Create</IRI>
+        <Literal>Create</Literal>
+    </AnnotationAssertion>
+
+    <!-- ==================== ASSESSMENT ENTITIES ==================== -->
+    
+    <Declaration>
+        <Class IRI="#Assessment"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Assessment"/>
+        <Class IRI="#EducationalEntity"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Assessment</IRI>
+        <Literal>Assessment</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Question"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Question"/>
+        <Class IRI="#Assessment"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Question</IRI>
+        <Literal>Question</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#Quiz"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Quiz"/>
+        <Class IRI="#Assessment"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Quiz</IRI>
+        <Literal>Quiz</Literal>
+    </AnnotationAssertion>
+
+    <!-- Question Types -->
+    <Declaration>
+        <Class IRI="#MultipleChoiceQuestion"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#MultipleChoiceQuestion"/>
+        <Class IRI="#Question"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#MultipleChoiceQuestion</IRI>
+        <Literal>Multiple Choice Question</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#TrueFalseQuestion"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#TrueFalseQuestion"/>
+        <Class IRI="#Question"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#TrueFalseQuestion</IRI>
+        <Literal>True/False Question</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#ShortAnswerQuestion"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#ShortAnswerQuestion"/>
+        <Class IRI="#Question"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#ShortAnswerQuestion</IRI>
+        <Literal>Short Answer Question</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <Class IRI="#EssayQuestion"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#EssayQuestion"/>
+        <Class IRI="#Question"/>
+    </SubClassOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#EssayQuestion</IRI>
+        <Literal>Essay Question</Literal>
+    </AnnotationAssertion>
+
+    <!-- ================================================================== -->
+    <!-- OBJECT PROPERTIES (RELATIONSHIPS)                                  -->
+    <!-- ================================================================== -->
+
+    <!-- Structural Relationships -->
+    <Declaration>
+        <ObjectProperty IRI="#belongsToCourse"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#belongsToCourse"/>
+        <Class IRI="#Lesson"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#belongsToCourse"/>
+        <Class IRI="#Course"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#belongsToCourse</IRI>
+        <Literal>belongs to course</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasLesson"/>
+    </Declaration>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#hasLesson"/>
+        <ObjectProperty IRI="#belongsToCourse"/>
+    </InverseObjectProperties>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasLesson</IRI>
+        <Literal>has lesson</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasSection"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasSection"/>
+        <Class IRI="#Lesson"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasSection"/>
+        <Class IRI="#Section"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasSection</IRI>
+        <Literal>has section</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#belongsToSection"/>
+    </Declaration>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#belongsToSection"/>
+        <ObjectProperty IRI="#hasSection"/>
+    </InverseObjectProperties>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#belongsToSection</IRI>
+        <Literal>belongs to section</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#containsLearningObject"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#containsLearningObject"/>
+        <Class IRI="#Section"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#containsLearningObject"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#containsLearningObject</IRI>
+        <Literal>contains learning object</Literal>
+    </AnnotationAssertion>
+
+    <!-- Knowledge Relationships (between Learning Objects) -->
+    <Declaration>
+        <ObjectProperty IRI="#isPrerequisiteFor"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isPrerequisiteFor"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isPrerequisiteFor"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#isPrerequisiteFor</IRI>
+        <Literal>is prerequisite for</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#isPrerequisiteFor</IRI>
+        <Literal>Indicates that understanding concept A is required before learning concept B</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasPrerequisite"/>
+    </Declaration>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#hasPrerequisite"/>
+        <ObjectProperty IRI="#isPrerequisiteFor"/>
+    </InverseObjectProperties>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasPrerequisite</IRI>
+        <Literal>has prerequisite</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#buildsUpon"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#buildsUpon"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#buildsUpon"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#buildsUpon</IRI>
+        <Literal>builds upon</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#buildsUpon</IRI>
+        <Literal>Indicates that concept A extends or elaborates on concept B</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#isPartOf"/>
+    </Declaration>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="#isPartOf"/>
+    </TransitiveObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isPartOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isPartOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#isPartOf</IRI>
+        <Literal>is part of</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasPart"/>
+    </Declaration>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#hasPart"/>
+        <ObjectProperty IRI="#isPartOf"/>
+    </InverseObjectProperties>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasPart</IRI>
+        <Literal>has part</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#relatedTo"/>
+    </Declaration>
+    <SymmetricObjectProperty>
+        <ObjectProperty IRI="#relatedTo"/>
+    </SymmetricObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#relatedTo"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#relatedTo"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#relatedTo</IRI>
+        <Literal>related to</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#contrastsWith"/>
+    </Declaration>
+    <SymmetricObjectProperty>
+        <ObjectProperty IRI="#contrastsWith"/>
+    </SymmetricObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#contrastsWith"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#contrastsWith"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#contrastsWith</IRI>
+        <Literal>contrasts with</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#contrastsWith</IRI>
+        <Literal>Indicates opposing or contrasting concepts</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#isExampleOf"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isExampleOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isExampleOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#isExampleOf</IRI>
+        <Literal>is example of</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasExample"/>
+    </Declaration>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#hasExample"/>
+        <ObjectProperty IRI="#isExampleOf"/>
+    </InverseObjectProperties>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasExample</IRI>
+        <Literal>has example</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#isTypeOf"/>
+    </Declaration>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="#isTypeOf"/>
+    </TransitiveObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isTypeOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isTypeOf"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#isTypeOf</IRI>
+        <Literal>is type of</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#isTypeOf</IRI>
+        <Literal>Taxonomic/hierarchical relationship (A is a kind of B)</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#enables"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#enables"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#enables"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#enables</IRI>
+        <Literal>enables</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#uses"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#uses"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#uses"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#uses</IRI>
+        <Literal>uses</Literal>
+    </AnnotationAssertion>
+
+    <!-- Assessment Relationships -->
+    <Declaration>
+        <ObjectProperty IRI="#assessesLearningObject"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#assessesLearningObject"/>
+        <Class IRI="#Question"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#assessesLearningObject"/>
+        <Class IRI="#LearningObject"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#assessesLearningObject</IRI>
+        <Literal>assesses learning object</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasSOLOLevel"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasSOLOLevel"/>
+        <Class IRI="#Question"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasSOLOLevel"/>
+        <Class IRI="#SoloLevel"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasSOLOLevel</IRI>
+        <Literal>has SOLO level</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#hasBloomLevel"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasBloomLevel"/>
+        <Class IRI="#Question"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasBloomLevel"/>
+        <Class IRI="#BloomLevel"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasBloomLevel</IRI>
+        <Literal>has Bloom level</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <ObjectProperty IRI="#containsQuestion"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#containsQuestion"/>
+        <Class IRI="#Quiz"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#containsQuestion"/>
+        <Class IRI="#Question"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#containsQuestion</IRI>
+        <Literal>contains question</Literal>
+    </AnnotationAssertion>
+
+    <!-- SOLO-Bloom Alignment -->
+    <Declaration>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+    </Declaration>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <Class IRI="#SoloLevel"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <Class IRI="#BloomLevel"/>
+    </ObjectPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#alignsWithBloom</IRI>
+        <Literal>aligns with Bloom level</Literal>
+    </AnnotationAssertion>
+
+    <!-- SOLO-Bloom Alignment Assertions -->
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <NamedIndividual IRI="#Unistructural"/>
+        <NamedIndividual IRI="#Remember"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <NamedIndividual IRI="#Multistructural"/>
+        <NamedIndividual IRI="#Understand"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <NamedIndividual IRI="#Relational"/>
+        <NamedIndividual IRI="#Analyze"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <NamedIndividual IRI="#ExtendedAbstract"/>
+        <NamedIndividual IRI="#Evaluate"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#alignsWithBloom"/>
+        <NamedIndividual IRI="#ExtendedAbstract"/>
+        <NamedIndividual IRI="#Create"/>
+    </ObjectPropertyAssertion>
+
+    <!-- ================================================================== -->
+    <!-- DATA PROPERTIES                                                    -->
+    <!-- ================================================================== -->
+
+    <Declaration>
+        <DataProperty IRI="#levelOrder"/>
+    </Declaration>
+    <DataPropertyDomain>
+        <DataProperty IRI="#levelOrder"/>
+        <Class IRI="#SoloLevel"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#levelOrder"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#levelOrder</IRI>
+        <Literal>level order</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <DataProperty IRI="#difficultyScore"/>
+    </Declaration>
+    <DataPropertyDomain>
+        <DataProperty IRI="#difficultyScore"/>
+        <Class IRI="#Question"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#difficultyScore"/>
+        <Datatype abbreviatedIRI="xsd:float"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#difficultyScore</IRI>
+        <Literal>difficulty score</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <DataProperty IRI="#hasKeyword"/>
+    </Declaration>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasKeyword"/>
+        <Class IRI="#LearningObject"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasKeyword"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#hasKeyword</IRI>
+        <Literal>has keyword</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <DataProperty IRI="#orderIndex"/>
+    </Declaration>
+    <DataPropertyDomain>
+        <DataProperty IRI="#orderIndex"/>
+        <Class IRI="#EducationalEntity"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#orderIndex"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#orderIndex</IRI>
+        <Literal>order index</Literal>
+    </AnnotationAssertion>
+
+    <Declaration>
+        <DataProperty IRI="#createdAt"/>
+    </Declaration>
+    <DataPropertyDomain>
+        <DataProperty IRI="#createdAt"/>
+        <Class IRI="#EducationalEntity"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#createdAt"/>
+        <Datatype abbreviatedIRI="xsd:dateTime"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#createdAt</IRI>
+        <Literal>created at</Literal>
+    </AnnotationAssertion>
+
+</Ontology>

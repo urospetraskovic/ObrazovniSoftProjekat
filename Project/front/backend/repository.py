@@ -7,7 +7,9 @@ from datetime import datetime
 from models import (
     Base, engine, Session,
     Course, Lesson, Section, LearningObject, 
-    ConceptRelationship, Question, Quiz, QuizQuestion
+    ConceptRelationship, Question, Quiz, QuizQuestion, 
+    QuestionTranslation, LessonTranslation, SectionTranslation,
+    LearningObjectTranslation, OntologyTranslation
 )
 
 
@@ -23,6 +25,7 @@ class DatabaseManager:
     
     # Re-export models for backward compatibility
     Lesson = Lesson
+    Question = Question
     
     def __init__(self):
         self.Session = Session

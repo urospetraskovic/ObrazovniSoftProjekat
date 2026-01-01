@@ -1,10 +1,47 @@
 import React, { useState, useRef } from 'react';
-import { lessonApi } from '../api';
+import { lessonApi, ontologyApi } from '../api';
+import { useLanguage } from '../context/LanguageContext';
+import TranslationViewer from './TranslationViewer';
 
 function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onError, onBack, loading }) {
+  const { selectedLanguage } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [showTranslationViewer, setShowTranslationViewer] = useState(false);
+  const [viewingTranslationId, setViewingTranslationId] = useState(null);
   const fileInputRef = useRef(null);
+
+  const handleExportCourseOntology = async () => {
+    try {
+      setExporting(true);
+      setUploadProgress('Generating course ontology...');
+      
+      const response = await ontologyApi.exportCourse(course.id);
+      
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/rdf+xml' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Clean filename
+      const courseName = course.name.replace(/[^a-zA-Z0-9]/g, '_');
+      link.download = `${courseName}_ontology.owl`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      onSuccess(`Ontology exported for "${course.name}" with all ${lessons.length} lessons!`);
+    } catch (err) {
+      onError(err.response?.data?.error || 'Failed to export ontology');
+    } finally {
+      setExporting(false);
+      setUploadProgress(null);
+    }
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -74,9 +111,27 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
         <div className="card-header">
           <div>
             <button className="btn-back" onClick={onBack}>← Back to Courses</button>
-            <h2>📖 Lessons in {course.name}</h2>
+            <h2>Lessons in {course.name}</h2>
           </div>
-          <div className="upload-button-wrapper">
+          <div className="upload-button-wrapper" style={{ display: 'flex', gap: '10px' }}>
+            {lessons.length > 0 && (
+              <button 
+                className="btn-secondary"
+                onClick={handleExportCourseOntology}
+                disabled={exporting}
+                title="Export combined ontology for all lessons in this course"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                {exporting ? (
+                  <>
+                    <span className="spinner" style={{ width: '14px', height: '14px' }}></span>
+                    Exporting...
+                  </>
+                ) : (
+                  <>Export Course Ontology</>
+                )}
+              </button>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -86,7 +141,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
               id="lesson-upload"
             />
             <label htmlFor="lesson-upload" className="btn-primary">
-              {uploading ? 'Uploading...' : '📄 Upload PDF Lesson'}
+              {uploading ? 'Uploading...' : 'Upload PDF Lesson'}
             </label>
           </div>
         </div>
@@ -113,23 +168,34 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
                 onClick={() => onSelectLesson(lesson)}
               >
                 <div className="lesson-info">
-                  <h3>📄 {lesson.title}</h3>
+                  <h3>{lesson.title}</h3>
                   {lesson.filename && (
                     <p className="filename">{lesson.filename}</p>
                   )}
                   <div className="lesson-stats">
-                    <span>📑 {lesson.section_count || 0} Sections</span>
-                    {lesson.summary && <span className="parsed-badge">✓ Parsed</span>}
+                    <span>{lesson.section_count || 0} Sections</span>
+                    {lesson.summary && <span className="parsed-badge">Parsed</span>}
                   </div>
                 </div>
                 <div className="lesson-actions">
+                  <button 
+                    className="btn-translate"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingTranslationId(lesson.id);
+                      setShowTranslationViewer(true);
+                    }}
+                    title={`View lesson in ${selectedLanguage}`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </button>
                   {!lesson.section_count || lesson.section_count === 0 ? (
                     <button 
                       className="btn-secondary"
                       onClick={(e) => handleParseLesson(lesson.id, e)}
                       title="Parse lesson to extract sections"
                     >
-                      🔍 Parse
+                      Parse
                     </button>
                   ) : (
                     <button 
@@ -144,7 +210,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
                     onClick={(e) => handleDeleteLesson(lesson.id, e)}
                     title="Delete lesson"
                   >
-                    🗑️
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
                 </div>
               </div>
@@ -153,7 +219,7 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
         )}
 
         <div className="help-section">
-          <h4>📋 Lesson Workflow</h4>
+          <h4>Lesson Workflow</h4>
           <ol>
             <li><strong>Upload:</strong> Add a PDF lesson file</li>
             <li><strong>Parse:</strong> AI extracts sections and learning objects (Step 1)</li>
@@ -165,8 +231,23 @@ function LessonManager({ course, onSelectLesson, onLessonsChange, onSuccess, onE
             <strong>Note:</strong> Steps 1 and 2 are now separate. After parsing (Step 1), you can view the extracted content, 
             and then generate or regenerate the ontology (Step 2) anytime from the Content Viewer.
           </p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--neutral-600)', marginTop: '8px' }}>
+            <strong>Export Course Ontology:</strong> Downloads a single OWL file containing all lessons, sections, 
+            learning objects, relationships, and questions for this course. Open in Protégé to visualize!
+          </p>
         </div>
       </div>
+      
+      <TranslationViewer
+        isOpen={showTranslationViewer}
+        onClose={() => {
+          setShowTranslationViewer(false);
+          setViewingTranslationId(null);
+        }}
+        entityId={viewingTranslationId}
+        entityType="lesson"
+        originalText={course.lessons?.find(l => l.id === viewingTranslationId)?.title}
+      />
     </div>
   );
 }

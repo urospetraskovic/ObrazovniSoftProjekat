@@ -23,7 +23,7 @@ env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(env_path)
 
 # Ollama Configuration
-OLLAMA_BASE_URL = "http://127.0.0.1:11434"
+OLLAMA_BASE_URL = "http://127.0.0.1:11435"
 OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"
 
 
@@ -45,8 +45,6 @@ class SoloQuizGeneratorLocal:
         self.provider = "ollama_local"
         
         print(f"[QuizGenerator-Local] Initialized with Ollama (14B model)")
-        print(f"[QuizGenerator-Local] Model: {self.ollama_model}")
-        print(f"[QuizGenerator-Local] Server: {self.ollama_base_url}")
         print(f"[QuizGenerator-Local] Mode: MAXIMUM QUALITY (no API cost concerns)")
         
         # Test connection

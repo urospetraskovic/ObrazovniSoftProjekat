@@ -84,7 +84,8 @@ class Lesson(Base):
             'order_index': self.order_index,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'section_count': len(self.sections) if self.sections else 0
+            'section_count': len(self.sections) if self.sections else 0,
+            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
         }
         if include_content:
             result['raw_content'] = self.raw_content
@@ -119,7 +120,8 @@ class Section(Base):
             'start_page': self.start_page,
             'end_page': self.end_page,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'learning_object_count': 0
+            'learning_object_count': 0,
+            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
         }
         try:
             result['learning_object_count'] = len(self.learning_objects) if self.learning_objects else 0
@@ -165,7 +167,8 @@ class LearningObject(Base):
             'is_ai_generated': bool(getattr(self, 'is_ai_generated', 1)),
             'human_modified': bool(getattr(self, 'human_modified', 0)),
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
         }
 
 
@@ -253,7 +256,8 @@ class Question(Base):
             'human_modified': bool(getattr(self, 'human_modified', 0)),
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'used_count': self.used_count
+            'used_count': self.used_count,
+            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
         }
         if self.primary_lesson:
             result['primary_lesson_title'] = self.primary_lesson.title
@@ -315,3 +319,166 @@ class QuizQuestion(Base):
     # Relationships
     quiz = relationship("Quiz", back_populates="quiz_questions")
     question = relationship("Question", back_populates="quiz_questions")
+
+
+class QuestionTranslation(Base):
+    """Stores translations of questions in different languages"""
+    __tablename__ = 'question_translations'
+    
+    id = Column(Integer, primary_key=True)
+    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    language_code = Column(String(10), nullable=False)  # e.g., 'en', 'sr', 'fr', 'es', 'de'
+    language_name = Column(String(50), nullable=False)  # e.g., 'English', 'Serbian', 'French'
+    
+    translated_question_text = Column(Text, nullable=False)
+    translated_options = Column(JSON, nullable=True)  # Translated options for multiple choice
+    translated_correct_answer = Column(Text, nullable=True)
+    translated_explanation = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    question = relationship("Question", backref="translations")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'question_id': self.question_id,
+            'language_code': self.language_code,
+            'language_name': self.language_name,
+            'translated_question_text': self.translated_question_text,
+            'translated_options': self.translated_options,
+            'translated_correct_answer': self.translated_correct_answer,
+            'translated_explanation': self.translated_explanation,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class LessonTranslation(Base):
+    """Stores translations of lessons in different languages"""
+    __tablename__ = 'lesson_translations'
+    
+    id = Column(Integer, primary_key=True)
+    lesson_id = Column(Integer, ForeignKey('lessons.id'), nullable=False)
+    language_code = Column(String(10), nullable=False)
+    language_name = Column(String(50), nullable=False)
+    
+    translated_title = Column(String(255), nullable=False)
+    translated_summary = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    lesson = relationship("Lesson", backref="lesson_translations")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'lesson_id': self.lesson_id,
+            'language_code': self.language_code,
+            'language_name': self.language_name,
+            'translated_title': self.translated_title,
+            'translated_summary': self.translated_summary,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class SectionTranslation(Base):
+    """Stores translations of sections in different languages"""
+    __tablename__ = 'section_translations'
+    
+    id = Column(Integer, primary_key=True)
+    section_id = Column(Integer, ForeignKey('sections.id'), nullable=False)
+    language_code = Column(String(10), nullable=False)
+    language_name = Column(String(50), nullable=False)
+    
+    translated_title = Column(String(255), nullable=False)
+    translated_content = Column(Text, nullable=True)
+    translated_summary = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    section = relationship("Section", backref="section_translations")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'section_id': self.section_id,
+            'language_code': self.language_code,
+            'language_name': self.language_name,
+            'translated_title': self.translated_title,
+            'translated_content': self.translated_content,
+            'translated_summary': self.translated_summary,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class LearningObjectTranslation(Base):
+    """Stores translations of learning objects in different languages"""
+    __tablename__ = 'learning_object_translations'
+    
+    id = Column(Integer, primary_key=True)
+    learning_object_id = Column(Integer, ForeignKey('learning_objects.id'), nullable=False)
+    language_code = Column(String(10), nullable=False)
+    language_name = Column(String(50), nullable=False)
+    
+    translated_title = Column(String(255), nullable=False)
+    translated_content = Column(Text, nullable=True)
+    translated_description = Column(Text, nullable=True)
+    translated_key_points = Column(JSON, nullable=True)
+    translated_keywords = Column(JSON, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    learning_object = relationship("LearningObject", backref="learning_object_translations")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'learning_object_id': self.learning_object_id,
+            'language_code': self.language_code,
+            'language_name': self.language_name,
+            'translated_title': self.translated_title,
+            'translated_content': self.translated_content,
+            'translated_description': self.translated_description,
+            'translated_key_points': self.translated_key_points,
+            'translated_keywords': self.translated_keywords,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class OntologyTranslation(Base):
+    """Stores translations of ontology relationships in different languages"""
+    __tablename__ = 'ontology_translations'
+    
+    id = Column(Integer, primary_key=True)
+    concept_relationship_id = Column(Integer, ForeignKey('concept_relationships.id'), nullable=False)
+    language_code = Column(String(10), nullable=False)
+    language_name = Column(String(50), nullable=False)
+    
+    translated_relationship_type = Column(String(100), nullable=False)
+    translated_description = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    concept_relationship = relationship("ConceptRelationship", backref="ontology_translations")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'concept_relationship_id': self.concept_relationship_id,
+            'language_code': self.language_code,
+            'language_name': self.language_name,
+            'translated_relationship_type': self.translated_relationship_type,
+            'translated_description': self.translated_description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

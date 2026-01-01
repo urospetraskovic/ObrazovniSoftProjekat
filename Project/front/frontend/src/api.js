@@ -97,6 +97,20 @@ export const healthApi = {
   check: () => apiClient.get('/health'),
 };
 
+// ==================== ONTOLOGY ENDPOINTS ====================
+
+export const ontologyApi = {
+  getStats: () => apiClient.get('/ontology/stats'),
+  exportFull: (format = 'json') => apiClient.get(`/ontology/export?format=${format}`),
+  exportCourse: (courseId) => apiClient.get(`/ontology/export/course/${courseId}`, {
+    responseType: 'blob'
+  }),
+  exportLesson: (lessonId) => apiClient.get(`/ontology/export/lesson/${lessonId}`, {
+    responseType: 'blob'
+  }),
+  save: (courseId = null) => apiClient.post('/ontology/save', { course_id: courseId }),
+};
+
 // ==================== ERROR HANDLING ====================
 
 apiClient.interceptors.response.use(

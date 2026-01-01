@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { courseApi } from '../api';
+import { useLanguage } from '../context/LanguageContext';
+import TranslationViewer from './TranslationViewer';
 
 function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, onError, loading }) {
+  const { selectedLanguage } = useLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCourse, setNewCourse] = useState({ name: '', code: '', description: '' });
   const [creating, setCreating] = useState(false);
+  const [showTranslationViewer, setShowTranslationViewer] = useState(false);
+  const [viewingTranslationId, setViewingTranslationId] = useState(null);
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -46,12 +51,12 @@ function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, on
     <div className="course-manager">
       <div className="card">
         <div className="card-header">
-          <h2>📚 Your Courses</h2>
+          <h2>Your Courses</h2>
           <button 
             className="btn-primary"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
-            {showCreateForm ? '✕ Cancel' : '+ New Course'}
+            {showCreateForm ? 'Cancel' : '+ New Course'}
           </button>
         </div>
 
@@ -112,16 +117,27 @@ function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, on
                   </h3>
                   {course.description && <p>{course.description}</p>}
                   <div className="course-stats">
-                    <span>📖 {course.lesson_count || 0} Lessons</span>
+                    <span>{course.lesson_count || 0} Lessons</span>
                   </div>
                 </div>
                 <div className="course-actions">
                   <button 
-                    className="btn-icon"
+                    className="btn-translate"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingTranslationId(course.id);
+                      setShowTranslationViewer(true);
+                    }}
+                    title={`View course in ${selectedLanguage}`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </button>
+                  <button 
+                    className="btn-icon btn-danger"
                     onClick={(e) => handleDeleteCourse(course.id, e)}
                     title="Delete course"
                   >
-                    🗑️
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
                 </div>
               </div>
@@ -129,6 +145,17 @@ function CourseManager({ courses, onSelectCourse, onCoursesChange, onSuccess, on
           </div>
         )}
       </div>
+      
+      <TranslationViewer
+        isOpen={showTranslationViewer}
+        onClose={() => {
+          setShowTranslationViewer(false);
+          setViewingTranslationId(null);
+        }}
+        entityId={viewingTranslationId}
+        entityType="lesson"
+        originalText={courses.find(c => c.id === viewingTranslationId)?.name}
+      />
     </div>
   );
 }

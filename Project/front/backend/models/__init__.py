@@ -15,7 +15,12 @@ from .models import (
     ConceptRelationship,
     Question,
     Quiz,
-    QuizQuestion
+    QuizQuestion,
+    QuestionTranslation,
+    LessonTranslation,
+    SectionTranslation,
+    LearningObjectTranslation,
+    OntologyTranslation
 )
 
 __all__ = [
@@ -30,5 +35,10 @@ __all__ = [
     'ConceptRelationship',
     'Question',
     'Quiz',
-    'QuizQuestion'
+    'QuizQuestion',
+    'QuestionTranslation',
+    'LessonTranslation',
+    'SectionTranslation',
+    'LearningObjectTranslation',
+    'OntologyTranslation'
 ]

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { lessonApi, sectionApi, learningObjectApi } from '../api';
+import { useLanguage } from '../context/LanguageContext';
+import TranslationViewer from './TranslationViewer';
 
 function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
+  const { selectedLanguage } = useLanguage();
   const [sections, setSections] = useState([]);
   const [expandedSection, setExpandedSection] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -10,6 +13,9 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
   const [editingLO, setEditingLO] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showTranslationViewer, setShowTranslationViewer] = useState(false);
+  const [viewingTranslationId, setViewingTranslationId] = useState(null);
+  const [viewingTranslationType, setViewingTranslationType] = useState('section');
 
   useEffect(() => {
     if (lesson?.sections) {
@@ -478,6 +484,26 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                     )}
                   </div>
                   <div className="section-meta" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <button
+                      className="btn-icon btn-translate"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setViewingTranslationId(section.id);
+                        setViewingTranslationType('section');
+                        setShowTranslationViewer(true);
+                      }}
+                      title="View section translation"
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        color: '#2563eb',
+                        fontSize: '1.1rem',
+                        padding: '4px 8px'
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </button>
                     <span className="lo-count" style={{ 
                       background: 'var(--neutral-100)', 
                       padding: '2px 10px', 
@@ -518,6 +544,18 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
                                 {lo.human_modified ? 'Human Modified' : lo.is_ai_generated ? 'AI Generated' : 'Human Created'}
                               </span>
                               {/* Action Buttons */}
+                              <button 
+                                className="btn-icon btn-translate"
+                                onClick={() => {
+                                  setViewingTranslationId(lo.id);
+                                  setViewingTranslationType('learning-object');
+                                  setShowTranslationViewer(true);
+                                }}
+                                title="View translation"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: '0.95rem', fontWeight: 'bold', padding: '4px 8px' }}
+                              >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                              </button>
                               <button 
                                 className="btn-icon btn-edit"
                                 onClick={() => handleEditLO(lo)}
@@ -673,6 +711,22 @@ function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
           </div>
         </div>
       )}
+
+      {/* Translation Viewer Modal */}
+      <TranslationViewer
+        isOpen={showTranslationViewer}
+        onClose={() => {
+          setShowTranslationViewer(false);
+          setViewingTranslationId(null);
+        }}
+        entityId={viewingTranslationId}
+        entityType={viewingTranslationType}
+        originalText={
+          viewingTranslationType === 'section'
+            ? sections.find(s => s.id === viewingTranslationId)?.title || sections.find(s => s.id === viewingTranslationId)?.summary
+            : sections.flatMap(s => s.learning_objects || []).find(lo => lo.id === viewingTranslationId)?.title
+        }
+      />
     </div>
   );
 }

@@ -1,0 +1,337 @@
+# ================================================================
+# SOLO TAXONOMY EDUCATIONAL ONTOLOGY - SEED VERSION
+# ================================================================
+#
+# This is a SEED ONTOLOGY for the SOLO Quiz Generator system.
+# It provides foundational classes and relationships that will be 
+# populated and evolved as the system processes educational content.
+#
+# Based on:
+# - SOLO Taxonomy (Biggs & Collis, 1982)
+# - IEEE Learning Object Metadata (LOM) concepts
+# - Bloom's Taxonomy alignment
+# - Educational Assessment standards
+#
+# Author: SOLO Quiz Generator Project
+# Version: 1.0 (Seed)
+# ================================================================
+
+@prefix : <http://example.org/solo-education-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix solo: <http://example.org/solo-education-ontology#> .
+
+<http://example.org/solo-education-ontology> a owl:Ontology ;
+    dc:title "SOLO Taxonomy Educational Ontology" ;
+    dc:description "A seed ontology for representing educational content, SOLO taxonomy levels, learning objects, and assessment questions." ;
+    dc:creator "SOLO Quiz Generator Project" ;
+    owl:versionInfo "1.0 Seed" .
+
+# ================================================================
+# CORE CLASS HIERARCHY
+# ================================================================
+
+# Top-level Educational Entity
+:EducationalEntity a owl:Class ;
+    rdfs:label "Educational Entity" ;
+    rdfs:comment "Abstract base class for all educational entities" .
+
+# ==================== COURSE STRUCTURE ====================
+
+:Course a owl:Class ;
+    rdfs:subClassOf :EducationalEntity ;
+    rdfs:label "Course" ;
+    rdfs:comment "A structured program of study (e.g., Operating Systems, Biology)" .
+
+:Lesson a owl:Class ;
+    rdfs:subClassOf :EducationalEntity ;
+    rdfs:label "Lesson" ;
+    rdfs:comment "A single unit of instruction within a course" .
+
+:Section a owl:Class ;
+    rdfs:subClassOf :EducationalEntity ;
+    rdfs:label "Section" ;
+    rdfs:comment "A major topic division within a lesson" .
+
+# ==================== LEARNING OBJECTS (IEEE LOM inspired) ====================
+
+:LearningObject a owl:Class ;
+    rdfs:subClassOf :EducationalEntity ;
+    rdfs:label "Learning Object" ;
+    rdfs:comment "The smallest meaningful unit of educational content. Inspired by IEEE LOM." .
+
+# Learning Object Types
+:Concept a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Concept" ;
+    rdfs:comment "An abstract idea or general notion" .
+
+:Definition a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Definition" ;
+    rdfs:comment "A formal explanation of a term or concept" .
+
+:Procedure a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Procedure" ;
+    rdfs:comment "A step-by-step process or algorithm" .
+
+:Principle a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Principle" ;
+    rdfs:comment "A fundamental truth, law, or rule" .
+
+:Example a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Example" ;
+    rdfs:comment "A concrete instance that illustrates a concept" .
+
+:Fact a owl:Class ;
+    rdfs:subClassOf :LearningObject ;
+    rdfs:label "Fact" ;
+    rdfs:comment "A verified piece of information" .
+
+# ==================== SOLO TAXONOMY LEVELS ====================
+
+:SoloLevel a owl:Class ;
+    rdfs:label "SOLO Taxonomy Level" ;
+    rdfs:comment "Structure of Observed Learning Outcome (SOLO) taxonomy level (Biggs & Collis, 1982)" .
+
+:Prestructural a :SoloLevel ;
+    rdfs:label "Prestructural" ;
+    rdfs:comment "Level 0: No understanding" ;
+    :levelOrder 0 .
+
+:Unistructural a :SoloLevel ;
+    rdfs:label "Unistructural" ;
+    rdfs:comment "Level 1: Understanding of ONE aspect" ;
+    :levelOrder 1 .
+
+:Multistructural a :SoloLevel ;
+    rdfs:label "Multistructural" ;
+    rdfs:comment "Level 2: Understanding of SEVERAL aspects independently" ;
+    :levelOrder 2 .
+
+:Relational a :SoloLevel ;
+    rdfs:label "Relational" ;
+    rdfs:comment "Level 3: Understanding of RELATIONSHIPS between aspects" ;
+    :levelOrder 3 .
+
+:ExtendedAbstract a :SoloLevel ;
+    rdfs:label "Extended Abstract" ;
+    rdfs:comment "Level 4: TRANSFER to new domains" ;
+    :levelOrder 4 .
+
+# ==================== BLOOM'S TAXONOMY ====================
+
+:BloomLevel a owl:Class ;
+    rdfs:label "Bloom's Taxonomy Level" ;
+    rdfs:comment "Bloom's Taxonomy cognitive domain levels (revised)" .
+
+:Remember a :BloomLevel ;
+    rdfs:label "Remember" .
+
+:Understand a :BloomLevel ;
+    rdfs:label "Understand" .
+
+:Apply a :BloomLevel ;
+    rdfs:label "Apply" .
+
+:Analyze a :BloomLevel ;
+    rdfs:label "Analyze" .
+
+:Evaluate a :BloomLevel ;
+    rdfs:label "Evaluate" .
+
+:Create a :BloomLevel ;
+    rdfs:label "Create" .
+
+# ==================== ASSESSMENT ENTITIES ====================
+
+:Assessment a owl:Class ;
+    rdfs:subClassOf :EducationalEntity ;
+    rdfs:label "Assessment" .
+
+:Question a owl:Class ;
+    rdfs:subClassOf :Assessment ;
+    rdfs:label "Question" .
+
+:Quiz a owl:Class ;
+    rdfs:subClassOf :Assessment ;
+    rdfs:label "Quiz" .
+
+# Question Types
+:MultipleChoiceQuestion a owl:Class ;
+    rdfs:subClassOf :Question ;
+    rdfs:label "Multiple Choice Question" .
+
+:TrueFalseQuestion a owl:Class ;
+    rdfs:subClassOf :Question ;
+    rdfs:label "True/False Question" .
+
+:ShortAnswerQuestion a owl:Class ;
+    rdfs:subClassOf :Question ;
+    rdfs:label "Short Answer Question" .
+
+:EssayQuestion a owl:Class ;
+    rdfs:subClassOf :Question ;
+    rdfs:label "Essay Question" .
+
+# ================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# ================================================================
+
+# Structural Relationships
+:belongsToCourse a owl:ObjectProperty ;
+    rdfs:label "belongs to course" ;
+    rdfs:domain :Lesson ;
+    rdfs:range :Course .
+
+:hasLesson a owl:ObjectProperty ;
+    rdfs:label "has lesson" ;
+    owl:inverseOf :belongsToCourse .
+
+:hasSection a owl:ObjectProperty ;
+    rdfs:label "has section" ;
+    rdfs:domain :Lesson ;
+    rdfs:range :Section .
+
+:belongsToSection a owl:ObjectProperty ;
+    rdfs:label "belongs to section" ;
+    owl:inverseOf :hasSection .
+
+:containsLearningObject a owl:ObjectProperty ;
+    rdfs:label "contains learning object" ;
+    rdfs:domain :Section ;
+    rdfs:range :LearningObject .
+
+# Knowledge Relationships (between Learning Objects)
+:isPrerequisiteFor a owl:ObjectProperty ;
+    rdfs:label "is prerequisite for" ;
+    rdfs:comment "Understanding concept A is required before learning concept B" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:hasPrerequisite a owl:ObjectProperty ;
+    rdfs:label "has prerequisite" ;
+    owl:inverseOf :isPrerequisiteFor .
+
+:buildsUpon a owl:ObjectProperty ;
+    rdfs:label "builds upon" ;
+    rdfs:comment "Concept A extends or elaborates on concept B" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:isPartOf a owl:ObjectProperty ;
+    rdfs:label "is part of" ;
+    a owl:TransitiveProperty ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:hasPart a owl:ObjectProperty ;
+    rdfs:label "has part" ;
+    owl:inverseOf :isPartOf .
+
+:relatedTo a owl:ObjectProperty ;
+    rdfs:label "related to" ;
+    a owl:SymmetricProperty ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:contrastsWith a owl:ObjectProperty ;
+    rdfs:label "contrasts with" ;
+    rdfs:comment "Indicates opposing or contrasting concepts" ;
+    a owl:SymmetricProperty ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:isExampleOf a owl:ObjectProperty ;
+    rdfs:label "is example of" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:hasExample a owl:ObjectProperty ;
+    rdfs:label "has example" ;
+    owl:inverseOf :isExampleOf .
+
+:isTypeOf a owl:ObjectProperty ;
+    rdfs:label "is type of" ;
+    rdfs:comment "Taxonomic relationship (A is a kind of B)" ;
+    a owl:TransitiveProperty ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:enables a owl:ObjectProperty ;
+    rdfs:label "enables" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+:uses a owl:ObjectProperty ;
+    rdfs:label "uses" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range :LearningObject .
+
+# Assessment Relationships
+:assessesLearningObject a owl:ObjectProperty ;
+    rdfs:label "assesses learning object" ;
+    rdfs:domain :Question ;
+    rdfs:range :LearningObject .
+
+:hasSOLOLevel a owl:ObjectProperty ;
+    rdfs:label "has SOLO level" ;
+    rdfs:domain :Question ;
+    rdfs:range :SoloLevel .
+
+:hasBloomLevel a owl:ObjectProperty ;
+    rdfs:label "has Bloom level" ;
+    rdfs:domain :Question ;
+    rdfs:range :BloomLevel .
+
+:containsQuestion a owl:ObjectProperty ;
+    rdfs:label "contains question" ;
+    rdfs:domain :Quiz ;
+    rdfs:range :Question .
+
+# SOLO-Bloom Alignment
+:alignsWithBloom a owl:ObjectProperty ;
+    rdfs:label "aligns with Bloom level" ;
+    rdfs:domain :SoloLevel ;
+    rdfs:range :BloomLevel .
+
+# SOLO-Bloom Alignment Instances
+:Unistructural :alignsWithBloom :Remember .
+:Multistructural :alignsWithBloom :Understand .
+:Relational :alignsWithBloom :Analyze .
+:ExtendedAbstract :alignsWithBloom :Evaluate, :Create .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+:levelOrder a owl:DatatypeProperty ;
+    rdfs:label "level order" ;
+    rdfs:domain :SoloLevel ;
+    rdfs:range xsd:integer .
+
+:difficultyScore a owl:DatatypeProperty ;
+    rdfs:label "difficulty score" ;
+    rdfs:domain :Question ;
+    rdfs:range xsd:float .
+
+:hasKeyword a owl:DatatypeProperty ;
+    rdfs:label "has keyword" ;
+    rdfs:domain :LearningObject ;
+    rdfs:range xsd:string .
+
+:orderIndex a owl:DatatypeProperty ;
+    rdfs:label "order index" ;
+    rdfs:domain :EducationalEntity ;
+    rdfs:range xsd:integer .
+
+:createdAt a owl:DatatypeProperty ;
+    rdfs:label "created at" ;
+    rdfs:domain :EducationalEntity ;
+    rdfs:range xsd:dateTime .

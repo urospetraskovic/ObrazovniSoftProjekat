@@ -20,10 +20,10 @@ function ManualQuestionAdder({ courseId, lessons, onSuccess, onError, onRefresh 
   });
 
   const soloLevels = [
-    { value: 'unistructural', label: '① Unistructural' },
-    { value: 'multistructural', label: '② Multistructural' },
-    { value: 'relational', label: '③ Relational' },
-    { value: 'extended_abstract', label: '④ Extended Abstract' }
+    { value: 'unistructural', label: 'Unistructural' },
+    { value: 'multistructural', label: 'Multistructural' },
+    { value: 'relational', label: 'Relational' },
+    { value: 'extended_abstract', label: 'Extended Abstract' }
   ];
 
   const questionTypes = [
@@ -156,7 +156,7 @@ function ManualQuestionAdder({ courseId, lessons, onSuccess, onError, onRefresh 
         className="btn-primary"
         onClick={() => setShowForm(!showForm)}
       >
-        {showForm ? '✕ Cancel' : '➕ Add Manual Question'}
+        {showForm ? 'Cancel' : '+ Add Manual Question'}
       </button>
 
       {showForm && (
@@ -387,7 +387,7 @@ function ManualQuestionAdder({ courseId, lessons, onSuccess, onError, onRefresh 
             {/* Status Badge */}
             <div className="form-status-info">
               <span className="status-badge human-created">
-                👤 This will be marked as: Human Created
+                This will be marked as: Human Created
               </span>
             </div>
 

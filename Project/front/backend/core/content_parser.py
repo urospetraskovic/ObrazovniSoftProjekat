@@ -23,7 +23,7 @@ env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(env_path)
 
 # Ollama Configuration
-OLLAMA_BASE_URL = "http://127.0.0.1:11434"
+OLLAMA_BASE_URL = "http://127.0.0.1:11435"
 OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"  # High quality model for all tasks
 
 
@@ -46,9 +46,7 @@ class ContentParser:
         self.ollama_model = OLLAMA_MODEL
         self.provider = "ollama"
         
-        print(f"[ContentParser] Initialized with Ollama (14B model for maximum quality)")
-        print(f"[ContentParser] Model: {self.ollama_model}")
-        print(f"[ContentParser] Server: {self.ollama_base_url}")
+        print(f"[ContentParser] Initialized with Ollama (14B model)")
         print(f"[ContentParser] Mode: MAXIMUM QUALITY - multi-pass extraction")
         
         # Test connection

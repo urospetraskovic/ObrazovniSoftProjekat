@@ -1,5 +1,39 @@
 # SOLO Taxonomy Quiz Generator - Web Application
 
+## 🆕 Latest Feature: Multi-Language Question Translation
+
+**Now you can translate your quiz questions into 10 different languages!**
+
+See [TRANSLATION_FEATURE.md](./TRANSLATION_FEATURE.md) for complete details or [TRANSLATION_API.md](./TRANSLATION_API.md) for API documentation.
+
+### Supported Languages
+- 🇬🇧 English
+- 🇷🇸 Serbian
+- 🇫🇷 French
+- 🇪🇸 Spanish
+- 🇩🇪 German
+- 🇷🇺 Russian
+- 🇨🇳 Chinese (Simplified)
+- 🇯🇵 Japanese
+- 🇵🇹 Portuguese
+- 🇮🇹 Italian
+
+### Quick Start - Translation
+```bash
+# Translate a question to Serbian
+curl -X POST http://localhost:5000/api/questions/5/translate \
+  -H "Content-Type: application/json" \
+  -d '{"language_code": "sr"}'
+
+# Get all translations for a question
+curl http://localhost:5000/api/questions/5/translations
+
+# Get translation in specific language
+curl http://localhost:5000/api/questions/5/translations/sr
+```
+
+---
+
 ## Quick Start
 
 **Navigate to project root, then open 3 separate PowerShell terminals:**
@@ -51,7 +85,7 @@ High-speed alternative for when you need dedicated endpoints.
 **Status:** ✅ Fully configured and ready  
 **API Key:** `AIzaSyDiBmhk7mk3if_mzAeURWWXoZ-uf5C4H_U`  
 **Free tier quota:** Resets every 24 hours  
-**Used for:** Quiz generation, summaries, learning objectives, answer explanations
+**Used for:** Quiz generation, summaries, learning objectives, answer explanations, **question translations**
 
 #### Available Gemini Endpoints:
 
@@ -110,6 +144,7 @@ curl -X POST http://localhost:5000/api/gemini/explain-answer \
 | PDF content parsing | OpenRouter | Better for document analysis |
 | Batch operations | OpenRouter | More cost-effective |
 | Testing/Development | Gemini | Simple, dedicated endpoints |
+| **Question translation** | **Gemini** | **AI-powered accurate translations** |
 
 ---
 
@@ -136,9 +171,17 @@ curl -X POST http://localhost:5000/api/gemini/explain-answer \
 - Questions organized by SOLO levels (Unistructural → Extended Abstract)
 - View and manage question bank
 
+### 🌐 **NEW: Multi-Language Question Translation**
+- Translate questions to 10 different languages
+- AI-powered accurate translations
+- Store and manage translations
+- View translations in quiz builder or solver
+- Batch translate multiple questions
+
 ### 📝 Quiz Building & Taking
 - **Build Quiz**: Create custom quizzes by selecting questions
 - **Take Quiz**: Solve quizzes with instant feedback
+- **Language Support**: Take quizzes in your preferred language
 - See your score with pass/fail status
 - Review correct answers and explanations
 - Practice unlimited retakes
@@ -157,6 +200,7 @@ Stored data:
 - Courses and lessons
 - Parsed sections and learning objects
 - Generated questions
+- **Question translations** ✨
 - Created quizzes
 
 ## API Key Management
@@ -171,3 +215,10 @@ See [QUIZ_FEATURE_GUIDE.md](./QUIZ_FEATURE_GUIDE.md) for complete documentation 
 - How to use the Take Quiz feature
 - Quiz database structure
 - Creating and solving quizzes
+
+## 📖 Translation Documentation
+
+- **[TRANSLATION_FEATURE.md](./TRANSLATION_FEATURE.md)** - Complete feature overview
+- **[TRANSLATION_API.md](./TRANSLATION_API.md)** - API endpoints & examples
+- **[TRANSLATION_INTEGRATION_GUIDE.md](./TRANSLATION_INTEGRATION_GUIDE.md)** - Integration examples
+

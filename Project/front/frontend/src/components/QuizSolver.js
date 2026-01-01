@@ -137,14 +137,14 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
         <div className="card">
           <div className="card-header">
             <button className="btn-back" onClick={onBack}>← Back</button>
-            <h2>📝 Available Quizzes</h2>
+            <h2>Available Quizzes</h2>
           </div>
 
           {loading ? (
             <div className="loading-state">Loading quizzes...</div>
           ) : quizzes.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">📭</div>
+              <div className="empty-state-icon"></div>
               <p>No quizzes available for this course</p>
               <p className="hint">Create a quiz using the "Build Quiz" section first</p>
             </div>
@@ -162,18 +162,18 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                   </div>
                   <div className="quiz-meta">
                     <div className="meta-item">
-                      <span className="meta-icon">❓</span>
+                      <span className="meta-icon">Q:</span>
                       <span>{quiz.question_count} questions</span>
                     </div>
                     {quiz.time_limit_minutes && (
                       <div className="meta-item">
-                        <span className="meta-icon">⏱️</span>
+                        <span className="meta-icon">Time:</span>
                         <span>{quiz.time_limit_minutes} min</span>
                       </div>
                     )}
                     {quiz.passing_score && (
                       <div className="meta-item">
-                        <span className="meta-icon">✓</span>
+                        <span className="meta-icon">Pass:</span>
                         <span>Pass: {quiz.passing_score}%</span>
                       </div>
                     )}
@@ -195,7 +195,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
           <div className="card-header">
             <div>
               <button className="btn-back" onClick={handleBackToList}>← Back to Quizzes</button>
-              <h2>📝 {selectedQuiz.title}</h2>
+              <h2>{selectedQuiz.title}</h2>
               {selectedQuiz.description && (
                 <p className="quiz-description">{selectedQuiz.description}</p>
               )}
@@ -203,7 +203,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
             {!submitted && (
               <div className="quiz-progress">
                 <div className="progress-info">
-                  <span>⏱️ Time: {formatTime(timeElapsed)}</span>
+                  <span>Time: {formatTime(timeElapsed)}</span>
                   <span>Answered: {Object.keys(userAnswers).length}/{quizData.questions?.length || 0}</span>
                 </div>
               </div>
@@ -264,7 +264,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
 
                   {/* Lesson Source */}
                   <div className={`lesson-source ${question.solo_level === 'extended_abstract' ? 'extended-source' : ''}`}>
-                    <span className="source-icon">📚</span>
+                    <span className="source-icon"></span>
                     {getLessonSourceDisplay(question)}
                   </div>
 
@@ -328,7 +328,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                       className="btn-show-answer"
                       onClick={() => toggleRevealAnswer(question.id)}
                     >
-                      {revealedAnswers[question.id] ? '🙈 Hide Answer' : '👁️ Show Answer'}
+                      {revealedAnswers[question.id] ? 'Hide Answer' : 'Show Answer'}
                     </button>
                   )}
 

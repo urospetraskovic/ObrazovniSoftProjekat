@@ -17,7 +17,8 @@ from models import LearningObject, Question, Lesson, Section, Course
 from core import content_parser, SoloQuizGeneratorLocal as SoloQuizGenerator
 from services import (
     LessonService, QuestionService, QuizService, gemini_service,
-    generate_owl_from_relationships, generate_turtle_from_relationships
+    generate_owl_from_relationships, generate_turtle_from_relationships,
+    ontology_manager
 )
 
 app = Flask(__name__)
@@ -480,6 +481,101 @@ def export_ontology_turtle(lesson_id):
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== KNOWLEDGE BASE ONTOLOGY ENDPOINTS ====================
+# These endpoints use the OntologyManager which merges the seed ontology (TBox)
+# with the database content (ABox) to produce a complete populated ontology.
+
+@app.route('/api/ontology/stats', methods=['GET'])
+def get_ontology_stats():
+    """Get statistics about the knowledge base ontology"""
+    try:
+        stats = ontology_manager.get_ontology_stats()
+        return jsonify(stats), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ontology/export', methods=['GET'])
+def export_full_ontology():
+    """
+    Export the complete knowledge base ontology (seed + all database content).
+    
+    Query params:
+        course_id: Optional - limit to a specific course
+        format: Optional - 'owl' (default) or 'download'
+    """
+    try:
+        course_id = request.args.get('course_id', type=int)
+        format_type = request.args.get('format', 'owl')
+        
+        owl_content = ontology_manager.export_full_ontology(course_id=course_id)
+        
+        if format_type == 'download':
+            response = make_response(owl_content)
+            response.headers['Content-Type'] = 'application/rdf+xml'
+            filename = f'knowledge_base_course_{course_id}.owl' if course_id else 'knowledge_base_full.owl'
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response, 200
+        else:
+            return jsonify({
+                'ontology': owl_content,
+                'stats': ontology_manager.get_ontology_stats()
+            }), 200
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ontology/export/course/<int:course_id>', methods=['GET'])
+def export_course_ontology(course_id):
+    """Export ontology for a specific course"""
+    try:
+        owl_content = ontology_manager.export_full_ontology(course_id=course_id)
+        
+        response = make_response(owl_content)
+        response.headers['Content-Type'] = 'application/rdf+xml'
+        response.headers['Content-Disposition'] = f'attachment; filename="knowledge_base_course_{course_id}.owl"'
+        return response, 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ontology/export/lesson/<int:lesson_id>', methods=['GET'])
+def export_lesson_knowledge_ontology(lesson_id):
+    """
+    Export ontology for a specific lesson using the new OntologyManager.
+    This produces a complete ontology that imports the seed and adds lesson-specific individuals.
+    """
+    try:
+        owl_content = ontology_manager.export_lesson_ontology(lesson_id=lesson_id)
+        
+        response = make_response(owl_content)
+        response.headers['Content-Type'] = 'application/rdf+xml'
+        response.headers['Content-Disposition'] = f'attachment; filename="knowledge_base_lesson_{lesson_id}.owl"'
+        return response, 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ontology/save', methods=['POST'])
+def save_ontology_to_file():
+    """
+    Save the knowledge base ontology to a file on the server.
+    This can be used for backup or for Protégé to load directly.
+    """
+    try:
+        course_id = request.json.get('course_id') if request.json else None
+        file_path = ontology_manager.save_knowledge_base(course_id=course_id)
+        
+        return jsonify({
+            'message': 'Knowledge base saved successfully',
+            'file_path': file_path,
+            'stats': ontology_manager.get_ontology_stats()
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== SECTION ENDPOINTS ====================
 
 @app.route('/api/lessons/<int:lesson_id>/sections', methods=['GET'])
@@ -721,6 +817,140 @@ def delete_question(question_id):
         if success:
             return jsonify({'message': 'Question deleted'}), 200
         return jsonify({'error': 'Question not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== TRANSLATION ENDPOINTS ====================
+
+@app.route('/api/translations/languages', methods=['GET'])
+def get_supported_languages():
+    """Get list of supported languages for translation"""
+    try:
+        from services.translation_service import get_translation_service
+        service = get_translation_service()
+        return jsonify({
+            'languages': [
+                {'code': code, 'name': name}
+                for code, name in service.supported_languages.items()
+            ]
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/<int:question_id>/translate', methods=['POST'])
+def translate_question(question_id):
+    """Translate a question to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'language_code' not in data:
+            return jsonify({'error': 'language_code is required'}), 400
+        
+        language_code = data['language_code']
+        
+        # Get question
+        session = db.Session()
+        question = session.query(db.Question).filter(db.Question.id == question_id).first()
+        
+        if not question:
+            session.close()
+            return jsonify({'error': 'Question not found'}), 404
+        
+        # Translate question
+        from services.translation_service import get_translation_service
+        service = get_translation_service()
+        translation = service.translate_question(question, language_code, session)
+        
+        session.close()
+        
+        if not translation:
+            return jsonify({'error': 'Translation failed'}), 500
+        
+        return jsonify({
+            'message': 'Question translated successfully',
+            'translation': translation.to_dict()
+        }), 201
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/<int:question_id>/translations', methods=['GET'])
+def get_question_translations(question_id):
+    """Get all available translations for a question"""
+    try:
+        session = db.Session()
+        question = session.query(db.Question).filter(db.Question.id == question_id).first()
+        
+        if not question:
+            session.close()
+            return jsonify({'error': 'Question not found'}), 404
+        
+        from services.translation_service import get_translation_service
+        service = get_translation_service()
+        translations = service.get_translations(question_id, session)
+        
+        session.close()
+        
+        return jsonify({
+            'question_id': question_id,
+            'original_language': 'English',
+            'available_translations': [t.to_dict() for t in translations]
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/<int:question_id>/translations/<language_code>', methods=['GET'])
+def get_translated_question(question_id, language_code):
+    """Get translated version of a question"""
+    try:
+        session = db.Session()
+        
+        from services.translation_service import get_translation_service
+        service = get_translation_service()
+        translated = service.get_translated_question(question_id, language_code, session)
+        
+        session.close()
+        
+        if not translated:
+            return jsonify({'error': 'Translation not found'}), 404
+        
+        return jsonify(translated), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/questions/batch/translate', methods=['POST'])
+def batch_translate_questions():
+    """Translate multiple questions to multiple languages"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        question_ids = data.get('question_ids', [])
+        target_languages = data.get('target_languages', [])
+        
+        if not question_ids or not target_languages:
+            return jsonify({'error': 'question_ids and target_languages are required'}), 400
+        
+        session = db.Session()
+        
+        from services.translation_service import get_translation_service
+        service = get_translation_service()
+        results = service.translate_batch(question_ids, target_languages, session)
+        
+        session.close()
+        
+        return jsonify({
+            'message': 'Batch translation completed',
+            'results': results
+        }), 200
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -996,6 +1226,219 @@ def explain_answer():
             'success': False,
             'error': str(e)
         }), 500
+
+
+# ==================== TRANSLATION ENDPOINTS ====================
+
+from services import get_translation_service
+from models import Lesson, Section, LearningObject, ConceptRelationship
+
+translation_service = get_translation_service()
+
+@app.route('/api/translate/languages', methods=['GET'])
+def get_languages():
+    """Get list of supported languages for translation"""
+    try:
+        languages = translation_service.get_supported_languages()
+        return jsonify({
+            'success': True,
+            'languages': languages
+        }), 200
+    except Exception as e:
+        print(f'[ERROR] get_languages: {str(e)}')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/question', methods=['POST'])
+def translate_question_api():
+    """Translate a single question to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'question_id' not in data or 'target_language' not in data:
+            return jsonify({'error': 'question_id and target_language are required'}), 400
+        
+        question_id = data['question_id']
+        target_language = data['target_language']
+        
+        session = db.Session()
+        question = session.get(Question, question_id)
+        
+        if not question:
+            return jsonify({'error': 'Question not found'}), 404
+        
+        translation = translation_service.translate_question(question, target_language, session)
+        
+        if translation:
+            return jsonify({
+                'success': True,
+                'translation': translation.to_dict()
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Translation failed'
+            }), 500
+    except Exception as e:
+        print(f'[ERROR] translate_question_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/lesson', methods=['POST'])
+def translate_lesson_api():
+    """Translate a lesson to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'lesson_id' not in data or 'target_language' not in data:
+            return jsonify({'error': 'lesson_id and target_language are required'}), 400
+        
+        lesson_id = data['lesson_id']
+        target_language = data['target_language']
+        
+        session = db.Session()
+        lesson = session.get(Lesson, lesson_id)
+        
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+        
+        translation = translation_service.translate_lesson(lesson, target_language, session)
+        
+        if translation:
+            return jsonify({
+                'success': True,
+                'translation': translation.to_dict()
+            }), 200
+        else:
+            return jsonify({'success': False, 'error': 'Translation failed'}), 500
+    except Exception as e:
+        print(f'[ERROR] translate_lesson_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/section', methods=['POST'])
+def translate_section_api():
+    """Translate a section to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'section_id' not in data or 'target_language' not in data:
+            return jsonify({'error': 'section_id and target_language are required'}), 400
+        
+        section_id = data['section_id']
+        target_language = data['target_language']
+        
+        session = db.Session()
+        section = session.get(Section, section_id)
+        
+        if not section:
+            return jsonify({'error': 'Section not found'}), 404
+        
+        translation = translation_service.translate_section(section, target_language, session)
+        
+        if translation:
+            return jsonify({
+                'success': True,
+                'translation': translation.to_dict()
+            }), 200
+        else:
+            return jsonify({'success': False, 'error': 'Translation failed'}), 500
+    except Exception as e:
+        print(f'[ERROR] translate_section_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/learning-object', methods=['POST'])
+def translate_learning_object_api():
+    """Translate a learning object to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'learning_object_id' not in data or 'target_language' not in data:
+            return jsonify({'error': 'learning_object_id and target_language are required'}), 400
+        
+        lo_id = data['learning_object_id']
+        target_language = data['target_language']
+        
+        session = db.Session()
+        learning_object = session.get(LearningObject, lo_id)
+        
+        if not learning_object:
+            return jsonify({'error': 'Learning object not found'}), 404
+        
+        translation = translation_service.translate_learning_object(learning_object, target_language, session)
+        
+        if translation:
+            return jsonify({
+                'success': True,
+                'translation': translation.to_dict()
+            }), 200
+        else:
+            return jsonify({'success': False, 'error': 'Translation failed'}), 500
+    except Exception as e:
+        print(f'[ERROR] translate_learning_object_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/ontology', methods=['POST'])
+def translate_ontology_api():
+    """Translate an ontology relationship to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'relationship_id' not in data or 'target_language' not in data:
+            return jsonify({'error': 'relationship_id and target_language are required'}), 400
+        
+        rel_id = data['relationship_id']
+        target_language = data['target_language']
+        
+        session = db.Session()
+        relationship = session.get(ConceptRelationship, rel_id)
+        
+        if not relationship:
+            return jsonify({'error': 'Relationship not found'}), 404
+        
+        translation = translation_service.translate_ontology_relationship(relationship, target_language, session)
+        
+        if translation:
+            return jsonify({
+                'success': True,
+                'translation': translation.to_dict()
+            }), 200
+        else:
+            return jsonify({'success': False, 'error': 'Translation failed'}), 500
+    except Exception as e:
+        print(f'[ERROR] translate_ontology_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/course/<int:course_id>', methods=['POST'])
+def translate_course_api(course_id):
+    """Translate all content in a course to target language"""
+    try:
+        data = request.get_json()
+        if not data or 'target_language' not in data:
+            return jsonify({'error': 'target_language is required'}), 400
+        
+        target_language = data['target_language']
+        
+        session = db.Session()
+        course = session.get(Course, course_id)
+        
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+        
+        lesson_ids = [lesson.id for lesson in course.lessons]
+        stats = translation_service.translate_course_content(lesson_ids, target_language, session)
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        }), 200
+    except Exception as e:
+        print(f'[ERROR] translate_course_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # ==================== ERROR HANDLERS ====================

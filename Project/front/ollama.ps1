@@ -10,6 +10,9 @@ $OllamaPaths = @(
     "${env:ProgramFiles}\Ollama\ollama.exe"
 )
 
+# Set Ollama to use port 11435 to avoid conflicts
+$env:OLLAMA_HOST = "127.0.0.1:11435"
+
 foreach ($Path in $OllamaPaths) {
     if (Test-Path $Path) {
         & $Path @Arguments
