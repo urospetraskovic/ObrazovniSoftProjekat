@@ -17,6 +17,7 @@ import ManualQuestionAdder from './components/ManualQuestionAdder';
 import QuizBuilder from './components/QuizBuilder';
 import QuizSolver from './components/QuizSolver';
 import TranslationManager from './components/TranslationManager';
+import SPARQLQueryTool from './components/SPARQLQueryTool';
 
 function App() {
   // Navigation state
@@ -254,6 +255,11 @@ function App() {
           <TranslationManager />
         );
       
+      case 'sparql':
+        return (
+          <SPARQLQueryTool />
+        );
+      
       default:
         return null;
     }
@@ -357,6 +363,15 @@ function App() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </span>
               Translate
+            </button>
+            <button
+              className={`nav-link ${activeTab === 'sparql' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('sparql'); clearMessages(); }}
+            >
+              <span className="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/></svg>
+              </span>
+              SPARQL Query
             </button>
           </div>
         </nav>
