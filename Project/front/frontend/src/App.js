@@ -277,7 +277,6 @@ function App() {
         <nav className="sidebar-nav">
           {/* Main Workflow */}
           <div className="nav-section">
-            <div className="nav-section-title">Workflow</div>
             <button
               className={`nav-link ${activeTab === 'courses' ? 'active' : ''}`}
               onClick={() => { setActiveTab('courses'); clearMessages(); }}
@@ -315,7 +314,6 @@ function App() {
             <button
               className={`nav-link ${activeTab === 'generate' ? 'active' : ''}`}
               onClick={() => { setActiveTab('generate'); clearMessages(); }}
-              disabled={!selectedCourse}
             >
               <span className="nav-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -343,7 +341,6 @@ function App() {
             <button
               className={`nav-link ${activeTab === 'solve' ? 'active' : ''}`}
               onClick={() => { setActiveTab('solve'); clearMessages(); }}
-              disabled={!selectedCourse}
             >
               <span className="nav-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>

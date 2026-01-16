@@ -110,24 +110,21 @@ const TranslationManager = () => {
             <button
               className={`mode-btn ${translateMode === 'questions' ? 'active' : ''}`}
               onClick={() => setTranslateMode('questions')}
-              disabled
-              title="Coming soon"
+              title="Translate all questions"
             >
               All Questions
             </button>
             <button
               className={`mode-btn ${translateMode === 'lessons' ? 'active' : ''}`}
               onClick={() => setTranslateMode('lessons')}
-              disabled
-              title="Coming soon"
+              title="Translate all lessons"
             >
               All Lessons
             </button>
             <button
               className={`mode-btn ${translateMode === 'learning-objects' ? 'active' : ''}`}
               onClick={() => setTranslateMode('learning-objects')}
-              disabled
-              title="Coming soon"
+              title="Translate all learning objects"
             >
               All Learning Objects
             </button>

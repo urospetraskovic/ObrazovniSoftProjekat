@@ -104,6 +104,16 @@ class TranslationService:
             logger.error(f"Unsupported language code: {target_language_code}")
             return None
         
+        # Check if translation already exists
+        existing_translation = session.query(QuestionTranslation).filter(
+            QuestionTranslation.question_id == question.id,
+            QuestionTranslation.language_code == target_language_code
+        ).first()
+        if existing_translation:
+            language_name = self.supported_languages[target_language_code]
+            print(f"[TRANSLATION] ⊘ Skipping Question #{question.id} - already translated to {language_name}")
+            return existing_translation
+        
         try:
             language_name = self.supported_languages[target_language_code]
             print(f"[TRANSLATION] Translating Question #{question.id} to {language_name}...")
@@ -122,15 +132,6 @@ class TranslationService:
                 logger.error(f"Failed to parse question translation")
                 print(f"[TRANSLATION] ❌ Failed to parse question translation")
                 return None
-            
-            # Delete old translation if it exists
-            old_translation = session.query(QuestionTranslation).filter(
-                QuestionTranslation.question_id == question.id,
-                QuestionTranslation.language_code == target_language_code
-            ).first()
-            if old_translation:
-                session.delete(old_translation)
-                print(f"[TRANSLATION] Deleted old translation for Question {question.id}")
             
             translation = QuestionTranslation(
                 question_id=question.id,
@@ -195,6 +196,16 @@ Return ONLY JSON, no other text:"""
             logger.error(f"Unsupported language code: {target_language_code}")
             return None
         
+        # Check if translation already exists
+        existing_translation = session.query(LessonTranslation).filter(
+            LessonTranslation.lesson_id == lesson.id,
+            LessonTranslation.language_code == target_language_code
+        ).first()
+        if existing_translation:
+            language_name = self.supported_languages[target_language_code]
+            print(f"[TRANSLATION] ⊘ Skipping Lesson '{lesson.title}' - already translated to {language_name}")
+            return existing_translation
+        
         try:
             language_name = self.supported_languages[target_language_code]
             prompt = self._build_lesson_translation_prompt(lesson, target_language_code, language_name)
@@ -209,15 +220,6 @@ Return ONLY JSON, no other text:"""
             if not translation_data or 'title' not in translation_data:
                 logger.error(f"Failed to parse lesson translation")
                 return None
-            
-            # Delete old translation if it exists
-            old_translation = session.query(LessonTranslation).filter(
-                LessonTranslation.lesson_id == lesson.id,
-                LessonTranslation.language_code == target_language_code
-            ).first()
-            if old_translation:
-                session.delete(old_translation)
-                print(f"[TRANSLATION] Deleted old translation for Lesson {lesson.id}")
             
             translation = LessonTranslation(
                 lesson_id=lesson.id,
@@ -270,6 +272,16 @@ Return ONLY JSON, no other text:"""
             logger.error(f"Unsupported language code: {target_language_code}")
             return None
         
+        # Check if translation already exists
+        existing_translation = session.query(SectionTranslation).filter(
+            SectionTranslation.section_id == section.id,
+            SectionTranslation.language_code == target_language_code
+        ).first()
+        if existing_translation:
+            language_name = self.supported_languages[target_language_code]
+            print(f"[TRANSLATION] ⊘ Skipping Section '{section.title}' - already translated to {language_name}")
+            return existing_translation
+        
         try:
             language_name = self.supported_languages[target_language_code]
             prompt = self._build_section_translation_prompt(section, target_language_code, language_name)
@@ -284,15 +296,6 @@ Return ONLY JSON, no other text:"""
             if not translation_data or 'title' not in translation_data:
                 logger.error(f"Failed to parse section translation")
                 return None
-            
-            # Delete old translation if it exists
-            old_translation = session.query(SectionTranslation).filter(
-                SectionTranslation.section_id == section.id,
-                SectionTranslation.language_code == target_language_code
-            ).first()
-            if old_translation:
-                session.delete(old_translation)
-                print(f"[TRANSLATION] Deleted old translation for Section {section.id}")
             
             translation = SectionTranslation(
                 section_id=section.id,
@@ -350,6 +353,16 @@ Return ONLY JSON, no other text:"""
             logger.error(f"Unsupported language code: {target_language_code}")
             return None
         
+        # Check if translation already exists
+        existing_translation = session.query(LearningObjectTranslation).filter(
+            LearningObjectTranslation.learning_object_id == learning_object.id,
+            LearningObjectTranslation.language_code == target_language_code
+        ).first()
+        if existing_translation:
+            language_name = self.supported_languages[target_language_code]
+            print(f"[TRANSLATION] ⊘ Skipping Learning Object '{learning_object.title}' - already translated to {language_name}")
+            return existing_translation
+        
         try:
             language_name = self.supported_languages[target_language_code]
             prompt = self._build_learning_object_translation_prompt(learning_object, target_language_code, language_name)
@@ -364,15 +377,6 @@ Return ONLY JSON, no other text:"""
             if not translation_data or 'title' not in translation_data:
                 logger.error(f"Failed to parse learning object translation")
                 return None
-            
-            # Delete old translation if it exists
-            old_translation = session.query(LearningObjectTranslation).filter(
-                LearningObjectTranslation.learning_object_id == learning_object.id,
-                LearningObjectTranslation.language_code == target_language_code
-            ).first()
-            if old_translation:
-                session.delete(old_translation)
-                print(f"[TRANSLATION] Deleted old translation for Learning Object {learning_object.id}")
             
             translation = LearningObjectTranslation(
                 learning_object_id=learning_object.id,
@@ -443,6 +447,16 @@ Return ONLY JSON, no other text:"""
             logger.error(f"Unsupported language code: {target_language_code}")
             return None
         
+        # Check if translation already exists
+        existing_translation = session.query(OntologyTranslation).filter(
+            OntologyTranslation.concept_relationship_id == relationship.id,
+            OntologyTranslation.language_code == target_language_code
+        ).first()
+        if existing_translation:
+            language_name = self.supported_languages[target_language_code]
+            print(f"[TRANSLATION] ⊘ Skipping Ontology Relationship '{relationship.relationship_type}' - already translated to {language_name}")
+            return existing_translation
+        
         try:
             language_name = self.supported_languages[target_language_code]
             prompt = self._build_ontology_translation_prompt(relationship, target_language_code, language_name)
@@ -457,15 +471,6 @@ Return ONLY JSON, no other text:"""
             if not translation_data or 'relationship_type' not in translation_data:
                 logger.error(f"Failed to parse ontology translation")
                 return None
-            
-            # Delete old translation if it exists
-            old_translation = session.query(OntologyTranslation).filter(
-                OntologyTranslation.concept_relationship_id == relationship.id,
-                OntologyTranslation.language_code == target_language_code
-            ).first()
-            if old_translation:
-                session.delete(old_translation)
-                print(f"[TRANSLATION] Deleted old translation for Ontology {relationship.id}")
             
             translation = OntologyTranslation(
                 concept_relationship_id=relationship.id,

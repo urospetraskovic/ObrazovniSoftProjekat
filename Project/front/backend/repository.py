@@ -420,10 +420,23 @@ class DatabaseManager:
         try:
             question = session.query(Question).filter(Question.id == question_id).first()
             if question:
+                # Import all translation models that might reference this question
+                from models.models import QuizQuestion, QuestionTranslation
+                
+                # Delete related quiz questions first
+                session.query(QuizQuestion).filter(QuizQuestion.question_id == question_id).delete()
+                
+                # Delete question translations
+                session.query(QuestionTranslation).filter(QuestionTranslation.question_id == question_id).delete()
+                
+                # Now delete the question itself
                 session.delete(question)
                 session.commit()
                 return True
             return False
+        except Exception as e:
+            session.rollback()
+            raise e
         finally:
             session.close()
     

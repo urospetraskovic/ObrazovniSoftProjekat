@@ -85,7 +85,7 @@ class Lesson(Base):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'section_count': len(self.sections) if self.sections else 0,
-            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
+            'translations': [t.to_dict() for t in self.lesson_translations] if hasattr(self, 'lesson_translations') else []
         }
         if include_content:
             result['raw_content'] = self.raw_content
@@ -121,7 +121,7 @@ class Section(Base):
             'end_page': self.end_page,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'learning_object_count': 0,
-            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
+            'translations': [t.to_dict() for t in self.section_translations] if hasattr(self, 'section_translations') else []
         }
         try:
             result['learning_object_count'] = len(self.learning_objects) if self.learning_objects else 0
@@ -168,7 +168,7 @@ class LearningObject(Base):
             'human_modified': bool(getattr(self, 'human_modified', 0)),
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
+            'translations': [t.to_dict() for t in self.learning_object_translations] if hasattr(self, 'learning_object_translations') else []
         }
 
 
@@ -311,8 +311,8 @@ class QuizQuestion(Base):
     __tablename__ = 'quiz_questions'
     
     id = Column(Integer, primary_key=True)
-    quiz_id = Column(Integer, ForeignKey('quizzes.id'), nullable=False)
-    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    quiz_id = Column(Integer, ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
+    question_id = Column(Integer, ForeignKey('questions.id', ondelete='CASCADE'), nullable=False)
     order_index = Column(Integer, default=0)
     points = Column(Float, default=1.0)
     
@@ -326,7 +326,7 @@ class QuestionTranslation(Base):
     __tablename__ = 'question_translations'
     
     id = Column(Integer, primary_key=True)
-    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    question_id = Column(Integer, ForeignKey('questions.id', ondelete='CASCADE'), nullable=False)
     language_code = Column(String(10), nullable=False)  # e.g., 'en', 'sr', 'fr', 'es', 'de'
     language_name = Column(String(50), nullable=False)  # e.g., 'English', 'Serbian', 'French'
     
@@ -361,7 +361,7 @@ class LessonTranslation(Base):
     __tablename__ = 'lesson_translations'
     
     id = Column(Integer, primary_key=True)
-    lesson_id = Column(Integer, ForeignKey('lessons.id'), nullable=False)
+    lesson_id = Column(Integer, ForeignKey('lessons.id', ondelete='CASCADE'), nullable=False)
     language_code = Column(String(10), nullable=False)
     language_name = Column(String(50), nullable=False)
     
@@ -391,7 +391,7 @@ class SectionTranslation(Base):
     __tablename__ = 'section_translations'
     
     id = Column(Integer, primary_key=True)
-    section_id = Column(Integer, ForeignKey('sections.id'), nullable=False)
+    section_id = Column(Integer, ForeignKey('sections.id', ondelete='CASCADE'), nullable=False)
     language_code = Column(String(10), nullable=False)
     language_name = Column(String(50), nullable=False)
     
@@ -423,7 +423,7 @@ class LearningObjectTranslation(Base):
     __tablename__ = 'learning_object_translations'
     
     id = Column(Integer, primary_key=True)
-    learning_object_id = Column(Integer, ForeignKey('learning_objects.id'), nullable=False)
+    learning_object_id = Column(Integer, ForeignKey('learning_objects.id', ondelete='CASCADE'), nullable=False)
     language_code = Column(String(10), nullable=False)
     language_name = Column(String(50), nullable=False)
     
@@ -459,7 +459,7 @@ class OntologyTranslation(Base):
     __tablename__ = 'ontology_translations'
     
     id = Column(Integer, primary_key=True)
-    concept_relationship_id = Column(Integer, ForeignKey('concept_relationships.id'), nullable=False)
+    concept_relationship_id = Column(Integer, ForeignKey('concept_relationships.id', ondelete='CASCADE'), nullable=False)
     language_code = Column(String(10), nullable=False)
     language_name = Column(String(50), nullable=False)
     
