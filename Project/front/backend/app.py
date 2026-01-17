@@ -13,7 +13,7 @@ from datetime import datetime
 
 # Import our modules
 from repository import db, init_database
-from models import LearningObject, Question, Lesson, Section, Course
+from models import LearningObject, Question, Lesson, Section, Course, Session
 from core import content_parser, SoloQuizGeneratorLocal as SoloQuizGenerator
 from services import (
     LessonService, QuestionService, QuizService, gemini_service,
@@ -21,6 +21,7 @@ from services import (
     ontology_manager
 )
 from services.sparql_service import sparql_service
+from services.chatbot_service import chatbot_service
 
 app = Flask(__name__)
 CORS(app)
@@ -48,6 +49,8 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 init_database()
 quiz_generator = SoloQuizGenerator()
 sparql_service.load_ontology()  # Load ontology for SPARQL queries
+chatbot_session = Session()  # Create session for chatbot
+chatbot_service.set_db_session(chatbot_session)  # Set database session for chatbot
 
 print("[STARTUP] Database initialized")
 print("[STARTUP] Starting SOLO Quiz Generator API...")
@@ -1483,6 +1486,108 @@ def request_entity_too_large(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+
+# ==================== CHATBOT ENDPOINTS ====================
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """
+    Learning Assistant chatbot endpoint
+    
+    Request body:
+    {
+        "message": "User's question",
+        "course_id": optional,
+        "lesson_id": optional,
+        "conversation_history": optional list of messages
+    }
+    """
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'No message provided'}), 400
+        
+        user_message = data.get('message', '').strip()
+        if not user_message:
+            return jsonify({'error': 'Empty message'}), 400
+        
+        course_context = None
+        lesson_context = None
+        
+        # Get course context if provided
+        course_id = data.get('course_id')
+        if course_id:
+            try:
+                course = db.session.query(Course).filter_by(id=course_id).first()
+                if course:
+                    course_context = f"{course.name}: {course.description}"
+            except:
+                pass
+        
+        # Get lesson context if provided
+        lesson_id = data.get('lesson_id')
+        if lesson_id:
+            try:
+                lesson = db.session.query(Lesson).filter_by(id=lesson_id).first()
+                if lesson:
+                    lesson_context = f"Lesson: {lesson.title}\n{lesson.description}"
+                    # Get lesson sections for more context
+                    sections = db.session.query(Section).filter_by(lesson_id=lesson_id).all()
+                    if sections:
+                        for section in sections[:3]:  # Limit to first 3 sections
+                            lesson_context += f"\n\nSection: {section.title}"
+                            if section.content:
+                                lesson_context += f"\n{section.content[:500]}"
+            except:
+                pass
+        
+        # Get conversation history if provided
+        conversation_history = data.get('conversation_history')
+        
+        # Generate response
+        result = chatbot_service.generate_response(
+            user_message=user_message,
+            course_context=course_context,
+            lesson_context=lesson_context,
+            conversation_history=conversation_history,
+            course_id=course_id
+        )
+        
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"[Chat Error] {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': f'Chat error: {str(e)}'}), 500
+
+
+@app.route('/api/chat/explain-answer', methods=['POST'])
+def chat_explain_answer():
+    """
+    Generate explanation for quiz answer
+    
+    Request body:
+    {
+        "question": "Quiz question text",
+        "correct_answer": "The correct answer",
+        "user_answer": optional "User's incorrect answer"
+    }
+    """
+    try:
+        data = request.get_json()
+        if not data or 'question' not in data or 'correct_answer' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        result = chatbot_service.generate_quiz_explanation(
+            question=data.get('question'),
+            correct_answer=data.get('correct_answer'),
+            user_answer=data.get('user_answer')
+        )
+        
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"[Explain Answer Error] {str(e)}")
+        return jsonify({'error': f'Error: {str(e)}'}), 500
 
 
 if __name__ == '__main__':

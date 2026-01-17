@@ -10,6 +10,7 @@ from .gemini_service import GeminiService, gemini_service
 from .ontology_service import generate_owl_from_relationships, generate_turtle_from_relationships
 from .ontology_manager import OntologyManager, ontology_manager
 from .translation_service import TranslationService, get_translation_service
+from .chatbot_service import ChatbotService, chatbot_service
 
 __all__ = [
     'LessonService', 
@@ -22,5 +23,7 @@ __all__ = [
     'OntologyManager',
     'ontology_manager',
     'TranslationService',
-    'get_translation_service'
+    'get_translation_service',
+    'ChatbotService',
+    'chatbot_service'
 ]

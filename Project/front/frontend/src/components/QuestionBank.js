@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { questionApi } from '../api';
-import { useLanguage } from '../context/LanguageContext';
 import TranslationViewer from './TranslationViewer';
 
 function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
-  const { selectedLanguage } = useLanguage();
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuestions, setSelectedQuestions] = useState([]);

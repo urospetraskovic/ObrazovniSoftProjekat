@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { lessonApi, sectionApi, learningObjectApi } from '../api';
-import { useLanguage } from '../context/LanguageContext';
 import TranslationViewer from './TranslationViewer';
 
 function ContentViewer({ lesson, onBack, onSuccess, onError, onLessonUpdate }) {
-  const { selectedLanguage } = useLanguage();
   const [sections, setSections] = useState([]);
   const [expandedSection, setExpandedSection] = useState(null);
   const [loading, setLoading] = useState(false);

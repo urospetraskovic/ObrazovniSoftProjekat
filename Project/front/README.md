@@ -1,10 +1,4 @@
-<<<<<<< Updated upstream
-=======
-# SOLO Taxonomy Quiz Generator - Web Application
 
-**Navigate to project root, then open 3 separate PowerShell terminals:**
-
->>>>>>> Stashed changes
 **Terminal 1 - Ollama:**
 ```powershell
 .\ollama.ps1 serve
@@ -13,8 +7,7 @@
 **Terminal 2 - Backend:**
 ```powershell
 cd backend
-.\venv\Scripts\Activate.ps1
-python app.py
+.\venv\Scripts\python.exe app.py
 ```
 
 **Terminal 3 - Frontend:**
@@ -22,10 +15,3 @@ python app.py
 cd frontend
 npm start
 ```
-<<<<<<< Updated upstream
-=======
-
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

@@ -18,6 +18,7 @@ import QuizBuilder from './components/QuizBuilder';
 import QuizSolver from './components/QuizSolver';
 import TranslationManager from './components/TranslationManager';
 import SPARQLQueryTool from './components/SPARQLQueryTool';
+import ChatBot from './components/ChatBot';
 
 function App() {
   // Navigation state
@@ -34,6 +35,7 @@ function App() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [apiStatus, setApiStatus] = useState(null);
+  const [chatbotOpen, setChatbotOpen] = useState(false);
 
   // Fetch courses on mount and check API status
   useEffect(() => {
@@ -479,6 +481,23 @@ function App() {
             )}
           </div>
         </main>
+
+        {/* Chatbot Button */}
+        <button 
+          className="chatbot-toggle-btn"
+          onClick={() => setChatbotOpen(!chatbotOpen)}
+          title="Open Learning Assistant"
+        >
+          💬
+        </button>
+
+        {/* Chatbot Component */}
+        <ChatBot 
+          courseId={selectedCourse?.id}
+          lessonId={selectedLesson?.id}
+          isOpen={chatbotOpen}
+          onClose={() => setChatbotOpen(false)}
+        />
       </div>
     </div>
   );
@@ -494,7 +513,6 @@ function AppWithLanguage() {
 
 function AppContent() {
   const { languages, selectedLanguage, setSelectedLanguage, loading: langsLoading } = useLanguage();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Get the App component instance
   const AppInstance = <App />;

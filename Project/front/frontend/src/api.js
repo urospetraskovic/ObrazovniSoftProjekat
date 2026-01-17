@@ -111,6 +111,24 @@ export const ontologyApi = {
   save: (courseId = null) => apiClient.post('/ontology/save', { course_id: courseId }),
 };
 
+// ==================== CHATBOT ENDPOINTS ====================
+
+export const chatApi = {
+  sendMessage: (message, courseId, lessonId, conversationHistory) => 
+    apiClient.post('/chat', {
+      message,
+      course_id: courseId,
+      lesson_id: lessonId,
+      conversation_history: conversationHistory
+    }),
+  explainAnswer: (question, correctAnswer, userAnswer) =>
+    apiClient.post('/chat/explain-answer', {
+      question,
+      correct_answer: correctAnswer,
+      user_answer: userAnswer
+    })
+};
+
 // ==================== ERROR HANDLING ====================
 
 apiClient.interceptors.response.use(
