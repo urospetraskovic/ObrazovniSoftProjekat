@@ -1464,6 +1464,223 @@ button {
   transform: translateY(0);
 }
 
+/* Language Modal Styles */
+.language-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.language-modal {
+  background: var(--neutral-0);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.language-modal h3 {
+  margin: 0 0 8px 0;
+  color: var(--neutral-900);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.language-modal p {
+  color: var(--neutral-600);
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+}
+
+.language-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--neutral-100);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.language-option:hover {
+  background: var(--neutral-200);
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+.language-option:active {
+  transform: translateY(0);
+}
+
+.language-option.selected {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  border-color: transparent;
+}
+
+.language-option .flag,
+.language-option .lang-flag {
+  font-size: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-actions .btn-secondary {
+  flex: 1;
+  padding: 12px;
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modal-actions .btn-secondary:hover {
+  background: var(--neutral-300);
+}
+
+.modal-actions .btn-primary {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modal-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.modal-subtitle {
+  color: var(--neutral-600);
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+}
+
+.languages-label {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  font-weight: 500;
+}
+
+.language-modal .btn-secondary {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.language-modal .btn-secondary:hover {
+  background: var(--neutral-300);
+}
+
+/* Language Badge in Quiz Header */
+.current-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 12px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.current-lang-badge .flag {
+  font-size: 1rem;
+}
+
+/* Quiz Card Language Badges */
+.quiz-languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.lang-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--neutral-100);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+}
+
+.lang-badge .flag {
+  font-size: 0.9rem;
+}
+
+.lang-badge.primary {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+  color: var(--accent-blue);
+}
+
 .revealed-answer {
   margin-top: 16px;
   padding: 16px;

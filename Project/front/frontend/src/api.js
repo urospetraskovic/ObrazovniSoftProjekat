@@ -129,6 +129,15 @@ export const chatApi = {
     })
 };
 
+// ==================== TRANSLATION ENDPOINTS ====================
+
+export const translationApi = {
+  getQuizzes: () => apiClient.get('/quizzes'),
+  translateQuiz: (quizId, targetLanguage) => apiClient.post(`/translate/quiz/${quizId}`, {
+    target_language: targetLanguage
+  }),
+};
+
 // ==================== ERROR HANDLING ====================
 
 apiClient.interceptors.response.use(

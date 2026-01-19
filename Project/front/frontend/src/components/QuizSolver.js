@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { quizApi } from '../api';
 
+// Language flags helper
+const getLanguageFlag = (code) => {
+  const flags = {
+    'en': '🇬🇧', 'sr': '🇷🇸', 'fr': '🇫🇷', 'es': '🇪🇸', 'de': '🇩🇪',
+    'ru': '🇷🇺', 'zh': '🇨🇳', 'ja': '🇯🇵', 'pt': '🇵🇹', 'it': '🇮🇹'
+  };
+  return flags[code] || '🌐';
+};
+
+const languageNames = {
+  'en': 'English', 'sr': 'Serbian', 'fr': 'French', 'es': 'Spanish', 'de': 'German',
+  'ru': 'Russian', 'zh': 'Chinese', 'ja': 'Japanese', 'pt': 'Portuguese', 'it': 'Italian'
+};
+
 function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [quizzes, setQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -11,6 +25,8 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [loading, setLoading] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [revealedAnswers, setRevealedAnswers] = useState({});
+  const [selectedLanguage, setSelectedLanguage] = useState('original');
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -128,6 +144,33 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
     setScore(null);
     setTimeElapsed(0);
     setRevealedAnswers({});
+    setSelectedLanguage('original');
+    setShowLanguageSelector(false);
+  };
+
+  // Get translated text for a question
+  const getQuestionText = (question) => {
+    if (selectedLanguage === 'original' || !question.translations) {
+      return question.question_text;
+    }
+    const translation = question.translations.find(t => t.language_code === selectedLanguage);
+    return translation ? translation.translated_question_text : question.question_text;
+  };
+
+  const getOptions = (question) => {
+    if (selectedLanguage === 'original' || !question.translations) {
+      return question.options;
+    }
+    const translation = question.translations.find(t => t.language_code === selectedLanguage);
+    return translation?.translated_options || question.options;
+  };
+
+  const getExplanation = (question) => {
+    if (selectedLanguage === 'original' || !question.translations) {
+      return question.explanation;
+    }
+    const translation = question.translations.find(t => t.language_code === selectedLanguage);
+    return translation?.translated_explanation || question.explanation;
   };
 
   // Quiz list view
@@ -154,11 +197,29 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                 <div
                   key={quiz.id}
                   className="quiz-card"
-                  onClick={() => handleSelectQuiz(quiz)}
+                  onClick={() => {
+                    if (quiz.available_languages && quiz.available_languages.length > 0) {
+                      setSelectedQuiz(quiz);
+                      setShowLanguageSelector(true);
+                    } else {
+                      handleSelectQuiz(quiz);
+                    }
+                  }}
                 >
                   <div className="quiz-info">
                     <h3>{quiz.title}</h3>
                     {quiz.description && <p className="quiz-description">{quiz.description}</p>}
+                    {quiz.available_languages && quiz.available_languages.length > 0 && (
+                      <div className="quiz-languages">
+                        <span className="languages-label">🌐 Available in:</span>
+                        <span className="lang-badge">Original</span>
+                        {quiz.available_languages.map(lang => (
+                          <span key={lang} className="lang-badge">
+                            {getLanguageFlag(lang)} {languageNames[lang] || lang}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="quiz-meta">
                     <div className="meta-item">
@@ -183,6 +244,51 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
             </div>
           )}
         </div>
+
+        {/* Language Selector Modal */}
+        {showLanguageSelector && selectedQuiz && (
+          <div className="language-modal-overlay" onClick={() => setShowLanguageSelector(false)}>
+            <div className="language-modal" onClick={e => e.stopPropagation()}>
+              <h3>🌐 Choose Quiz Language</h3>
+              <p className="modal-subtitle">Select the language you want to take this quiz in</p>
+              
+              <div className="language-options">
+                <button 
+                  className={`language-option ${selectedLanguage === 'original' ? 'selected' : ''}`}
+                  onClick={() => setSelectedLanguage('original')}
+                >
+                  <span className="lang-flag">📄</span>
+                  <span className="lang-name">Original</span>
+                </button>
+                {selectedQuiz.available_languages && selectedQuiz.available_languages.map(lang => (
+                  <button 
+                    key={lang}
+                    className={`language-option ${selectedLanguage === lang ? 'selected' : ''}`}
+                    onClick={() => setSelectedLanguage(lang)}
+                  >
+                    <span className="lang-flag">{getLanguageFlag(lang)}</span>
+                    <span className="lang-name">{languageNames[lang] || lang}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={() => {
+                  setShowLanguageSelector(false);
+                  setSelectedQuiz(null);
+                }}>
+                  Cancel
+                </button>
+                <button className="btn-primary" onClick={() => {
+                  setShowLanguageSelector(false);
+                  handleSelectQuiz(selectedQuiz);
+                }}>
+                  Start Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -195,7 +301,14 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
           <div className="card-header">
             <div>
               <button className="btn-back" onClick={handleBackToList}>← Back to Quizzes</button>
-              <h2>{selectedQuiz.title}</h2>
+              <h2>
+                {selectedQuiz.title}
+                {selectedLanguage !== 'original' && (
+                  <span className="current-lang-badge">
+                    {getLanguageFlag(selectedLanguage)} {languageNames[selectedLanguage]}
+                  </span>
+                )}
+              </h2>
               {selectedQuiz.description && (
                 <p className="quiz-description">{selectedQuiz.description}</p>
               )}
@@ -260,7 +373,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                     </div>
                   </div>
 
-                  <p className="question-text">{question.question_text}</p>
+                  <p className="question-text">{getQuestionText(question)}</p>
 
                   {/* Lesson Source */}
                   <div className={`lesson-source ${question.solo_level === 'extended_abstract' ? 'extended-source' : ''}`}>
@@ -270,7 +383,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
 
                   {question.question_type === 'multiple_choice' && question.options ? (
                     <div className="options-list">
-                      {question.options.map((option, optIdx) => (
+                      {getOptions(question).map((option, optIdx) => (
                         <label
                           key={optIdx}
                           className={`option-label ${
@@ -336,20 +449,20 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                     <div className="revealed-answer">
                       <strong>Correct Answer:</strong>
                       {question.correct_option_index !== undefined && (
-                        <p>{question.options[question.correct_option_index]}</p>
+                        <p>{getOptions(question)[question.correct_option_index]}</p>
                       )}
                       {question.correct_answer && !question.options && (
                         <p>{question.correct_answer}</p>
                       )}
-                      {question.explanation && (
-                        <p className="answer-explanation">{question.explanation}</p>
+                      {getExplanation(question) && (
+                        <p className="answer-explanation">{getExplanation(question)}</p>
                       )}
                     </div>
                   )}
 
-                  {submitted && question.explanation && (
+                  {submitted && getExplanation(question) && (
                     <div className="explanation">
-                      <strong>Explanation:</strong> {question.explanation}
+                      <strong>Explanation:</strong> {getExplanation(question)}
                     </div>
                   )}
                 </div>

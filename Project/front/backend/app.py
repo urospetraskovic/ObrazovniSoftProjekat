@@ -1057,6 +1057,41 @@ def get_course_quizzes(course_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/quizzes', methods=['GET'])
+def get_all_quizzes():
+    """Get all quizzes with available translation languages"""
+    try:
+        from models.models import Quiz, QuizQuestion, Question, QuestionTranslation
+        
+        session = db.Session()
+        quizzes = session.query(Quiz).all()
+        
+        result = []
+        for quiz in quizzes:
+            quiz_dict = quiz.to_dict()
+            
+            # Get available languages for this quiz
+            quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz.id).all()
+            question_ids = [qq.question_id for qq in quiz_questions]
+            
+            if question_ids:
+                # Get all unique languages this quiz is translated to
+                translations = session.query(QuestionTranslation.language_code).filter(
+                    QuestionTranslation.question_id.in_(question_ids)
+                ).distinct().all()
+                quiz_dict['available_languages'] = [t[0] for t in translations]
+            else:
+                quiz_dict['available_languages'] = []
+            
+            result.append(quiz_dict)
+        
+        return jsonify({'quizzes': result}), 200
+    except Exception as e:
+        print(f'[ERROR] get_all_quizzes: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/quizzes/<int:quiz_id>/export', methods=['GET'])
 def export_quiz(quiz_id):
     """Export quiz to JSON file"""
@@ -1443,6 +1478,49 @@ def translate_ontology_api():
             return jsonify({'success': False, 'error': 'Translation failed'}), 500
     except Exception as e:
         print(f'[ERROR] translate_ontology_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/quiz/<int:quiz_id>', methods=['POST'])
+def translate_quiz_api(quiz_id):
+    """Translate all questions in a quiz to target language"""
+    try:
+        from models.models import Quiz, QuizQuestion, Question
+        
+        data = request.get_json()
+        if not data or 'target_language' not in data:
+            return jsonify({'error': 'target_language is required'}), 400
+        
+        target_language = data['target_language']
+        
+        session = db.Session()
+        quiz = session.get(Quiz, quiz_id)
+        
+        if not quiz:
+            return jsonify({'error': 'Quiz not found'}), 404
+        
+        # Get all questions in this quiz
+        quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz_id).all()
+        question_ids = [qq.question_id for qq in quiz_questions]
+        questions = session.query(Question).filter(Question.id.in_(question_ids)).all()
+        
+        translated_count = 0
+        for question in questions:
+            translation = translation_service.translate_question(question, target_language, session)
+            if translation:
+                translated_count += 1
+        
+        return jsonify({
+            'success': True,
+            'quiz_id': quiz_id,
+            'quiz_title': quiz.title,
+            'questions_translated': translated_count,
+            'total_questions': len(questions),
+            'target_language': target_language
+        }), 200
+    except Exception as e:
+        print(f'[ERROR] translate_quiz_api: {str(e)}')
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 

@@ -3,16 +3,17 @@ import './TranslationManager.css';
 
 const TranslationManager = () => {
   const [languages, setLanguages] = useState({});
-  const [targetLanguage, setTargetLanguage] = useState('sr');
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [translateMode, setTranslateMode] = useState('course'); // course | questions | lessons | learning-objects
+  const [targetLanguage, setTargetLanguage] = useState('en');
+  const [quizzes, setQuizzes] = useState([]);
+  const [selectedQuizzes, setSelectedQuizzes] = useState([]);
   const [translating, setTranslating] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0, currentQuiz: '' });
   const [message, setMessage] = useState(null);
+  const [translationResults, setTranslationResults] = useState([]);
 
   useEffect(() => {
     fetchLanguages();
-    fetchCourses();
+    fetchQuizzes();
   }, []);
 
   const fetchLanguages = async () => {
@@ -27,67 +28,120 @@ const TranslationManager = () => {
     }
   };
 
-  const fetchCourses = async () => {
+  const fetchQuizzes = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/courses');
+      const response = await fetch('http://localhost:5000/api/quizzes');
       const data = await response.json();
-      if (data.courses) {
-        setCourses(data.courses);
-        if (data.courses.length > 0) {
-          setSelectedCourse(data.courses[0].id);
-        }
+      if (data.quizzes) {
+        setQuizzes(data.quizzes);
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching quizzes:', error);
     }
   };
 
   const showMessage = (msg, isError = false) => {
     setMessage({ text: msg, isError });
-    setTimeout(() => setMessage(null), 5000);
+    setTimeout(() => setMessage(null), 8000);
+  };
+
+  const toggleQuizSelection = (quizId) => {
+    setSelectedQuizzes(prev => 
+      prev.includes(quizId) 
+        ? prev.filter(id => id !== quizId)
+        : [...prev, quizId]
+    );
+  };
+
+  const selectAllQuizzes = () => {
+    if (selectedQuizzes.length === quizzes.length) {
+      setSelectedQuizzes([]);
+    } else {
+      setSelectedQuizzes(quizzes.map(q => q.id));
+    }
   };
 
   const handleTranslate = async () => {
-    if (!selectedCourse || !targetLanguage) {
-      showMessage('Please select a course and language', true);
+    if (selectedQuizzes.length === 0) {
+      showMessage('Please select at least one quiz to translate', true);
+      return;
+    }
+
+    if (!targetLanguage) {
+      showMessage('Please select a target language', true);
       return;
     }
 
     setTranslating(true);
-    try {
-      let response;
+    setTranslationResults([]);
+    setProgress({ current: 0, total: selectedQuizzes.length, currentQuiz: '' });
+
+    const results = [];
+
+    for (let i = 0; i < selectedQuizzes.length; i++) {
+      const quizId = selectedQuizzes[i];
+      const quiz = quizzes.find(q => q.id === quizId);
       
-      if (translateMode === 'course') {
-        response = await fetch(`http://localhost:5000/api/translate/course/${selectedCourse}`, {
+      setProgress({ 
+        current: i + 1, 
+        total: selectedQuizzes.length, 
+        currentQuiz: quiz?.title || `Quiz #${quizId}` 
+      });
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/translate/quiz/${quizId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ target_language: targetLanguage })
         });
-      } else {
-        showMessage('Individual translation modes coming soon', true);
-        return;
-      }
 
-      const data = await response.json();
-      if (data.success) {
-        showMessage(`Translation complete! ${languages[targetLanguage]} translation created.`);
-      } else {
-        showMessage(data.error || 'Translation failed', true);
+        const data = await response.json();
+        
+        results.push({
+          quizId,
+          quizTitle: quiz?.title || `Quiz #${quizId}`,
+          success: data.success,
+          questionsTranslated: data.questions_translated || 0,
+          error: data.error
+        });
+
+      } catch (error) {
+        results.push({
+          quizId,
+          quizTitle: quiz?.title || `Quiz #${quizId}`,
+          success: false,
+          error: error.message
+        });
       }
-    } catch (error) {
-      showMessage('Translation error: ' + error.message, true);
-      console.error(error);
-    } finally {
-      setTranslating(false);
     }
+
+    setTranslationResults(results);
+    setTranslating(false);
+    
+    const successCount = results.filter(r => r.success).length;
+    const totalQuestions = results.reduce((sum, r) => sum + (r.questionsTranslated || 0), 0);
+    
+    if (successCount === results.length) {
+      showMessage(`✓ All ${successCount} quizzes translated! (${totalQuestions} questions total)`);
+    } else {
+      showMessage(`Translated ${successCount}/${results.length} quizzes. Some failed.`, true);
+    }
+  };
+
+  const getQuizTranslationStatus = (quiz) => {
+    // Check if quiz has any translated questions
+    if (quiz.available_languages && quiz.available_languages.length > 0) {
+      return quiz.available_languages;
+    }
+    return [];
   };
 
   return (
     <div className="translation-manager">
       <div className="tm-container">
         <div className="tm-header">
-          <h1>Translate Content</h1>
-          <p className="subtitle">Translate your entire course or specific content types to different languages</p>
+          <h1>🌐 Quiz Translation</h1>
+          <p className="subtitle">Translate your quizzes so students can take them in different languages</p>
         </div>
 
         {/* Message Display */}
@@ -97,66 +151,91 @@ const TranslationManager = () => {
           </div>
         )}
 
-        {/* Translation Mode Selection */}
+        {/* Progress Bar */}
+        {translating && (
+          <div className="translation-progress">
+            <div className="progress-header">
+              <span>Translating: {progress.currentQuiz}</span>
+              <span>{progress.current} / {progress.total}</span>
+            </div>
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${(progress.current / progress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Language Selection */}
         <div className="tm-section">
-          <h3>What do you want to translate?</h3>
-          <div className="mode-buttons">
-            <button
-              className={`mode-btn ${translateMode === 'course' ? 'active' : ''}`}
-              onClick={() => setTranslateMode('course')}
-            >
-              Entire Course
-            </button>
-            <button
-              className={`mode-btn ${translateMode === 'questions' ? 'active' : ''}`}
-              onClick={() => setTranslateMode('questions')}
-              title="Translate all questions"
-            >
-              All Questions
-            </button>
-            <button
-              className={`mode-btn ${translateMode === 'lessons' ? 'active' : ''}`}
-              onClick={() => setTranslateMode('lessons')}
-              title="Translate all lessons"
-            >
-              All Lessons
-            </button>
-            <button
-              className={`mode-btn ${translateMode === 'learning-objects' ? 'active' : ''}`}
-              onClick={() => setTranslateMode('learning-objects')}
-              title="Translate all learning objects"
-            >
-              All Learning Objects
-            </button>
+          <h3>Select Target Language</h3>
+          <div className="language-grid">
+            {Object.entries(languages).map(([code, name]) => (
+              <button
+                key={code}
+                className={`language-btn ${targetLanguage === code ? 'active' : ''}`}
+                onClick={() => setTargetLanguage(code)}
+                disabled={translating}
+              >
+                <span className="lang-flag">{getLanguageFlag(code)}</span>
+                <span className="lang-name">{name}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Configuration Form */}
+        {/* Quiz Selection */}
         <div className="tm-section">
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Select Course:</label>
-              <select value={selectedCourse || ''} onChange={(e) => setSelectedCourse(parseInt(e.target.value))}>
-                <option value="">-- Select a course --</option>
-                {courses.map((course) => (
-                  <option key={course.id} value={course.id}>
-                    {course.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Target Language:</label>
-              <select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
-                {Object.entries(languages).map(([code, name]) => (
-                  <option key={code} value={code}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="section-header">
+            <h3>Select Quizzes to Translate</h3>
+            <button 
+              className="btn-select-all"
+              onClick={selectAllQuizzes}
+              disabled={translating || quizzes.length === 0}
+            >
+              {selectedQuizzes.length === quizzes.length ? 'Deselect All' : 'Select All'}
+            </button>
           </div>
+
+          {quizzes.length === 0 ? (
+            <div className="empty-state">
+              <p>No quizzes found. Create some quizzes first!</p>
+            </div>
+          ) : (
+            <div className="quiz-grid">
+              {quizzes.map(quiz => (
+                <div 
+                  key={quiz.id}
+                  className={`quiz-card ${selectedQuizzes.includes(quiz.id) ? 'selected' : ''}`}
+                  onClick={() => !translating && toggleQuizSelection(quiz.id)}
+                >
+                  <div className="quiz-checkbox">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedQuizzes.includes(quiz.id)}
+                      onChange={() => {}}
+                      disabled={translating}
+                    />
+                  </div>
+                  <div className="quiz-info">
+                    <h4>{quiz.title}</h4>
+                    <div className="quiz-meta">
+                      <span className="meta-item">📝 {quiz.question_count} questions</span>
+                    </div>
+                    {quiz.available_languages && quiz.available_languages.length > 0 && (
+                      <div className="translated-langs">
+                        <span className="langs-label">Translated:</span>
+                        {quiz.available_languages.map(lang => (
+                          <span key={lang} className="lang-tag">{getLanguageFlag(lang)} {lang.toUpperCase()}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Translate Button */}
@@ -164,19 +243,65 @@ const TranslationManager = () => {
           <button
             className="btn-translate-large"
             onClick={handleTranslate}
-            disabled={translating || !selectedCourse}
+            disabled={translating || selectedQuizzes.length === 0}
           >
-            {translating ? 'Translating...' : 'Start Translation'}
+            {translating 
+              ? `Translating... (${progress.current}/${progress.total})`
+              : `Translate ${selectedQuizzes.length} Quiz${selectedQuizzes.length !== 1 ? 'zes' : ''} to ${languages[targetLanguage] || targetLanguage}`
+            }
           </button>
         </div>
 
+        {/* Translation Results */}
+        {translationResults.length > 0 && (
+          <div className="tm-section results-section">
+            <h3>Translation Results</h3>
+            <div className="results-list">
+              {translationResults.map((result, idx) => (
+                <div key={idx} className={`result-item ${result.success ? 'success' : 'error'}`}>
+                  <span className="result-icon">{result.success ? '✓' : '✗'}</span>
+                  <span className="result-title">{result.quizTitle}</span>
+                  {result.success ? (
+                    <span className="result-detail">{result.questionsTranslated} questions translated</span>
+                  ) : (
+                    <span className="result-error">{result.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Info Message */}
         <div className="info-box">
-          <p><strong>Tip:</strong> Translations use your local Ollama model (qwen2.5:14b). This may take a few minutes depending on content size.</p>
+          <p><strong>💡 How it works:</strong></p>
+          <ul>
+            <li>Select the quizzes you want to translate</li>
+            <li>Choose the target language</li>
+            <li>Click translate - each question will be translated using AI</li>
+            <li>When students take the quiz, they can choose their language!</li>
+          </ul>
         </div>
       </div>
     </div>
   );
+};
+
+// Helper function to get flag emoji for language code
+const getLanguageFlag = (code) => {
+  const flags = {
+    'en': '🇬🇧',
+    'sr': '🇷🇸',
+    'fr': '🇫🇷',
+    'es': '🇪🇸',
+    'de': '🇩🇪',
+    'ru': '🇷🇺',
+    'zh': '🇨🇳',
+    'ja': '🇯🇵',
+    'pt': '🇵🇹',
+    'it': '🇮🇹'
+  };
+  return flags[code] || '🌐';
 };
 
 export default TranslationManager;
