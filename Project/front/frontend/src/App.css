@@ -9,6 +9,11 @@
   box-sizing: border-box;
 }
 
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+}
+
 :root {
   /* Primary Colors - Professional Deep Blue */
   --primary-dark: #0d1b2a;
@@ -21,6 +26,8 @@
   --accent-teal: #2d9596;
   --accent-slate: #415a77;
   --accent-red: #c1121f;
+  --accent-blue: #2563eb;
+  --accent-purple: #7c3aed;
   
   /* Neutrals - Clean Grays */
   --neutral-900: #1a1a2e;
@@ -63,102 +70,12 @@ body {
 }
 
 /* ============================================
-   GLOBAL LANGUAGE HEADER
-   ============================================ */
-
-.app-with-language {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--neutral-50);
-}
-
-.global-header {
-  background: var(--primary-dark);
-  color: var(--neutral-0);
-  padding: 14px 24px;
-  box-shadow: var(--shadow-md);
-  z-index: 105;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 100%;
-}
-
-.header-left {
-  flex: 1;
-}
-
-.header-left h2 {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.language-selector-global {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.language-selector-global label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  color: var(--neutral-300);
-  margin: 0;
-}
-
-.language-selector-global select {
-  background: var(--neutral-0);
-  border: 1px solid var(--neutral-200);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  color: var(--neutral-800);
-  font-weight: 500;
-  min-width: 150px;
-  transition: var(--transition-fast);
-}
-
-.language-selector-global select:hover {
-  border-color: var(--neutral-400);
-}
-
-.language-selector-global select:focus {
-  outline: none;
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(45, 90, 110, 0.15);
-}
-
-.language-selector-global select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ============================================
    APP LAYOUT
    ============================================ */
 
 .app {
   display: flex;
-  flex: 1;
+  min-height: 100vh;
   background: var(--neutral-50);
 }
 
@@ -1300,6 +1217,32 @@ button {
 .question-meta {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.btn-retranslate {
+  background: transparent;
+  border: 1px solid var(--neutral-300, #ccc);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-retranslate:hover {
+  background: var(--neutral-100, #f0f0f0);
+  border-color: var(--primary-main);
+}
+
+.btn-retranslate:disabled {
+  cursor: wait;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .question-text {
@@ -1543,7 +1486,7 @@ button {
 
 .language-option:hover {
   background: var(--neutral-200);
-  border-color: var(--accent-blue);
+  border-color: var(--primary-light);
   transform: translateY(-2px);
 }
 
@@ -1552,9 +1495,9 @@ button {
 }
 
 .language-option.selected {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  background: var(--primary-main);
   color: white;
-  border-color: transparent;
+  border-color: var(--primary-light);
 }
 
 .language-option .flag,
@@ -1588,7 +1531,7 @@ button {
 .modal-actions .btn-primary {
   flex: 1;
   padding: 12px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  background: var(--primary-main);
   color: white;
   border: none;
   border-radius: 10px;
@@ -1599,8 +1542,9 @@ button {
 }
 
 .modal-actions .btn-primary:hover {
+  background: var(--primary-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 58, 75, 0.3);
 }
 
 .modal-subtitle {

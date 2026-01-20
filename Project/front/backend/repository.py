@@ -4,6 +4,7 @@ All CRUD operations for the SOLO Quiz Generator database
 """
 
 from datetime import datetime
+from sqlalchemy.orm import joinedload
 from models import (
     Base, engine, Session,
     Course, Lesson, Section, LearningObject, 
@@ -480,7 +481,15 @@ class DatabaseManager:
     def get_quiz(self, quiz_id, include_questions=False):
         session = self.get_session()
         try:
-            quiz = session.query(Quiz).filter(Quiz.id == quiz_id).first()
+            if include_questions:
+                # Eagerly load questions and their translations
+                quiz = session.query(Quiz).options(
+                    joinedload(Quiz.quiz_questions)
+                    .joinedload(QuizQuestion.question)
+                    .joinedload(Question.translations)
+                ).filter(Quiz.id == quiz_id).first()
+            else:
+                quiz = session.query(Quiz).filter(Quiz.id == quiz_id).first()
             return quiz.to_dict(include_questions=include_questions) if quiz else None
         finally:
             session.close()

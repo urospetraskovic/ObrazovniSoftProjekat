@@ -27,6 +27,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [revealedAnswers, setRevealedAnswers] = useState({});
   const [selectedLanguage, setSelectedLanguage] = useState('original');
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [retranslating, setRetranslating] = useState(null); // question id being retranslated
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -148,6 +149,34 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
     setShowLanguageSelector(false);
   };
 
+  // Retranslate a single question
+  const handleRetranslate = async (questionId) => {
+    if (selectedLanguage === 'original') return;
+    
+    setRetranslating(questionId);
+    try {
+      const response = await fetch(`http://localhost:5000/api/translate/question/${questionId}/retranslate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target_language: selectedLanguage })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // Reload the quiz to get updated translations
+        const quizResponse = await quizApi.getById(selectedQuiz.id);
+        setQuizData(quizResponse.data.quiz);
+        onSuccess('Translation updated!');
+      } else {
+        onError(data.error || 'Retranslation failed');
+      }
+    } catch (error) {
+      onError('Failed to retranslate question');
+    } finally {
+      setRetranslating(null);
+    }
+  };
+
   // Get translated text for a question
   const getQuestionText = (question) => {
     if (selectedLanguage === 'original' || !question.translations) {
@@ -173,8 +202,8 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
     return translation?.translated_explanation || question.explanation;
   };
 
-  // Quiz list view
-  if (!selectedQuiz) {
+  // Quiz list view - show when no quiz selected OR when language selector modal is open
+  if (!selectedQuiz || showLanguageSelector) {
     return (
       <div className="quiz-solver">
         <div className="card">
@@ -212,7 +241,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                     {quiz.available_languages && quiz.available_languages.length > 0 && (
                       <div className="quiz-languages">
                         <span className="languages-label">🌐 Available in:</span>
-                        <span className="lang-badge">Original</span>
+                        <span className="lang-badge">🇬🇧 English</span>
                         {quiz.available_languages.map(lang => (
                           <span key={lang} className="lang-badge">
                             {getLanguageFlag(lang)} {languageNames[lang] || lang}
@@ -247,7 +276,10 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
 
         {/* Language Selector Modal */}
         {showLanguageSelector && selectedQuiz && (
-          <div className="language-modal-overlay" onClick={() => setShowLanguageSelector(false)}>
+          <div className="language-modal-overlay" onClick={() => {
+            setShowLanguageSelector(false);
+            setSelectedQuiz(null);
+          }}>
             <div className="language-modal" onClick={e => e.stopPropagation()}>
               <h3>🌐 Choose Quiz Language</h3>
               <p className="modal-subtitle">Select the language you want to take this quiz in</p>
@@ -257,8 +289,8 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                   className={`language-option ${selectedLanguage === 'original' ? 'selected' : ''}`}
                   onClick={() => setSelectedLanguage('original')}
                 >
-                  <span className="lang-flag">📄</span>
-                  <span className="lang-name">Original</span>
+                  <span className="lang-flag">🇬🇧</span>
+                  <span className="lang-name">English (Original)</span>
                 </button>
                 {selectedQuiz.available_languages && selectedQuiz.available_languages.map(lang => (
                   <button 
@@ -370,6 +402,16 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                       <span className="solo-badge" style={{ backgroundColor: getSoloColor(question.solo_level) }}>
                         {question.solo_level.replace(/_/g, ' ')}
                       </span>
+                      {selectedLanguage !== 'original' && !submitted && (
+                        <button 
+                          className="btn-retranslate"
+                          onClick={() => handleRetranslate(question.id)}
+                          disabled={retranslating === question.id}
+                          title="Retranslate this question"
+                        >
+                          {retranslating === question.id ? '⟳' : '🔄'}
+                        </button>
+                      )}
                     </div>
                   </div>
 

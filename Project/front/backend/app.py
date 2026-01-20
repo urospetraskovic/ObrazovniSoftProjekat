@@ -1015,7 +1015,10 @@ def create_quiz():
         for qid in question_ids:
             db.add_question_to_quiz(quiz['id'], qid)
         
-        return jsonify({'quiz': quiz}), 201
+        # Fetch the quiz again to get the updated question count
+        updated_quiz = db.get_quiz(quiz['id'], include_questions=False)
+        
+        return jsonify({'quiz': updated_quiz}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1049,11 +1052,47 @@ def add_questions_to_quiz(quiz_id):
 
 @app.route('/api/courses/<int:course_id>/quizzes', methods=['GET'])
 def get_course_quizzes(course_id):
-    """Get all quizzes for a course"""
+    """Get all quizzes for a course with available translation languages"""
     try:
-        quizzes = db.get_quizzes_for_course(course_id)
-        return jsonify({'quizzes': quizzes}), 200
+        from models.models import Quiz, QuizQuestion, QuestionTranslation
+        from sqlalchemy import func
+        
+        session = db.Session()
+        quizzes = session.query(Quiz).filter(Quiz.course_id == course_id).all()
+        
+        result = []
+        for quiz in quizzes:
+            quiz_dict = quiz.to_dict()
+            
+            # Get available languages for this quiz
+            quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz.id).all()
+            question_ids = [qq.question_id for qq in quiz_questions]
+            total_questions = len(question_ids)
+            
+            if question_ids and total_questions > 0:
+                # Only include languages where ALL questions have translations
+                # Group by language and count, only keep languages with count == total questions
+                lang_counts = session.query(
+                    QuestionTranslation.language_code,
+                    func.count(QuestionTranslation.question_id)
+                ).filter(
+                    QuestionTranslation.question_id.in_(question_ids)
+                ).group_by(QuestionTranslation.language_code).all()
+                
+                # Only include languages where translation count matches total questions
+                quiz_dict['available_languages'] = [
+                    lang for lang, count in lang_counts if count == total_questions
+                ]
+            else:
+                quiz_dict['available_languages'] = []
+            
+            result.append(quiz_dict)
+        
+        session.close()
+        return jsonify({'quizzes': result}), 200
     except Exception as e:
+        print(f'[ERROR] get_course_quizzes: {str(e)}')
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -1062,6 +1101,7 @@ def get_all_quizzes():
     """Get all quizzes with available translation languages"""
     try:
         from models.models import Quiz, QuizQuestion, Question, QuestionTranslation
+        from sqlalchemy import func
         
         session = db.Session()
         quizzes = session.query(Quiz).all()
@@ -1073,18 +1113,27 @@ def get_all_quizzes():
             # Get available languages for this quiz
             quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz.id).all()
             question_ids = [qq.question_id for qq in quiz_questions]
+            total_questions = len(question_ids)
             
-            if question_ids:
-                # Get all unique languages this quiz is translated to
-                translations = session.query(QuestionTranslation.language_code).filter(
+            if question_ids and total_questions > 0:
+                # Only include languages where ALL questions have translations
+                lang_counts = session.query(
+                    QuestionTranslation.language_code,
+                    func.count(QuestionTranslation.question_id)
+                ).filter(
                     QuestionTranslation.question_id.in_(question_ids)
-                ).distinct().all()
-                quiz_dict['available_languages'] = [t[0] for t in translations]
+                ).group_by(QuestionTranslation.language_code).all()
+                
+                # Only include languages where translation count matches total questions
+                quiz_dict['available_languages'] = [
+                    lang for lang, count in lang_counts if count == total_questions
+                ]
             else:
                 quiz_dict['available_languages'] = []
             
             result.append(quiz_dict)
         
+        session.close()
         return jsonify({'quizzes': result}), 200
     except Exception as e:
         print(f'[ERROR] get_all_quizzes: {str(e)}')
@@ -1521,6 +1570,184 @@ def translate_quiz_api(quiz_id):
         }), 200
     except Exception as e:
         print(f'[ERROR] translate_quiz_api: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/quiz/<int:quiz_id>/status', methods=['GET'])
+def get_quiz_translation_status(quiz_id):
+    """Get detailed translation status for a quiz - which questions are translated for each language"""
+    try:
+        from models.models import Quiz, QuizQuestion, Question, QuestionTranslation
+        from services.translation_service import SUPPORTED_LANGUAGES
+        
+        session = db.Session()
+        quiz = session.get(Quiz, quiz_id)
+        
+        if not quiz:
+            return jsonify({'error': 'Quiz not found'}), 404
+        
+        # Get all questions in this quiz
+        quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz_id).all()
+        question_ids = [qq.question_id for qq in quiz_questions]
+        questions = session.query(Question).filter(Question.id.in_(question_ids)).all()
+        
+        # Get all translations for these questions
+        translations = session.query(QuestionTranslation).filter(
+            QuestionTranslation.question_id.in_(question_ids)
+        ).all()
+        
+        # Build a map of question_id -> set of translated language codes
+        translation_map = {}
+        for t in translations:
+            if t.question_id not in translation_map:
+                translation_map[t.question_id] = set()
+            translation_map[t.question_id].add(t.language_code)
+        
+        # Build detailed status for each language
+        language_status = {}
+        for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
+            translated_count = 0
+            missing_questions = []
+            
+            for q in questions:
+                if q.id in translation_map and lang_code in translation_map[q.id]:
+                    translated_count += 1
+                else:
+                    q_data = {
+                        'id': q.id,
+                        'question_text': q.question_text[:80] + '...' if len(q.question_text) > 80 else q.question_text,
+                        'solo_level': q.solo_level
+                    }
+                    missing_questions.append(q_data)
+            
+            language_status[lang_code] = {
+                'language_name': lang_name,
+                'total_questions': len(questions),
+                'translated_count': translated_count,
+                'missing_count': len(missing_questions),
+                'is_complete': len(missing_questions) == 0,
+                'missing_questions': missing_questions
+            }
+        
+        session.close()
+        
+        return jsonify({
+            'success': True,
+            'quiz_id': quiz_id,
+            'quiz_title': quiz.title,
+            'total_questions': len(questions),
+            'language_status': language_status
+        }), 200
+        
+    except Exception as e:
+        print(f'[ERROR] get_quiz_translation_status: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/quiz/<int:quiz_id>/fix', methods=['POST'])
+def fix_quiz_translations(quiz_id):
+    """Delete bad translations (identical to original) for a quiz so they can be re-translated"""
+    try:
+        from models.models import Quiz, QuizQuestion, Question, QuestionTranslation
+        
+        data = request.get_json() or {}
+        target_language = data.get('target_language')
+        
+        session = db.Session()
+        
+        # Get all questions in this quiz
+        quiz_questions = session.query(QuizQuestion).filter_by(quiz_id=quiz_id).all()
+        question_ids = [qq.question_id for qq in quiz_questions]
+        questions = session.query(Question).filter(Question.id.in_(question_ids)).all()
+        
+        # Build a map of question_id -> original question text
+        question_map = {q.id: q.question_text.strip().lower() for q in questions}
+        
+        # Find and delete bad translations
+        query = session.query(QuestionTranslation).filter(
+            QuestionTranslation.question_id.in_(question_ids)
+        )
+        if target_language:
+            query = query.filter(QuestionTranslation.language_code == target_language)
+        
+        translations = query.all()
+        deleted_count = 0
+        
+        for t in translations:
+            original = question_map.get(t.question_id, '')
+            translated = t.translated_question_text.strip().lower() if t.translated_question_text else ''
+            
+            # Delete if translation is identical or very similar to original
+            if translated == original or translated.startswith(original[:50]):
+                session.delete(t)
+                deleted_count += 1
+                print(f"[FIX] Deleted bad translation for question {t.question_id} ({t.language_code})")
+        
+        session.commit()
+        session.close()
+        
+        return jsonify({
+            'success': True,
+            'deleted_count': deleted_count,
+            'message': f'Deleted {deleted_count} bad translations. You can now re-translate.'
+        }), 200
+        
+    except Exception as e:
+        print(f'[ERROR] fix_quiz_translations: {str(e)}')
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/translate/question/<int:question_id>/retranslate', methods=['POST'])
+def retranslate_question(question_id):
+    """Delete existing translation for a question and retranslate it"""
+    try:
+        from models.models import Question, QuestionTranslation
+        
+        data = request.get_json() or {}
+        target_language = data.get('target_language')
+        
+        if not target_language:
+            return jsonify({'error': 'target_language is required'}), 400
+        
+        session = db.Session()
+        question = session.get(Question, question_id)
+        
+        if not question:
+            session.close()
+            return jsonify({'error': 'Question not found'}), 404
+        
+        # Delete existing translation for this language
+        existing = session.query(QuestionTranslation).filter(
+            QuestionTranslation.question_id == question_id,
+            QuestionTranslation.language_code == target_language
+        ).first()
+        
+        if existing:
+            session.delete(existing)
+            session.commit()
+            print(f"[RETRANSLATE] Deleted old {target_language} translation for question {question_id}")
+        
+        # Now translate again
+        result = translation_service.translate_question(question, target_language, session)
+        session.close()
+        
+        if result:
+            return jsonify({
+                'success': True,
+                'message': f'Question {question_id} retranslated to {target_language}',
+                'translated_text': result.translated_question_text
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Translation failed after multiple attempts'
+            }), 500
+        
+    except Exception as e:
+        print(f'[ERROR] retranslate_question: {str(e)}')
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 

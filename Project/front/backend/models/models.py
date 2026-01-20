@@ -234,8 +234,17 @@ class Question(Base):
     primary_lesson = relationship("Lesson", foreign_keys=[primary_lesson_id])
     secondary_lesson = relationship("Lesson", foreign_keys=[secondary_lesson_id])
     quiz_questions = relationship("QuizQuestion", back_populates="question", cascade="all, delete-orphan")
+    # Note: 'translations' relationship is created via backref from QuestionTranslation
     
     def to_dict(self):
+        # Get translations - handle both lazy-loaded and eager-loaded cases
+        translations_list = []
+        try:
+            if hasattr(self, 'translations') and self.translations is not None:
+                translations_list = [t.to_dict() for t in self.translations]
+        except Exception:
+            pass  # If translations can't be loaded, return empty list
+        
         result = {
             'id': self.id,
             'primary_lesson_id': self.primary_lesson_id,
@@ -257,7 +266,7 @@ class Question(Base):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'used_count': self.used_count,
-            'translations': [t.to_dict() for t in self.translations] if hasattr(self, 'translations') else []
+            'translations': translations_list
         }
         if self.primary_lesson:
             result['primary_lesson_title'] = self.primary_lesson.title

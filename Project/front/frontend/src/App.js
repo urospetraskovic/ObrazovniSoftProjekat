@@ -5,7 +5,7 @@ import './App.css';
 import { courseApi, lessonApi, questionApi, healthApi } from './api';
 
 // Context
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // New components for course/lesson workflow
 import CourseManager from './components/CourseManager';
@@ -503,50 +503,13 @@ function App() {
   );
 }
 
-function AppWithLanguage() {
+// Wrap App with LanguageProvider for components that need language context
+function AppWithProvider() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <App />
     </LanguageProvider>
   );
 }
 
-function AppContent() {
-  const { languages, selectedLanguage, setSelectedLanguage, loading: langsLoading } = useLanguage();
-
-  // Get the App component instance
-  const AppInstance = <App />;
-
-  return (
-    <div className="app-with-language">
-      {/* Global Language Selector Header */}
-      <div className="global-header">
-        <div className="header-content">
-          <div className="header-left">
-            <h2>SOLO Quiz Generator</h2>
-          </div>
-          <div className="header-right">
-            <div className="language-selector-global">
-              <label>Language:</label>
-              <select 
-                value={selectedLanguage} 
-                onChange={(e) => setSelectedLanguage(e.target.value)}
-                disabled={langsLoading}
-              >
-                {Object.entries(languages).map(([code, name]) => (
-                  <option key={code} value={code}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {AppInstance}
-    </div>
-  );
-}
-
-export default AppWithLanguage;
+export default AppWithProvider;

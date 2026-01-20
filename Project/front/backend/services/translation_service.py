@@ -26,7 +26,6 @@ OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"
 
 # Supported languages for translation
 SUPPORTED_LANGUAGES = {
-    'en': 'English',
     'sr': 'Serbian',
     'fr': 'French',
     'es': 'Spanish',
@@ -118,67 +117,108 @@ class TranslationService:
             language_name = self.supported_languages[target_language_code]
             print(f"[TRANSLATION] Translating Question #{question.id} to {language_name}...")
             
-            prompt = self._build_question_translation_prompt(question, target_language_code, language_name)
-            response_text = self._call_ollama(prompt)
+            # Retry up to 5 times if translation fails
+            max_retries = 5
+            for attempt in range(max_retries):
+                # Use more forceful prompt on retries
+                prompt = self._build_question_translation_prompt(question, target_language_code, language_name, attempt)
+                response_text = self._call_ollama(prompt)
+                
+                if not response_text:
+                    logger.error(f"Failed to translate question {question.id} (attempt {attempt + 1})")
+                    if attempt < max_retries - 1:
+                        print(f"[TRANSLATION] ⟳ Retry {attempt + 2}/{max_retries} for question {question.id}...")
+                        continue
+                    print(f"[TRANSLATION] ❌ Failed to translate question {question.id} after {max_retries} attempts")
+                    return None
+                
+                translation_data = self._parse_translation_response(response_text)
+                
+                if not translation_data or 'question_text' not in translation_data:
+                    logger.error(f"Failed to parse question translation (attempt {attempt + 1})")
+                    if attempt < max_retries - 1:
+                        print(f"[TRANSLATION] ⟳ Retry {attempt + 2}/{max_retries} for question {question.id}...")
+                        continue
+                    print(f"[TRANSLATION] ❌ Failed to parse translation after {max_retries} attempts")
+                    return None
+                
+                # Validate that translation is actually different from original (reject if same)
+                translated_text = translation_data['question_text'].strip()
+                original_text = question.question_text.strip()
+                # Check if identical or if first 30 chars are the same (likely not translated)
+                if translated_text.lower() == original_text.lower() or translated_text[:30].lower() == original_text[:30].lower():
+                    logger.error(f"Translation identical to original (attempt {attempt + 1})")
+                    if attempt < max_retries - 1:
+                        print(f"[TRANSLATION] ⟳ Retry {attempt + 2}/{max_retries} - AI returned original text...")
+                        continue
+                    print(f"[TRANSLATION] ❌ Translation still identical after {max_retries} attempts - skipping question {question.id}")
+                    return None
+                
+                # Success - create translation record
+                translation = QuestionTranslation(
+                    question_id=question.id,
+                    language_code=target_language_code,
+                    language_name=language_name,
+                    translated_question_text=translation_data['question_text'],
+                    translated_options=translation_data.get('options'),
+                    translated_correct_answer=translation_data.get('correct_answer'),
+                    translated_explanation=translation_data.get('explanation')
+                )
+                
+                session.add(translation)
+                session.commit()
+                logger.info(f"Translated question {question.id} to {language_name}")
+                return translation
             
-            if not response_text:
-                logger.error(f"Failed to translate question {question.id}")
-                print(f"[TRANSLATION] ❌ Failed to translate question {question.id}")
-                return None
-            
-            translation_data = self._parse_translation_response(response_text)
-            
-            if not translation_data or 'question_text' not in translation_data:
-                logger.error(f"Failed to parse question translation")
-                print(f"[TRANSLATION] ❌ Failed to parse question translation")
-                return None
-            
-            translation = QuestionTranslation(
-                question_id=question.id,
-                language_code=target_language_code,
-                language_name=language_name,
-                translated_question_text=translation_data['question_text'],
-                translated_options=translation_data.get('options'),
-                translated_correct_answer=translation_data.get('correct_answer'),
-                translated_explanation=translation_data.get('explanation')
-            )
-            
-            session.add(translation)
-            session.commit()
-            logger.info(f"Translated question {question.id} to {language_name}")
-            return translation
+            return None  # Should not reach here
             
         except Exception as e:
             logger.error(f"Error translating question: {str(e)}")
             session.rollback()
             return None
     
-    def _build_question_translation_prompt(self, question: Question, lang_code: str, lang_name: str) -> str:
-        """Build prompt for question translation"""
+    def _build_question_translation_prompt(self, question: Question, lang_code: str, lang_name: str, attempt: int = 0) -> str:
+        """Build prompt for question translation - more forceful on retries"""
         
         options_text = ""
         if question.options:
             options_text = "Options:\n" + "\n".join([f"- {opt}" for opt in question.options])
         
-        prompt = f"""Translate this quiz question to {lang_name} ({lang_code}).
-IMPORTANT CONSTRAINTS:
-1. Use ONLY Latin characters (a-z, A-Z, 0-9, and standard punctuation)
-2. Do NOT use Cyrillic characters
-3. If translating to Serbian, use Latin script (Serbian Latin), not Cyrillic (Cyrillic is FORBIDDEN)
-4. Maintain the meaning and educational quality of the original
-5. Keep technical terms accurate and consistent
+        # For Serbian, be very specific
+        if lang_code == "sr":
+            lang_desc = "Serbian (srpski jezik) - NOT Croatian, NOT Bosnian - use Serbian Latin alphabet (latinica)"
+        else:
+            lang_desc = lang_name
+        
+        # Base translation instruction
+        if attempt == 0:
+            intro = f"You are a professional translator. Translate this quiz question from English to {lang_desc}."
+        elif attempt == 1:
+            intro = f"TRANSLATE the following English text to {lang_desc}. DO NOT return English text."
+        elif attempt == 2:
+            intro = f"I need this text in {lang_desc}, NOT English. Please translate everything below."
+        elif attempt == 3:
+            intro = f"Convert this English quiz to {lang_desc}. The output MUST NOT be in English. English output is WRONG."
+        else:
+            intro = f"MANDATORY: Output must be 100% in {lang_desc}. Zero English words allowed. Translate now:"
+        
+        prompt = f"""{intro}
 
-Return ONLY a valid JSON object with these exact keys: question_text, options (if applicable), correct_answer, explanation (if applicable).
+RULES:
+1. ALL text must be translated to {lang_name} - NO English in output
+2. {"Use Serbian Latin alphabet (latinica, NOT ćirilica). This is SERBIAN language, not Croatian!" if lang_code == "sr" else "Use proper " + lang_name + " characters"}
+3. Return valid JSON only
 
-Original question:
-{question.question_text}
+ENGLISH INPUT:
+Question: {question.question_text}
 
 {options_text}
 
 Correct answer: {question.correct_answer}
 Explanation: {question.explanation if question.explanation else "N/A"}
 
-Return ONLY JSON, no other text:"""
+OUTPUT (JSON with ALL values in {lang_name}):
+{{"question_text": "[{lang_name} translation]", "options": ["[{lang_name}]", ...], "correct_answer": "[{lang_name}]", "explanation": "[{lang_name}]"}}"""
         
         return prompt
     
