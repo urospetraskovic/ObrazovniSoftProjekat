@@ -100,6 +100,39 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
       onError('Failed to delete question');
     }
   };
+
+  const handleDeleteSelected = async () => {
+    if (selectedQuestions.length === 0) return;
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedQuestions.length} question${selectedQuestions.length > 1 ? 's' : ''}? This action cannot be undone.`;
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      let deletedCount = 0;
+      let failedCount = 0;
+      
+      for (const questionId of selectedQuestions) {
+        try {
+          await questionApi.delete(questionId);
+          deletedCount++;
+        } catch (err) {
+          failedCount++;
+        }
+      }
+      
+      setSelectedQuestions([]);
+      onRefresh();
+      
+      if (failedCount === 0) {
+        onSuccess(`Successfully deleted ${deletedCount} question${deletedCount > 1 ? 's' : ''}`);
+      } else {
+        onSuccess(`Deleted ${deletedCount} question${deletedCount > 1 ? 's' : ''}, ${failedCount} failed`);
+      }
+    } catch (err) {
+      onError('Failed to delete questions');
+    }
+  };
+
   const getSoloLevelColor = (level) => {
     const colors = {
       unistructural: '#4CAF50',
@@ -178,6 +211,12 @@ function QuestionBank({ questions, courseId, onRefresh, onSuccess, onError }) {
               onClick={() => setSelectedQuestions([])}
             >
               Clear Selection
+            </button>
+            <button 
+              className="btn-danger"
+              onClick={handleDeleteSelected}
+            >
+              🗑️ Delete Selected
             </button>
           </div>
         )}

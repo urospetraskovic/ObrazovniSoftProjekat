@@ -16,7 +16,7 @@ from repository import db, init_database
 from models import LearningObject, Question, Lesson, Section, Course, Session
 from core import content_parser, SoloQuizGeneratorLocal as SoloQuizGenerator
 from services import (
-    LessonService, QuestionService, QuizService, gemini_service,
+    LessonService, QuestionService, QuizService,
     generate_owl_from_relationships, generate_turtle_from_relationships,
     ontology_manager
 )
@@ -1035,6 +1035,18 @@ def get_quiz(quiz_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/quizzes/<int:quiz_id>', methods=['DELETE'])
+def delete_quiz(quiz_id):
+    """Delete a quiz"""
+    try:
+        success = db.delete_quiz(quiz_id)
+        if not success:
+            return jsonify({'error': 'Quiz not found'}), 404
+        return jsonify({'message': 'Quiz deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/quizzes/<int:quiz_id>/add-questions', methods=['POST'])
 def add_questions_to_quiz(quiz_id):
     """Add questions to an existing quiz"""
@@ -1166,185 +1178,6 @@ def export_quiz(quiz_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# ==================== GEMINI API ENDPOINTS ====================
-
-@app.route('/api/gemini/health', methods=['GET'])
-def gemini_health_check():
-    """Check if Gemini API is accessible"""
-    try:
-        is_connected = gemini_service.test_connection()
-        return jsonify({
-            'status': 'ok' if is_connected else 'unavailable',
-            'connected': is_connected,
-            'message': 'Gemini API is accessible' if is_connected else 'Gemini API quota exceeded or unavailable'
-        }), 200
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'connected': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gemini/generate-quiz', methods=['POST'])
-def generate_quiz_with_gemini():
-    """
-    Generate quiz questions using Gemini API
-    
-    Request body:
-    {
-        "content": "The educational content",
-        "num_questions": 10,
-        "question_type": "multiple_choice"  # or "true_false", "short_answer"
-    }
-    """
-    try:
-        data = request.get_json()
-        if not data or 'content' not in data:
-            return jsonify({'error': 'Content is required'}), 400
-        
-        content = data['content']
-        num_questions = data.get('num_questions', 10)
-        question_type = data.get('question_type', 'multiple_choice')
-        
-        # Generate quiz using Gemini
-        result = gemini_service.generate_quiz_from_content(
-            content=content,
-            num_questions=num_questions,
-            question_type=question_type
-        )
-        
-        if result['success']:
-            return jsonify({
-                'success': True,
-                'questions': result['questions'],
-                'count': len(result['questions'])
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'error': result['error']
-            }), 400
-    except Exception as e:
-        print(f'[ERROR] generate_quiz_with_gemini: {str(e)}')
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gemini/generate-summary', methods=['POST'])
-def generate_summary():
-    """
-    Generate a learning summary from content using Gemini API
-    
-    Request body:
-    {
-        "content": "The educational content to summarize"
-    }
-    """
-    try:
-        data = request.get_json()
-        if not data or 'content' not in data:
-            return jsonify({'error': 'Content is required'}), 400
-        
-        content = data['content']
-        
-        result = gemini_service.generate_learning_summary(content)
-        
-        if result['success']:
-            return jsonify({
-                'success': True,
-                'summary': result['summary']
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'error': result['error']
-            }), 400
-    except Exception as e:
-        print(f'[ERROR] generate_summary: {str(e)}')
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gemini/generate-objectives', methods=['POST'])
-def generate_objectives():
-    """
-    Generate learning objectives for a lesson using Gemini API
-    
-    Request body:
-    {
-        "lesson_title": "Title of the lesson",
-        "content": "The lesson content"
-    }
-    """
-    try:
-        data = request.get_json()
-        if not data or 'lesson_title' not in data or 'content' not in data:
-            return jsonify({'error': 'Lesson title and content are required'}), 400
-        
-        lesson_title = data['lesson_title']
-        content = data['content']
-        
-        result = gemini_service.generate_lesson_objectives(lesson_title, content)
-        
-        if result['success']:
-            return jsonify({
-                'success': True,
-                'objectives': result['objectives']
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'error': result['error']
-            }), 400
-    except Exception as e:
-        print(f'[ERROR] generate_objectives: {str(e)}')
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gemini/explain-answer', methods=['POST'])
-def explain_answer():
-    """
-    Generate a detailed explanation for a quiz answer using Gemini API
-    
-    Request body:
-    {
-        "question": "The quiz question",
-        "correct_answer": "The correct answer"
-    }
-    """
-    try:
-        data = request.get_json()
-        if not data or 'question' not in data or 'correct_answer' not in data:
-            return jsonify({'error': 'Question and correct answer are required'}), 400
-        
-        question = data['question']
-        correct_answer = data['correct_answer']
-        
-        explanation = gemini_service.generate_quiz_explanation(question, correct_answer)
-        
-        return jsonify({
-            'success': True,
-            'explanation': explanation
-        }), 200
-    except Exception as e:
-        print(f'[ERROR] explain_answer: {str(e)}')
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
 
 
 # ==================== TRANSLATION ENDPOINTS ====================

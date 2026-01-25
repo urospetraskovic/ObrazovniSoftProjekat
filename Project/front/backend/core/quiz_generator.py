@@ -14,6 +14,7 @@ import json
 import re
 import requests
 import hashlib
+import random
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Set
 from dotenv import load_dotenv
@@ -382,6 +383,18 @@ At this stage, the learner gets to know just a single relevant aspect of a task 
 
 TASK: Create a question that tests knowledge of ONE specific fact/concept. Student should identify or name a single element directly stated in the content.
 
+QUESTION VARIETY - IMPORTANT:
+**DO NOT** start with "Which of the following" - this is overused and boring!
+Use varied question formats such as:
+- "What is the primary purpose of [X]?"
+- "[X] is defined as..."
+- "The term [X] refers to..."
+- "In the context of [topic], what does [X] mean?"
+- "What characterizes [X]?"
+- "How is [X] typically described?"
+- "The main function of [X] is..."
+- Direct definition questions: "[X] can be best described as..."
+
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options that can be eliminated by common sense
 - **DO** create plausible but INCORRECT options that:
@@ -410,6 +423,8 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         question_data = self._parse_question_response(response)
         if question_data:
+            # Shuffle options to randomize correct answer position
+            question_data = self._shuffle_options(question_data)
             return {
                 'question_text': question_data.get('question', ''),
                 'question_type': 'multiple_choice',
@@ -479,6 +494,18 @@ At this stage, students gain an understanding of numerous relevant independent a
 
 TASK: Create a question that tests knowledge of MULTIPLE separate facts/features. Student should list or identify several independent elements WITHOUT explaining how they connect.
 
+QUESTION VARIETY - IMPORTANT:
+**DO NOT** start with "Which of the following" - this is overused and boring!
+Use varied question formats such as:
+- "What are the key components of [X]?"
+- "Name the main elements involved in [X]."
+- "[Topic] consists of several parts. These include..."
+- "The main aspects of [X] are..."
+- "Identify the core features of [X]."
+- "What elements make up [X]?"
+- "List the primary characteristics of [X]."
+- "The building blocks of [X] include..."
+
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options that can be eliminated by common sense
 - **DO** create plausible but INCORRECT combinations that:
@@ -508,6 +535,8 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         question_data = self._parse_question_response(response)
         if question_data:
+            # Shuffle options to randomize correct answer position
+            question_data = self._shuffle_options(question_data)
             return {
                 'question_text': question_data.get('question', ''),
                 'question_type': 'multiple_choice',
@@ -579,6 +608,19 @@ This stage relates to aspects of knowledge combining to form a structure. By thi
 
 TASK: Create a question that tests understanding of HOW parts CONNECT and work TOGETHER. Use both the detailed content, domain ontology AND the summary to identify key relationships. Student should explain relationships, patterns, or cause-effect between elements. Shows deep integrated understanding.
 
+QUESTION VARIETY - IMPORTANT:
+**DO NOT** start with "Which of the following" - this is overused and boring!
+Use varied question formats such as:
+- "How does [X] relate to [Y]?"
+- "What is the relationship between [X] and [Y]?"
+- "Why does [X] affect [Y] in this way?"
+- "Explain how [X] contributes to [Y]."
+- "The connection between [X] and [Y] can be described as..."
+- "How do [X] and [Y] work together to achieve [Z]?"
+- "What role does [X] play in the context of [Y]?"
+- "In what way does [X] influence [Y]?"
+- "The interaction between [X] and [Y] results in..."
+
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options that can be eliminated without thinking
 - **DO** create CHALLENGING distractors that:
@@ -611,6 +653,8 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         question_data = self._parse_question_response(response)
         if question_data:
+            # Shuffle options to randomize correct answer position
+            question_data = self._shuffle_options(question_data)
             return {
                 'question_text': question_data.get('question', ''),
                 'question_type': 'multiple_choice',
@@ -669,13 +713,19 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         # Comprehensive prompt with EXPLICIT INSTRUCTIONS for combining 2 lessons
         if secondary_lesson:
-            combine_instruction = f"""CRITICAL - COMBINE 2 TOPICS:
-You MUST create a question that connects and combines concepts from BOTH '{lesson_title}' AND '{secondary_title}'.
+            combine_instruction = f"""CRITICAL - COMBINE CONCEPTS FROM EXACTLY THESE 2 TOPICS:
+You MUST create a question that connects and synthesizes concepts from BOTH '{lesson_title}' AND '{secondary_title}'.
 The question should show how these two topics relate to each other, influence each other, or can be applied together.
-Example: If lesson 1 is about Process Management and lesson 2 is about Virtual Memory, ask how processes interact with virtual memory.
-The student MUST demonstrate understanding of BOTH topics to answer correctly."""
+
+**STRICT GROUNDING RULE**: Use ONLY concepts, terms, and ideas that appear in the provided materials above.
+DO NOT introduce external concepts, theories, or examples that are not mentioned in the lesson content.
+The synthesis must be between concepts FROM THESE TWO LESSONS ONLY.
+
+Example: If lesson 1 covers "Unit Testing" and lesson 2 covers "Angular Components", ask how unit testing principles apply to Angular component testing - combining BOTH topics using concepts FROM the materials."""
         else:
-            combine_instruction = "Create a question that generalizes principles to NEW contexts not directly mentioned in the content."
+            combine_instruction = """Create a question that applies the principles from this lesson to a practical scenario.
+**STRICT GROUNDING RULE**: Use ONLY concepts and terms that appear in the provided content.
+DO NOT introduce external concepts not mentioned in the lesson."""
         
         prompt = f"""Create an EXTENDED ABSTRACT level question{' combining 2 lessons' if secondary_lesson else ''}.
 
@@ -689,33 +739,45 @@ By this level, students are able to make connections within the provided task, a
 
 TASK: Create a question that requires:
 - Understanding core principles from {'both topics' if secondary_lesson else 'the lesson'}
-- {'Combining/relating these 2 independent concepts' if secondary_lesson else 'Applying this knowledge to'} to a NEW context NOT directly mentioned in the content
-- Student must synthesize and generalize to demonstrate mastery
+- {'Synthesizing concepts from BOTH lessons to solve a problem or explain a scenario' if secondary_lesson else 'Applying lesson principles to a new but related scenario'}
+- Student must demonstrate deep understanding by combining/applying knowledge
+
+**IMPORTANT - STAY GROUNDED IN THE MATERIALS**:
+- All concepts in the question and answers MUST come from the provided lesson content
+- DO NOT introduce new theories, frameworks, or concepts not in the materials
+- The "new context" means a NEW APPLICATION of the SAME concepts, not introducing NEW concepts
+- If combining 2 lessons, the question must use specific concepts from BOTH lessons
+
+QUESTION VARIETY - IMPORTANT:
+**DO NOT** start with "Which of the following" - this is overused and boring!
+Use varied question formats such as:
+- "How can the principles of [X from lesson 1] be applied to improve [Y from lesson 2]?"
+- "A developer needs to [scenario]. Using concepts from [both topics], the best approach would be..."
+- "When combining [concept A] with [concept B], what outcome should be expected?"
+- "Given a situation where [scenario using both topics], how should one proceed?"
+- "The integration of [X] and [Y] enables..."
+- "To achieve [goal], how would [concept from lesson 1] work together with [concept from lesson 2]?"
 
 CRITICAL INSTRUCTIONS FOR DISTRACTORS:
 - **DO NOT** create obviously wrong options
 - **DO** create TRICKY distractors that:
   * Look correct if you misunderstand which principle applies
-  * Correctly apply a DIFFERENT but related principle
-  * Misapply knowledge from {'the wrong lesson' if secondary_lesson else 'the content'}
-  * Follow logically from the content but reach wrong conclusion
-  * Represent COMMON OVERGENERALIZATIONS of the principles
-  * Apply the principle to SIMILAR but wrong context
-- Example BAD distractor: "Blue elephants" (nonsense)
-- Example GOOD distractor: "You should increase speed" (correct for acceleration problem, wrong for this momentum problem - different principle)
+  * Correctly apply a concept from ONE lesson but ignore the other
+  * {'Apply concepts from only one of the two lessons' if secondary_lesson else 'Partially apply the principle'}
+  * Follow logically but reach wrong conclusion
+  * Represent common misconceptions about how the concepts interact
 - Distractors should be SOPHISTICATED errors that test deep understanding
+- ALL distractors must use concepts FROM THE PROVIDED MATERIALS
 
 Requirements:
-- {'Demonstrate understanding of relationship between both topics' if secondary_lesson else 'Identify transferable concepts and principles'}
-- Create a scenario that requires applying/synthesizing knowledge to a NEW situation
-- Scenario should NOT be directly mentioned in the provided content
-- Requires student to conceptualize beyond what was taught
-- Student must demonstrate ability to TRANSFER knowledge across {'domains' if secondary_lesson else 'contexts'}
+- {'Question MUST require knowledge of BOTH lessons to answer correctly' if secondary_lesson else 'Question must apply lesson concepts to a practical scenario'}
+- All concepts in question and answers must come from the provided materials
+- Requires student to synthesize and apply knowledge (not just recall)
 - ALL TEXT IN ENGLISH
 - Question < 300 chars
 - 4 MC options (A-D), one correct
-- 3 distractors must be CHALLENGING: plausible applications of WRONG principles or MISAPPLICATIONS
-- Explanation < 250 chars, showing how both topics connect {'(if applicable)' if secondary_lesson else ''}
+- 3 distractors must be CHALLENGING but grounded in the lesson materials
+- Explanation < 250 chars, {'showing how concepts from both lessons combine' if secondary_lesson else 'explaining the application'}
 
 Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "correct_answer": "A) ...", "explanation": "..."}}"""
         
@@ -725,6 +787,8 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
         
         question_data = self._parse_question_response(response)
         if question_data:
+            # Shuffle options to randomize correct answer position
+            question_data = self._shuffle_options(question_data)
             return {
                 'question_text': question_data.get('question', ''),
                 'question_type': 'multiple_choice',
@@ -766,6 +830,60 @@ Return ONLY JSON: {{"question": "...", "options": ["A) ...", "B) ...", "C) ...",
                 return i
         
         return 0
+
+    def _shuffle_options(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Shuffle the options to randomize correct answer position.
+        This prevents all correct answers from being option A.
+        
+        Args:
+            question_data: Dict with 'options' and 'correct_answer' keys
+            
+        Returns:
+            Updated question_data with shuffled options and updated correct_answer
+        """
+        options = question_data.get('options', [])
+        correct_answer = question_data.get('correct_answer', '')
+        
+        if not options or len(options) < 2:
+            return question_data
+        
+        # Extract the text content from each option (remove A), B), etc. prefix)
+        option_texts = []
+        correct_text = None
+        
+        for opt in options:
+            # Remove letter prefix like "A) ", "B) ", etc.
+            text = re.sub(r'^[A-Da-d]\)\s*', '', opt).strip()
+            option_texts.append(text)
+        
+        # Find the correct answer text
+        correct_text = re.sub(r'^[A-Da-d]\)\s*', '', correct_answer).strip()
+        
+        # Shuffle the options
+        random.shuffle(option_texts)
+        
+        # Find new position of correct answer
+        new_correct_index = -1
+        for i, text in enumerate(option_texts):
+            if text == correct_text:
+                new_correct_index = i
+                break
+        
+        # If we couldn't find the correct answer (shouldn't happen), default to 0
+        if new_correct_index == -1:
+            new_correct_index = 0
+        
+        # Rebuild options with new letter prefixes
+        letters = ['A', 'B', 'C', 'D']
+        new_options = [f"{letters[i]}) {text}" for i, text in enumerate(option_texts)]
+        new_correct_answer = new_options[new_correct_index]
+        
+        # Update the question data
+        question_data['options'] = new_options
+        question_data['correct_answer'] = new_correct_answer
+        
+        return question_data
 
 
 # Create global instance

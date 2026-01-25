@@ -72,6 +72,11 @@ function ChatBot({ courseId, lessonId, isOpen, onClose }) {
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
 
+  const clearChat = () => {
+    setMessages([]);
+    setError('');
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -160,7 +165,12 @@ function ChatBot({ courseId, lessonId, isOpen, onClose }) {
             </span>
           </div>
         </div>
-        <button className="close-btn" onClick={onClose}>✕</button>
+        <div className="header-actions">
+          <button className="new-chat-btn" onClick={clearChat} title="New Chat">
+            🔄
+          </button>
+          <button className="close-btn" onClick={onClose}>✕</button>
+        </div>
       </div>
 
       {/* Messages Area */}
@@ -207,14 +217,6 @@ function ChatBot({ courseId, lessonId, isOpen, onClose }) {
                 className="message-text"
                 dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.content) }}
               />
-              {msg.service && (
-                <span className={`service-badge ${msg.service}`}>
-                  {msg.service === 'ollama' && '🟢 '}
-                  {msg.service === 'gemini' && '✨ '}
-                  {msg.service === 'offline' && '📴 '}
-                  {msg.service}
-                </span>
-              )}
             </div>
           </div>
         ))}

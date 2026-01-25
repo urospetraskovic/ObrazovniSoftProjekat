@@ -1,0 +1,26 @@
+How many courses do I have?
+How many lessons are in OS?
+How many quizzes do I have?
+How many questions are in Testiranje softvera?
+How many relationships do I have?
+
+List my courses
+Show me my lessons
+What are my quizzes?
+
+What topics are in the OS course?
+What are the lessons in Testiranje softvera?
+What does the OS course cover?
+
+Explain virtual memory
+What is a process vs a thread?
+How does memory management work?
+Explain konkurentnost
+
+Summarize the lesson on Niti
+What are the key concepts in Procesi?
+Help me understand Selenium testing
+
+What should I study for the OS quiz?
+Give me practice questions about processes
+Explain the answer to question about memory allocation

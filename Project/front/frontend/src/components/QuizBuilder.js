@@ -241,6 +241,13 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
                       </button>
                     </div>
                     <p className="full-question-text">{question.question_text}</p>
+                    {/* Lesson Source */}
+                    {getLessonSourceDisplay(question) && (
+                      <div className={`lesson-source ${question.solo_level === 'extended_abstract' ? 'extended-source' : ''}`}>
+                        <span className="source-icon">📚</span>
+                        {getLessonSourceDisplay(question)}
+                      </div>
+                    )}
                     {question.created_at && (
                       <div className="question-timestamp">
                         Generated: {new Date(question.created_at).toLocaleString()}
@@ -317,6 +324,47 @@ function QuizBuilder({ questions, course, onSuccess, onError }) {
       />
     </div>
   );
+}
+
+// Helper function to display lesson source
+function getLessonSourceDisplay(question) {
+  // Try to use lesson titles first
+  if (question.secondary_lesson_title && question.primary_lesson_title) {
+    return (
+      <span className="source-text">
+        From <strong>{question.primary_lesson_title}</strong> + <strong>{question.secondary_lesson_title}</strong>
+      </span>
+    );
+  }
+  
+  if (question.primary_lesson_title) {
+    return (
+      <span className="source-text">
+        From <strong>{question.primary_lesson_title}</strong>
+      </span>
+    );
+  }
+  
+  // Fallback: extract from tags if titles are missing (for cross-topic questions)
+  if (question.tags && question.tags.length > 0) {
+    const lessonTags = question.tags.filter(tag => tag !== 'cross-topic');
+    if (lessonTags.length > 1) {
+      return (
+        <span className="source-text">
+          From <strong>{lessonTags[0]}</strong> + <strong>{lessonTags[1]}</strong>
+        </span>
+      );
+    }
+    if (lessonTags.length === 1) {
+      return (
+        <span className="source-text">
+          From <strong>{lessonTags[0]}</strong>
+        </span>
+      );
+    }
+  }
+  
+  return null;
 }
 
 export default QuizBuilder;

@@ -28,6 +28,7 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   const [selectedLanguage, setSelectedLanguage] = useState('original');
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [retranslating, setRetranslating] = useState(null); // question id being retranslated
+  const [deletingQuizId, setDeletingQuizId] = useState(null); // quiz id being deleted
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -44,6 +45,26 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
   useEffect(() => {
     fetchQuizzes();
   }, [fetchQuizzes]);
+
+  // Delete quiz handler
+  const handleDeleteQuiz = async (e, quizId, quizTitle) => {
+    e.stopPropagation(); // Prevent quiz card click
+    
+    if (!window.confirm(`Are you sure you want to delete "${quizTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      setDeletingQuizId(quizId);
+      await quizApi.delete(quizId);
+      setQuizzes(prev => prev.filter(q => q.id !== quizId));
+      onSuccess(`Quiz "${quizTitle}" deleted successfully`);
+    } catch (err) {
+      onError(err.response?.data?.error || 'Failed to delete quiz');
+    } finally {
+      setDeletingQuizId(null);
+    }
+  };
 
   // Timer effect - starts when quiz is selected
   useEffect(() => {
@@ -267,6 +288,14 @@ function QuizSolver({ courseId, onBack, onSuccess, onError }) {
                         <span>Pass: {quiz.passing_score}%</span>
                       </div>
                     )}
+                    <button
+                      className="btn-delete-quiz"
+                      onClick={(e) => handleDeleteQuiz(e, quiz.id, quiz.title)}
+                      disabled={deletingQuizId === quiz.id}
+                      title="Delete quiz"
+                    >
+                      {deletingQuizId === quiz.id ? '...' : '🗑️'}
+                    </button>
                   </div>
                 </div>
               ))}

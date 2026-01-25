@@ -482,14 +482,16 @@ function App() {
           </div>
         </main>
 
-        {/* Chatbot Button */}
-        <button 
-          className="chatbot-toggle-btn"
-          onClick={() => setChatbotOpen(!chatbotOpen)}
-          title="Open Learning Assistant"
-        >
-          💬
-        </button>
+        {/* Chatbot Button - hidden when chat is open */}
+        {!chatbotOpen && (
+          <button 
+            className="chatbot-toggle-btn"
+            onClick={() => setChatbotOpen(!chatbotOpen)}
+            title="Open Learning Assistant"
+          >
+            💬
+          </button>
+        )}
 
         {/* Chatbot Component */}
         <ChatBot 

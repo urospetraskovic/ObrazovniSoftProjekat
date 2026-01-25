@@ -1149,6 +1149,29 @@ button {
   font-size: 1.1em;
 }
 
+.btn-delete-quiz {
+  background: transparent;
+  border: 1px solid var(--neutral-300);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition-fast);
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+.btn-delete-quiz:hover {
+  background: var(--error);
+  border-color: var(--error);
+  opacity: 1;
+}
+
+.btn-delete-quiz:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .quiz-progress {
   display: flex;
   gap: 16px;
@@ -4160,7 +4183,7 @@ button {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
   transition: all 0.2s ease;
-  z-index: 998;
+  z-index: 1001;
   display: flex !important;
   align-items: center;
   justify-content: center;
