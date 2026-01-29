@@ -9,7 +9,7 @@ Ovaj projekat je dizajniran da pomogne nastavnicima da automatski kreiraju pitan
 - **Unistrukturalni** - Jednostavno prisećanje pojedinačnih činjenica
 - **Multistrukturalni** - Identifikacija više povezanih činjenica
 - **Relacioni** - Razumevanje veza između koncepata
-- **Prošireni apstraktni** - Više razine mišljenja i primena
+- **Prošireni apstraktni** - Viši opseg mišljenja i primena
 
 ## Ključne funkcionalnosti
 
@@ -42,7 +42,6 @@ Ovaj projekat je dizajniran da pomogne nastavnicima da automatski kreiraju pitan
 
 ### Sistem prevođenja
 - Prevođenje pitanja na više jezika
-- Prevođenje celih lekcija, sekcija ili objekata učenja
 - Grupno prevođenje
 - Očuvanje SOLO metapodataka
 
@@ -63,7 +62,7 @@ Ovaj projekat je dizajniran da pomogne nastavnicima da automatski kreiraju pitan
 
 **AI sloj:**
 - Ollama (lokalni LLM pokretač)
-- Qwen 2.5 14B model (preporučeno)
+- Qwen 2.5 14B model 
 
 ## Preduslovi
 
@@ -78,7 +77,7 @@ Pre pokretanja aplikacije, uverite se da imate:
 ### 1. Kloniranje repozitorijuma
 
 ```bash
-git clone <url-repozitorijuma>
+git clone <https://github.com/urospetraskovic/ObrazovniSoftProjekat>
 cd front
 ```
 
@@ -157,10 +156,11 @@ front/
 │   │   ├── chatbot_service.py   # RAG chatbot
 │   │   ├── sparql_service.py    # SPARQL upiti
 │   │   ├── ontology_service.py  # OWL/Turtle izvoz
-│   │   ├── translation_service.py
-│   │   └── quiz_service.py
+│   │   ├── translation_service.py # Prevodi
+│   │   ├── quiz_service.py     # Kvizovi  
+│   │   ├── lesson_service.py   # Vadjenje lekcija
+│   │   └── question_service.py # Pravljenje pitanja
 │   ├── uploads/            # Privremeni PDF upload-i
-│   └── lessons/            # Sačuvani PDF-ovi lekcija
 ├── frontend/
 │   ├── src/
 │   │   ├── App.js          # Glavna aplikacija

@@ -157,8 +157,10 @@ front/
 │   │   ├── chatbot_service.py   # RAG chatbot
 │   │   ├── sparql_service.py    # SPARQL queries
 │   │   ├── ontology_service.py  # OWL/Turtle export
-│   │   ├── translation_service.py
-│   │   └── quiz_service.py
+│   │   ├── translation_service.py #Translations
+│   │   ├── quiz_service.py      # Quizzes
+│   │   ├── lesson_service.py    # Lesson extractions
+│   │   └── question_service.py  # Quesoin generation
 │   ├── uploads/            # Temporary PDF uploads
 │   └── lessons/            # Stored lesson PDFs
 ├── frontend/
