@@ -17,12 +17,11 @@ from models.models import (
     ConceptRelationship, OntologyTranslation
 )
 
+# Single source of truth for Ollama URL/model lives in backend/config.py
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL
+
 # Setup logging
 logger = logging.getLogger(__name__)
-
-# Ollama Configuration
-OLLAMA_BASE_URL = "http://127.0.0.1:11435"
-OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"
 
 # Supported languages for translation
 SUPPORTED_LANGUAGES = {

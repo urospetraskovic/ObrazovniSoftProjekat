@@ -9,22 +9,15 @@ MAXIMUM QUALITY VERSION:
 - Extracts MORE sections and learning objects
 """
 
-import os
 import json
 import re
 import time
 from typing import Dict, List, Any, Optional
-from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 import requests
 
-# Load environment variables
-env_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(env_path)
-
-# Ollama Configuration
-OLLAMA_BASE_URL = "http://127.0.0.1:11435"
-OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"  # High quality model for all tasks
+# Single source of truth for Ollama URL/model lives in backend/config.py
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL
 
 
 class ContentParser:

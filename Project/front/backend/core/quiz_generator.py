@@ -9,7 +9,6 @@ MAXIMUM QUALITY VERSION:
 - No concern for API costs - running locally
 """
 
-import os
 import json
 import re
 import requests
@@ -17,15 +16,9 @@ import hashlib
 import random
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Set
-from dotenv import load_dotenv
 
-# Load environment variables
-env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-load_dotenv(env_path)
-
-# Ollama Configuration
-OLLAMA_BASE_URL = "http://127.0.0.1:11435"
-OLLAMA_MODEL = "qwen2.5:14b-instruct-q4_K_M"
+# Single source of truth for Ollama URL/model lives in backend/config.py
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL
 
 
 class SoloQuizGeneratorLocal:

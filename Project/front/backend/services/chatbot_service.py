@@ -3,21 +3,21 @@ Chatbot Service for Learning Assistant
 Uses Ollama for local processing with offline mode and database queries
 """
 
-import os
 import requests
 import json
 from typing import Optional, List, Dict
-from dotenv import load_dotenv
 
-load_dotenv()
+# Single source of truth for Ollama URL/model lives in backend/config.py
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL
+
 
 class ChatbotService:
     """Learning Assistant Chatbot Service"""
 
     def __init__(self, db_session=None):
         """Initialize chatbot with Ollama support"""
-        self.ollama_url = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
-        self.ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:14b-instruct-q4_K_M")
+        self.ollama_url = OLLAMA_BASE_URL
+        self.ollama_model = OLLAMA_MODEL
         self.max_context_length = 2000
         self.db_session = db_session
         
